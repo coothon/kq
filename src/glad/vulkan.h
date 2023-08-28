@@ -1,3 +1,6 @@
+#ifndef KQ_VULKAN_INCLUDE_H_
+#define KQ_VULKAN_INCLUDE_H_
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 #if KQ_DEBUG
@@ -10,3 +13,5 @@
 #	define gladSetVulkanPostCallback(...)
 #endif
 #pragma clang diagnostic pop
+
+#endif /* KQ_VULKAN_INCLUDE_H_*/

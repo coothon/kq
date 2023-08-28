@@ -12,7 +12,7 @@ LDFLAGS:=$(shell pkg-config --cflags $(LIBS) 2>/dev/null)
 
 # Turn on every warning, and then remove the ones I don't care about.
 WARNS:=-Wall -Wextra -Wshadow -Wunreachable-code -Wconversion -Wsign-conversion -Wformat -Wmissing-braces -Wparentheses -Wreserved-identifier -pedantic \
--Wno-unused-command-line-argument
+-Wno-unused-command-line-argument -Wno-incompatible-pointer-types-discards-qualifiers -Wno-extra-semi
 
 BUILD_DIR:=build
 SRC_DIRS:=src

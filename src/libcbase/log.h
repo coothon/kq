@@ -144,7 +144,6 @@ __attribute__((format(printf, 3, 4))) extern void cb_log_internal_quiet_errno(ui
 #endif /* LIBCBASE_LOG_H_ */
 
 
-#define LIBCBASE_LOG_IMPLEMENTATION
 #ifdef LIBCBASE_LOG_IMPLEMENTATION
 #include <stdarg.h>
 #include <stdio.h>
