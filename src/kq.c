@@ -1,14 +1,12 @@
 #include "kq.h"
 
 #include <GLFW/glfw3.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "libcbase/common.h"
 #include "libcbase/log.h"
 #include "libcbase/vec.h"
 
-#define KQ_OOM_MSG() LOG_MFATAL("Out of memory! (OOM)")
+#define KQ_OOM_MSG() LOGM_FATAL("Out of memory! (OOM)")
 
 #define CB_LOG_MODULE "KQ"
 
@@ -39,10 +37,10 @@ vecstr *kqvk_instance_exts_vec = 0;
 bool KQinit(kq_data kq[static 1]) {
 	glfwSetErrorCallback(kq_callback_glfw_error);
 	if (!glfwInit()) {
-		LOG_MFATAL("GLFW initialization failed.");
+		LOGM_FATAL("GLFW initialization failed.");
 		return false;
 	}
-	LOG_MTRACE("GLFW initialized.");
+	LOGM_TRACE("GLFW initialized.");
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
@@ -52,42 +50,42 @@ bool KQinit(kq_data kq[static 1]) {
 	glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
 	kq->win = glfwCreateWindow(800, 600, "kq", 0, 0);
 	if (!kq->win) {
-		LOG_MFATAL("GLFW window creation failed.");
+		LOGM_FATAL("GLFW window creation failed.");
 		glfwTerminate();
 		return false;
 	}
-	LOG_MTRACE("GLFW window created.");
+	LOGM_TRACE("GLFW window created.");
 
 	glfwSetWindowUserPointer(kq->win, kq);
 
 	kq->vk_ver = gladLoaderLoadVulkan(0, 0, 0);
 	if (!kq->vk_ver) {
-		LOG_MFATAL("GLAD Vulkan loader failed.");
+		LOGM_FATAL("GLAD Vulkan loader failed.");
 		glfwDestroyWindow(kq->win);
 		glfwTerminate();
 		return false;
 	}
-	LOG_MTRACE("Vulkan loaded.");
-	LOG_MINFO("Vulkan %d.%d.", GLAD_VERSION_MAJOR(kq->vk_ver), GLAD_VERSION_MINOR(kq->vk_ver));
+	LOGM_TRACE("Vulkan loaded.");
+	LOGM_INFO("Vulkan %d.%d.", GLAD_VERSION_MAJOR(kq->vk_ver), GLAD_VERSION_MINOR(kq->vk_ver));
 
 	gladInstallVulkanDebug();
 
 #if KQ_DEBUG
-	VkDebugUtilsMessengerCreateInfoEXT dbg_messenger_cinfo = {
-		.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-		.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
-	                         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
-	                         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
-		.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
-	                     | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
-	                     | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-		.pfnUserCallback = kq_callback_vk_debug};
+	VkDebugUtilsMessengerCreateInfoEXT dbg_messenger_cinfo =
+		{.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+	         .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
+	                          | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+	                          | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+	         .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+	                      | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+	                      | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+	         .pfnUserCallback = kq_callback_vk_debug};
 #endif /* KQ_DEBUG */
 
-	VkInstanceCreateInfo instance_cinfo = {
-		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+	VkInstanceCreateInfo instance_cinfo =
+	{.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 #if KQ_DEBUG
-		.pNext = &dbg_messenger_cinfo
+	 .pNext = &dbg_messenger_cinfo
 #endif /* KQ_DEBUG */
 	};
 
@@ -113,7 +111,7 @@ bool KQinit(kq_data kq[static 1]) {
 	}
 
 	if (vkCreateInstance(&instance_cinfo, 0, &kq->vk_ins)) {
-		LOG_MFATAL("Creating VkInstance failed.");
+		LOGM_FATAL("Creating VkInstance failed.");
 		vecstr_destroy(kqvk_instance_exts_vec);
 #if KQ_DEBUG
 		vecstr_destroy(kqvk_validation_layers_vec);
@@ -123,7 +121,7 @@ bool KQinit(kq_data kq[static 1]) {
 		glfwDestroyWindow(kq->win);
 		glfwTerminate();
 	}
-	LOG_MTRACE("VkInstance created.");
+	LOGM_TRACE("VkInstance created.");
 
 	return true;
 }
@@ -172,7 +170,7 @@ static bool kqvk_instance_add_validation_layers(VkInstanceCreateInfo instance_ci
 		}
 
 		if (found) {
-			LOG_MDEBUG("Enabling validation layer %s.", kqvk_wanted_validation_layers[i]);
+			LOGM_DEBUG("Enabling validation layer %s.", kqvk_wanted_validation_layers[i]);
 			if (!vecstr_push_back(kqvk_validation_layers_vec, &kqvk_wanted_validation_layers[i])) {
 				KQ_OOM_MSG();
 				free(avail_layers);
@@ -180,7 +178,7 @@ static bool kqvk_instance_add_validation_layers(VkInstanceCreateInfo instance_ci
 				return false;
 			}
 		} else {
-			LOG_MERROR("Missing validation layer %s.", kqvk_wanted_validation_layers[i]);
+			LOGM_ERROR("Missing validation layer %s.", kqvk_wanted_validation_layers[i]);
 		}
 	}
 	free(avail_layers);
@@ -204,7 +202,7 @@ static bool kqvk_instance_add_extensions(VkInstanceCreateInfo instance_cinfo[sta
 	const char **exts           = glfwGetRequiredInstanceExtensions(&req_exts_count);
 
 	for (u32 i = 0; i < req_exts_count; ++i) {
-		LOG_MDEBUG("Enabling required instance extension %s.", exts[i]);
+		LOGM_DEBUG("Enabling required instance extension %s.", exts[i]);
 		if (!vecstr_push_back(kqvk_instance_exts_vec, &exts[i])) {
 			KQ_OOM_MSG();
 			vecstr_destroy(kqvk_instance_exts_vec);
@@ -213,7 +211,7 @@ static bool kqvk_instance_add_extensions(VkInstanceCreateInfo instance_cinfo[sta
 	}
 
 #if KQ_DEBUG
-	LOG_MDEBUG("Enabling debug instance extension %s.", VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	LOGM_DEBUG("Enabling debug instance extension %s.", VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	const char *dbg_ext = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
 	if (!vecstr_push_back(kqvk_instance_exts_vec, &dbg_ext)) {
 		KQ_OOM_MSG();
@@ -231,7 +229,7 @@ static bool kqvk_instance_add_extensions(VkInstanceCreateInfo instance_cinfo[sta
 #undef CB_LOG_MODULE
 #define CB_LOG_MODULE "GLFW"
 static void kq_callback_glfw_error(int e, const char *desc) {
-	LOG_MERROR("GLFW (error %x): %s", e, desc);
+	LOGM_ERROR("GLFW (error %x): %s", e, desc);
 }
 
 #undef CB_LOG_MODULE
@@ -246,13 +244,13 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL kq_callback_vk_debug(VkDebugUtilsMessageSe
 
 	switch (messageSeverity) {
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-		LOG_MERROR("%s.", pCallbackData->pMessage);
+		LOGM_ERROR("%s.", pCallbackData->pMessage);
 		break;
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-		LOG_MWARN("%s.", pCallbackData->pMessage);
+		LOGM_WARN("%s.", pCallbackData->pMessage);
 		break;
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-		LOG_MDEBUG("%s.", pCallbackData->pMessage);
+		LOGM_DEBUG("%s.", pCallbackData->pMessage);
 		break;
 	default:
 		break;

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define CB_UNUSED(var) ((void)var)
+#define CB_UNUSED(var) (void)(var)
 
 typedef int8_t  s8;
 typedef uint8_t u8;

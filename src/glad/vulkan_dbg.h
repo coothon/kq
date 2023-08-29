@@ -30,12 +30,12 @@
 #define GLAD_VULKAN_H_
 
 #ifdef VULKAN_H_
-#	error header already included (API: vulkan), remove previous include!
+#error header already included (API: vulkan), remove previous include!
 #endif
 #define VULKAN_H_ 1
 
 #ifdef VULKAN_CORE_H_
-#	error header already included (API: vulkan), remove previous include!
+#error header already included (API: vulkan), remove previous include!
 #endif
 #define VULKAN_CORE_H_ 1
 
@@ -51,111 +51,110 @@ extern "C" {
 #endif
 
 #ifndef GLAD_PLATFORM_H_
-#	define GLAD_PLATFORM_H_
+#define GLAD_PLATFORM_H_
 
-#	ifndef GLAD_PLATFORM_WIN32
-#		if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__)
-#			define GLAD_PLATFORM_WIN32 1
-#		else
-#			define GLAD_PLATFORM_WIN32 0
-#		endif
-#	endif
+#ifndef GLAD_PLATFORM_WIN32
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__)
+#define GLAD_PLATFORM_WIN32 1
+#else
+#define GLAD_PLATFORM_WIN32 0
+#endif
+#endif
 
-#	ifndef GLAD_PLATFORM_APPLE
-#		ifdef __APPLE__
-#			define GLAD_PLATFORM_APPLE 1
-#		else
-#			define GLAD_PLATFORM_APPLE 0
-#		endif
-#	endif
+#ifndef GLAD_PLATFORM_APPLE
+#ifdef __APPLE__
+#define GLAD_PLATFORM_APPLE 1
+#else
+#define GLAD_PLATFORM_APPLE 0
+#endif
+#endif
 
-#	ifndef GLAD_PLATFORM_EMSCRIPTEN
-#		ifdef __EMSCRIPTEN__
-#			define GLAD_PLATFORM_EMSCRIPTEN 1
-#		else
-#			define GLAD_PLATFORM_EMSCRIPTEN 0
-#		endif
-#	endif
+#ifndef GLAD_PLATFORM_EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
+#define GLAD_PLATFORM_EMSCRIPTEN 1
+#else
+#define GLAD_PLATFORM_EMSCRIPTEN 0
+#endif
+#endif
 
-#	ifndef GLAD_PLATFORM_UWP
-#		if defined(_MSC_VER) && !defined(GLAD_INTERNAL_HAVE_WINAPIFAMILY)
-#			ifdef __has_include
-#				if __has_include(<winapifamily.h>)
-#					define GLAD_INTERNAL_HAVE_WINAPIFAMILY 1
-#				endif
-#			elif _MSC_VER >= 1700 && !_USING_V110_SDK71_
-#				define GLAD_INTERNAL_HAVE_WINAPIFAMILY 1
-#			endif
-#		endif
+#ifndef GLAD_PLATFORM_UWP
+#if defined(_MSC_VER) && !defined(GLAD_INTERNAL_HAVE_WINAPIFAMILY)
+#ifdef __has_include
+#if __has_include(<winapifamily.h>)
+#define GLAD_INTERNAL_HAVE_WINAPIFAMILY 1
+#endif
+#elif _MSC_VER >= 1700 && !_USING_V110_SDK71_
+#define GLAD_INTERNAL_HAVE_WINAPIFAMILY 1
+#endif
+#endif
 
-#		ifdef GLAD_INTERNAL_HAVE_WINAPIFAMILY
-#			include <winapifamily.h>
-#			if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) \
-				&& WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-#				define GLAD_PLATFORM_UWP 1
-#			endif
-#		endif
+#ifdef GLAD_INTERNAL_HAVE_WINAPIFAMILY
+#include <winapifamily.h>
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#define GLAD_PLATFORM_UWP 1
+#endif
+#endif
 
-#		ifndef GLAD_PLATFORM_UWP
-#			define GLAD_PLATFORM_UWP 0
-#		endif
-#	endif
+#ifndef GLAD_PLATFORM_UWP
+#define GLAD_PLATFORM_UWP 0
+#endif
+#endif
 
-#	ifdef __GNUC__
-#		define GLAD_GNUC_EXTENSION __extension__
-#	else
-#		define GLAD_GNUC_EXTENSION
-#	endif
+#ifdef __GNUC__
+#define GLAD_GNUC_EXTENSION __extension__
+#else
+#define GLAD_GNUC_EXTENSION
+#endif
 
-#	define GLAD_UNUSED(x) (void)(x)
+#define GLAD_UNUSED(x) (void)(x)
 
-#	ifndef GLAD_API_CALL
-#		if defined(GLAD_API_CALL_EXPORT)
-#			if GLAD_PLATFORM_WIN32 || defined(__CYGWIN__)
-#				if defined(GLAD_API_CALL_EXPORT_BUILD)
-#					if defined(__GNUC__)
-#						define GLAD_API_CALL __attribute__((dllexport)) extern
-#					else
-#						define GLAD_API_CALL __declspec(dllexport) extern
-#					endif
-#				else
-#					if defined(__GNUC__)
-#						define GLAD_API_CALL __attribute__((dllimport)) extern
-#					else
-#						define GLAD_API_CALL __declspec(dllimport) extern
-#					endif
-#				endif
-#			elif defined(__GNUC__) && defined(GLAD_API_CALL_EXPORT_BUILD)
-#				define GLAD_API_CALL __attribute__((visibility("default"))) extern
-#			else
-#				define GLAD_API_CALL extern
-#			endif
-#		else
-#			define GLAD_API_CALL extern
-#		endif
-#	endif
+#ifndef GLAD_API_CALL
+#if defined(GLAD_API_CALL_EXPORT)
+#if GLAD_PLATFORM_WIN32 || defined(__CYGWIN__)
+#if defined(GLAD_API_CALL_EXPORT_BUILD)
+#if defined(__GNUC__)
+#define GLAD_API_CALL __attribute__((dllexport)) extern
+#else
+#define GLAD_API_CALL __declspec(dllexport) extern
+#endif
+#else
+#if defined(__GNUC__)
+#define GLAD_API_CALL __attribute__((dllimport)) extern
+#else
+#define GLAD_API_CALL __declspec(dllimport) extern
+#endif
+#endif
+#elif defined(__GNUC__) && defined(GLAD_API_CALL_EXPORT_BUILD)
+#define GLAD_API_CALL __attribute__((visibility("default"))) extern
+#else
+#define GLAD_API_CALL extern
+#endif
+#else
+#define GLAD_API_CALL extern
+#endif
+#endif
 
-#	ifdef APIENTRY
-#		define GLAD_API_PTR APIENTRY
-#	elif GLAD_PLATFORM_WIN32
-#		define GLAD_API_PTR __stdcall
-#	else
-#		define GLAD_API_PTR
-#	endif
+#ifdef APIENTRY
+#define GLAD_API_PTR APIENTRY
+#elif GLAD_PLATFORM_WIN32
+#define GLAD_API_PTR __stdcall
+#else
+#define GLAD_API_PTR
+#endif
 
-#	ifndef GLAPI
-#		define GLAPI GLAD_API_CALL
-#	endif
+#ifndef GLAPI
+#define GLAPI GLAD_API_CALL
+#endif
 
-#	ifndef GLAPIENTRY
-#		define GLAPIENTRY GLAD_API_PTR
-#	endif
+#ifndef GLAPIENTRY
+#define GLAPIENTRY GLAD_API_PTR
+#endif
 
-#	define GLAD_MAKE_VERSION(major, minor) (major * 10000 + minor)
-#	define GLAD_VERSION_MAJOR(version)     (version / 10000)
-#	define GLAD_VERSION_MINOR(version)     (version % 10000)
+#define GLAD_MAKE_VERSION(major, minor) (major * 10000 + minor)
+#define GLAD_VERSION_MAJOR(version)     (version / 10000)
+#define GLAD_VERSION_MINOR(version)     (version % 10000)
 
-#	define GLAD_GENERATOR_VERSION "2.0.4"
+#define GLAD_GENERATOR_VERSION "2.0.4"
 
 typedef void (*GLADapiproc)(void);
 
@@ -210,23 +209,23 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_AMD_TEXTURE_GATHER_BIAS_LOD_EXTENSION_NAME          "VK_AMD_texture_gather_bias_lod"
 #define VK_AMD_TEXTURE_GATHER_BIAS_LOD_SPEC_VERSION            1
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME \
-		"VK_ANDROID_external_memory_android_hardware_buffer"
+#define VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME \
+	"VK_ANDROID_external_memory_android_hardware_buffer"
 
 #endif
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_SPEC_VERSION 5
+#define VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_SPEC_VERSION 5
 
 #endif
 #define VK_ATTACHMENT_UNUSED               (~0U)
 #define VK_EXT_4444_FORMATS_EXTENSION_NAME "VK_EXT_4444_formats"
 #define VK_EXT_4444_FORMATS_SPEC_VERSION   1
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-#	define VK_EXT_ACQUIRE_XLIB_DISPLAY_EXTENSION_NAME "VK_EXT_acquire_xlib_display"
+#define VK_EXT_ACQUIRE_XLIB_DISPLAY_EXTENSION_NAME "VK_EXT_acquire_xlib_display"
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-#	define VK_EXT_ACQUIRE_XLIB_DISPLAY_SPEC_VERSION 1
+#define VK_EXT_ACQUIRE_XLIB_DISPLAY_SPEC_VERSION 1
 
 #endif
 #define VK_EXT_ASTC_DECODE_MODE_EXTENSION_NAME           "VK_EXT_astc_decode_mode"
@@ -256,11 +255,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME        "VK_EXT_descriptor_indexing"
 #define VK_EXT_DESCRIPTOR_INDEXING_SPEC_VERSION          2
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-#	define VK_EXT_DIRECTFB_SURFACE_EXTENSION_NAME "VK_EXT_directfb_surface"
+#define VK_EXT_DIRECTFB_SURFACE_EXTENSION_NAME "VK_EXT_directfb_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-#	define VK_EXT_DIRECTFB_SURFACE_SPEC_VERSION 1
+#define VK_EXT_DIRECTFB_SURFACE_SPEC_VERSION 1
 
 #endif
 #define VK_EXT_DIRECT_MODE_DISPLAY_EXTENSION_NAME       "VK_EXT_direct_mode_display"
@@ -286,11 +285,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME "VK_EXT_fragment_shader_interlock"
 #define VK_EXT_FRAGMENT_SHADER_INTERLOCK_SPEC_VERSION   1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME "VK_EXT_full_screen_exclusive"
+#define VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME "VK_EXT_full_screen_exclusive"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_EXT_FULL_SCREEN_EXCLUSIVE_SPEC_VERSION 4
+#define VK_EXT_FULL_SCREEN_EXCLUSIVE_SPEC_VERSION 4
 
 #endif
 #define VK_EXT_GLOBAL_PRIORITY_EXTENSION_NAME           "VK_EXT_global_priority"
@@ -316,11 +315,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME           "VK_EXT_memory_priority"
 #define VK_EXT_MEMORY_PRIORITY_SPEC_VERSION             1
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-#	define VK_EXT_METAL_SURFACE_EXTENSION_NAME "VK_EXT_metal_surface"
+#define VK_EXT_METAL_SURFACE_EXTENSION_NAME "VK_EXT_metal_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-#	define VK_EXT_METAL_SURFACE_SPEC_VERSION 1
+#define VK_EXT_METAL_SURFACE_SPEC_VERSION 1
 
 #endif
 #define VK_EXT_PCI_BUS_INFO_EXTENSION_NAME                       "VK_EXT_pci_bus_info"
@@ -383,27 +382,27 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_EXT_YCBCR_IMAGE_ARRAYS_SPEC_VERSION                   1
 #define VK_FALSE                                                 0
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-#	define VK_FUCHSIA_IMAGEPIPE_SURFACE_EXTENSION_NAME "VK_FUCHSIA_imagepipe_surface"
+#define VK_FUCHSIA_IMAGEPIPE_SURFACE_EXTENSION_NAME "VK_FUCHSIA_imagepipe_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-#	define VK_FUCHSIA_IMAGEPIPE_SURFACE_SPEC_VERSION 1
+#define VK_FUCHSIA_IMAGEPIPE_SURFACE_SPEC_VERSION 1
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_FRAME_TOKEN_EXTENSION_NAME "VK_GGP_frame_token"
+#define VK_GGP_FRAME_TOKEN_EXTENSION_NAME "VK_GGP_frame_token"
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_FRAME_TOKEN_SPEC_VERSION 1
+#define VK_GGP_FRAME_TOKEN_SPEC_VERSION 1
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_STREAM_DESCRIPTOR_SURFACE_EXTENSION_NAME "VK_GGP_stream_descriptor_surface"
+#define VK_GGP_STREAM_DESCRIPTOR_SURFACE_EXTENSION_NAME "VK_GGP_stream_descriptor_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_STREAM_DESCRIPTOR_SURFACE_SPEC_VERSION 1
+#define VK_GGP_STREAM_DESCRIPTOR_SURFACE_SPEC_VERSION 1
 
 #endif
 #define VK_GOOGLE_DECORATE_STRING_EXTENSION_NAME           "VK_GOOGLE_decorate_string"
@@ -429,11 +428,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_KHR_8BIT_STORAGE_EXTENSION_NAME                 "VK_KHR_8bit_storage"
 #define VK_KHR_8BIT_STORAGE_SPEC_VERSION                   1
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
+#define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_KHR_ANDROID_SURFACE_SPEC_VERSION 6
+#define VK_KHR_ANDROID_SURFACE_SPEC_VERSION 6
 
 #endif
 #define VK_KHR_BIND_MEMORY_2_EXTENSION_NAME               "VK_KHR_bind_memory2"
@@ -469,11 +468,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_KHR_EXTERNAL_FENCE_FD_SPEC_VERSION             1
 #define VK_KHR_EXTERNAL_FENCE_SPEC_VERSION                1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME "VK_KHR_external_fence_win32"
+#define VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME "VK_KHR_external_fence_win32"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_FENCE_WIN32_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_FENCE_WIN32_SPEC_VERSION 1
 
 #endif
 #define VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME "VK_KHR_external_memory_capabilities"
@@ -483,11 +482,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_KHR_EXTERNAL_MEMORY_FD_SPEC_VERSION             1
 #define VK_KHR_EXTERNAL_MEMORY_SPEC_VERSION                1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_KHR_external_memory_win32"
+#define VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_KHR_external_memory_win32"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
 
 #endif
 #define VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME "VK_KHR_external_semaphore_capabilities"
@@ -497,11 +496,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_KHR_EXTERNAL_SEMAPHORE_FD_SPEC_VERSION             1
 #define VK_KHR_EXTERNAL_SEMAPHORE_SPEC_VERSION                1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME "VK_KHR_external_semaphore_win32"
+#define VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME "VK_KHR_external_semaphore_win32"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_SEMAPHORE_WIN32_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_SEMAPHORE_WIN32_SPEC_VERSION 1
 
 #endif
 #define VK_KHR_GET_DISPLAY_PROPERTIES_2_EXTENSION_NAME         "VK_KHR_get_display_properties2"
@@ -585,43 +584,43 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_KHR_VULKAN_MEMORY_MODEL_EXTENSION_NAME              "VK_KHR_vulkan_memory_model"
 #define VK_KHR_VULKAN_MEMORY_MODEL_SPEC_VERSION                3
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-#	define VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME "VK_KHR_wayland_surface"
+#define VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME "VK_KHR_wayland_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-#	define VK_KHR_WAYLAND_SURFACE_SPEC_VERSION 6
+#define VK_KHR_WAYLAND_SURFACE_SPEC_VERSION 6
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_KHR_win32_keyed_mutex"
+#define VK_KHR_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_KHR_win32_keyed_mutex"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_WIN32_KEYED_MUTEX_SPEC_VERSION 1
+#define VK_KHR_WIN32_KEYED_MUTEX_SPEC_VERSION 1
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_WIN32_SURFACE_EXTENSION_NAME "VK_KHR_win32_surface"
+#define VK_KHR_WIN32_SURFACE_EXTENSION_NAME "VK_KHR_win32_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_WIN32_SURFACE_SPEC_VERSION 6
+#define VK_KHR_WIN32_SURFACE_SPEC_VERSION 6
 
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-#	define VK_KHR_XCB_SURFACE_EXTENSION_NAME "VK_KHR_xcb_surface"
+#define VK_KHR_XCB_SURFACE_EXTENSION_NAME "VK_KHR_xcb_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-#	define VK_KHR_XCB_SURFACE_SPEC_VERSION 6
+#define VK_KHR_XCB_SURFACE_SPEC_VERSION 6
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-#	define VK_KHR_XLIB_SURFACE_EXTENSION_NAME "VK_KHR_xlib_surface"
+#define VK_KHR_XLIB_SURFACE_EXTENSION_NAME "VK_KHR_xlib_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-#	define VK_KHR_XLIB_SURFACE_SPEC_VERSION 6
+#define VK_KHR_XLIB_SURFACE_SPEC_VERSION 6
 
 #endif
 #define VK_LOD_CLAMP_NONE                1000.0F
@@ -639,27 +638,27 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_MAX_MEMORY_TYPES              32
 #define VK_MAX_PHYSICAL_DEVICE_NAME_SIZE 256
 #if defined(VK_USE_PLATFORM_IOS_MVK)
-#	define VK_MVK_IOS_SURFACE_EXTENSION_NAME "VK_MVK_ios_surface"
+#define VK_MVK_IOS_SURFACE_EXTENSION_NAME "VK_MVK_ios_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_IOS_MVK)
-#	define VK_MVK_IOS_SURFACE_SPEC_VERSION 3
+#define VK_MVK_IOS_SURFACE_SPEC_VERSION 3
 
 #endif
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
-#	define VK_MVK_MACOS_SURFACE_EXTENSION_NAME "VK_MVK_macos_surface"
+#define VK_MVK_MACOS_SURFACE_EXTENSION_NAME "VK_MVK_macos_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
-#	define VK_MVK_MACOS_SURFACE_SPEC_VERSION 3
+#define VK_MVK_MACOS_SURFACE_SPEC_VERSION 3
 
 #endif
 #if defined(VK_USE_PLATFORM_VI_NN)
-#	define VK_NN_VI_SURFACE_EXTENSION_NAME "VK_NN_vi_surface"
+#define VK_NN_VI_SURFACE_EXTENSION_NAME "VK_NN_vi_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_VI_NN)
-#	define VK_NN_VI_SURFACE_SPEC_VERSION 1
+#define VK_NN_VI_SURFACE_SPEC_VERSION 1
 
 #endif
 #define VK_NVX_IMAGE_VIEW_HANDLE_EXTENSION_NAME                  "VK_NVX_image_view_handle"
@@ -691,11 +690,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_NV_EXTERNAL_MEMORY_EXTENSION_NAME                     "VK_NV_external_memory"
 #define VK_NV_EXTERNAL_MEMORY_SPEC_VERSION                       1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_NV_external_memory_win32"
+#define VK_NV_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_NV_external_memory_win32"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
+#define VK_NV_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
 
 #endif
 #define VK_NV_FILL_RECTANGLE_EXTENSION_NAME                "VK_NV_fill_rectangle"
@@ -735,11 +734,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_NV_VIEWPORT_SWIZZLE_EXTENSION_NAME              "VK_NV_viewport_swizzle"
 #define VK_NV_VIEWPORT_SWIZZLE_SPEC_VERSION                1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_NV_win32_keyed_mutex"
+#define VK_NV_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_NV_win32_keyed_mutex"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_WIN32_KEYED_MUTEX_SPEC_VERSION 2
+#define VK_NV_WIN32_KEYED_MUTEX_SPEC_VERSION 2
 
 #endif
 #define VK_QCOM_RENDER_PASS_SHADER_RESOLVE_EXTENSION_NAME "VK_QCOM_render_pass_shader_resolve"
@@ -773,11 +772,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 
 
 #ifndef VK_PLATFORM_H_
-#	define VK_PLATFORM_H_
+#define VK_PLATFORM_H_
 
-#	ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#	endif /* __cplusplus */
+#endif /* __cplusplus */
 
 /*
 ***************************************************************************************************
@@ -799,34 +798,34 @@ extern "C" {
  * Function declaration:  VKAPI_ATTR void VKAPI_CALL vkCommand(void);
  * Function pointer type: typedef void (VKAPI_PTR *PFN_vkCommand)(void);
  */
-#	if defined(_WIN32)
+#if defined(_WIN32)
 /* On Windows, Vulkan commands use the stdcall convention */
-#		define VKAPI_ATTR
-#		define VKAPI_CALL __stdcall
-#		define VKAPI_PTR  VKAPI_CALL
-#	elif defined(__ANDROID__) && defined(__ARM_ARCH) && __ARM_ARCH < 7
-#		error "Vulkan is not supported for the 'armeabi' NDK ABI"
-#	elif defined(__ANDROID__) && defined(__ARM_ARCH) && __ARM_ARCH >= 7 && defined(__ARM_32BIT_STATE)
+#define VKAPI_ATTR
+#define VKAPI_CALL __stdcall
+#define VKAPI_PTR  VKAPI_CALL
+#elif defined(__ANDROID__) && defined(__ARM_ARCH) && __ARM_ARCH < 7
+#error "Vulkan is not supported for the 'armeabi' NDK ABI"
+#elif defined(__ANDROID__) && defined(__ARM_ARCH) && __ARM_ARCH >= 7 && defined(__ARM_32BIT_STATE)
 /* On Android 32-bit ARM targets, Vulkan functions use the "hardfloat" */
 /* calling convention, i.e. float parameters are passed in registers. This */
 /* is true even if the rest of the application passes floats on the stack, */
 /* as it does by default when compiling for the armeabi-v7a NDK ABI. */
-#		define VKAPI_ATTR __attribute__((pcs("aapcs-vfp")))
-#		define VKAPI_CALL
-#		define VKAPI_PTR VKAPI_ATTR
-#	else
+#define VKAPI_ATTR __attribute__((pcs("aapcs-vfp")))
+#define VKAPI_CALL
+#define VKAPI_PTR VKAPI_ATTR
+#else
 /* On other platforms, use the default calling convention */
-#		define VKAPI_ATTR
-#		define VKAPI_CALL
-#		define VKAPI_PTR
-#	endif
+#define VKAPI_ATTR
+#define VKAPI_CALL
+#define VKAPI_PTR
+#endif
 
-#	if !defined(VK_NO_STDDEF_H)
-#		include <stddef.h>
-#	endif /* !defined(VK_NO_STDDEF_H) */
+#if !defined(VK_NO_STDDEF_H)
+#include <stddef.h>
+#endif /* !defined(VK_NO_STDDEF_H) */
 
-#	if !defined(VK_NO_STDINT_H)
-#		if defined(_MSC_VER) && (_MSC_VER < 1600)
+#if !defined(VK_NO_STDINT_H)
+#if defined(_MSC_VER) && (_MSC_VER < 1600)
 typedef signed __int8    int8_t;
 typedef unsigned __int8  uint8_t;
 typedef signed __int16   int16_t;
@@ -835,48 +834,48 @@ typedef signed __int32   int32_t;
 typedef unsigned __int32 uint32_t;
 typedef signed __int64   int64_t;
 typedef unsigned __int64 uint64_t;
-#		else
-#			include <stdint.h>
-#		endif
-#	endif /* !defined(VK_NO_STDINT_H) */
+#else
+#include <stdint.h>
+#endif
+#endif /* !defined(VK_NO_STDINT_H) */
 
-#	ifdef __cplusplus
-}              /* extern "C" */
-#	endif /* __cplusplus */
+#ifdef __cplusplus
+}      /* extern "C" */
+#endif /* __cplusplus */
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT) || defined(VK_USE_PLATFORM_XLIB_KHR)
-#	include <X11/Xlib.h>
+#include <X11/Xlib.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-#	include <X11/extensions/Xrandr.h>
+#include <X11/extensions/Xrandr.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-#	include <wayland-client.h>
+#include <wayland-client.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR) || defined(VK_USE_PLATFORM_WIN32_KHR) || defined(VK_USE_PLATFORM_WIN32_KHR) \
 	|| defined(VK_USE_PLATFORM_WIN32_KHR) || defined(VK_USE_PLATFORM_WIN32_KHR)                                \
 	|| defined(VK_USE_PLATFORM_WIN32_KHR)
-#	include <windows.h>
+#include <windows.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-#	include <xcb/xcb.h>
+#include <xcb/xcb.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-#	include <directfb.h>
+#include <directfb.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-#	include <zircon/types.h>
+#include <zircon/types.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_GGP) || defined(VK_USE_PLATFORM_GGP)
-#	include <ggp_c/vulkan_types.h>
+#include <ggp_c/vulkan_types.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT) || defined(VK_USE_PLATFORM_XLIB_KHR)
@@ -994,34 +993,33 @@ typedef unsigned __int64 uint64_t;
 #define VK_HEADER_VERSION        262
 #define VK_DEFINE_HANDLE(object) typedef struct object##_T *object;
 #ifndef VK_USE_64_BIT_PTR_DEFINES
-#	if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__)) || defined(_M_X64) \
-		|| defined(__ia64) || defined(_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
-#		define VK_USE_64_BIT_PTR_DEFINES 1
-#	else
-#		define VK_USE_64_BIT_PTR_DEFINES 0
-#	endif
+#if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__)) || defined(_M_X64) \
+	|| defined(__ia64) || defined(_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+#define VK_USE_64_BIT_PTR_DEFINES 1
+#else
+#define VK_USE_64_BIT_PTR_DEFINES 0
+#endif
 #endif
 #ifndef VK_DEFINE_NON_DISPATCHABLE_HANDLE
-#	if (VK_USE_64_BIT_PTR_DEFINES == 1)
-#		if (defined(__cplusplus) && (__cplusplus >= 201103L)) \
-			|| (defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L))
-#			define VK_NULL_HANDLE nullptr
-#		else
-#			define VK_NULL_HANDLE ((void *)0)
-#		endif
-#	else
-#		define VK_NULL_HANDLE 0ULL
-#	endif
+#if (VK_USE_64_BIT_PTR_DEFINES == 1)
+#if (defined(__cplusplus) && (__cplusplus >= 201103L)) || (defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L))
+#define VK_NULL_HANDLE nullptr
+#else
+#define VK_NULL_HANDLE ((void *)0)
+#endif
+#else
+#define VK_NULL_HANDLE 0ULL
+#endif
 #endif
 #ifndef VK_NULL_HANDLE
-#	define VK_NULL_HANDLE 0
+#define VK_NULL_HANDLE 0
 #endif
 #ifndef VK_DEFINE_NON_DISPATCHABLE_HANDLE
-#	if (VK_USE_64_BIT_PTR_DEFINES == 1)
-#		define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
-#	else
-#		define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef uint64_t object;
-#	endif
+#if (VK_USE_64_BIT_PTR_DEFINES == 1)
+#define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
+#else
+#define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef uint64_t object;
+#endif
 #endif
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 struct ANativeWindow;
@@ -1032,11 +1030,11 @@ struct AHardwareBuffer;
 #endif
 
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-#	ifdef __OBJC__
+#ifdef __OBJC__
 @class CAMetalLayer;
-#	else
+#else
 typedef void CAMetalLayer;
-#	endif
+#endif
 #endif
 
 
@@ -9004,14 +9002,14 @@ GLAD_API_CALL int GLAD_VK_AMD_shader_trinary_minmax;
 #define VK_AMD_texture_gather_bias_lod 1
 GLAD_API_CALL int GLAD_VK_AMD_texture_gather_bias_lod;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_ANDROID_external_memory_android_hardware_buffer 1
+#define VK_ANDROID_external_memory_android_hardware_buffer 1
 GLAD_API_CALL int GLAD_VK_ANDROID_external_memory_android_hardware_buffer;
 
 #endif
 #define VK_EXT_4444_formats 1
 GLAD_API_CALL int GLAD_VK_EXT_4444_formats;
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-#	define VK_EXT_acquire_xlib_display 1
+#define VK_EXT_acquire_xlib_display 1
 GLAD_API_CALL int GLAD_VK_EXT_acquire_xlib_display;
 
 #endif
@@ -9044,7 +9042,7 @@ GLAD_API_CALL int GLAD_VK_EXT_descriptor_indexing;
 #define VK_EXT_direct_mode_display 1
 GLAD_API_CALL int GLAD_VK_EXT_direct_mode_display;
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-#	define VK_EXT_directfb_surface 1
+#define VK_EXT_directfb_surface 1
 GLAD_API_CALL int GLAD_VK_EXT_directfb_surface;
 
 #endif
@@ -9069,7 +9067,7 @@ GLAD_API_CALL int GLAD_VK_EXT_fragment_density_map2;
 #define VK_EXT_fragment_shader_interlock 1
 GLAD_API_CALL int GLAD_VK_EXT_fragment_shader_interlock;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_EXT_full_screen_exclusive 1
+#define VK_EXT_full_screen_exclusive 1
 GLAD_API_CALL int GLAD_VK_EXT_full_screen_exclusive;
 
 #endif
@@ -9096,7 +9094,7 @@ GLAD_API_CALL int GLAD_VK_EXT_memory_budget;
 #define VK_EXT_memory_priority 1
 GLAD_API_CALL int GLAD_VK_EXT_memory_priority;
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-#	define VK_EXT_metal_surface 1
+#define VK_EXT_metal_surface 1
 GLAD_API_CALL int GLAD_VK_EXT_metal_surface;
 
 #endif
@@ -9159,17 +9157,17 @@ GLAD_API_CALL int GLAD_VK_EXT_vertex_attribute_divisor;
 #define VK_EXT_ycbcr_image_arrays 1
 GLAD_API_CALL int GLAD_VK_EXT_ycbcr_image_arrays;
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-#	define VK_FUCHSIA_imagepipe_surface 1
+#define VK_FUCHSIA_imagepipe_surface 1
 GLAD_API_CALL int GLAD_VK_FUCHSIA_imagepipe_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_frame_token 1
+#define VK_GGP_frame_token 1
 GLAD_API_CALL int GLAD_VK_GGP_frame_token;
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_stream_descriptor_surface 1
+#define VK_GGP_stream_descriptor_surface 1
 GLAD_API_CALL int GLAD_VK_GGP_stream_descriptor_surface;
 
 #endif
@@ -9194,7 +9192,7 @@ GLAD_API_CALL int GLAD_VK_KHR_16bit_storage;
 #define VK_KHR_8bit_storage 1
 GLAD_API_CALL int GLAD_VK_KHR_8bit_storage;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_KHR_android_surface 1
+#define VK_KHR_android_surface 1
 GLAD_API_CALL int GLAD_VK_KHR_android_surface;
 
 #endif
@@ -9231,7 +9229,7 @@ GLAD_API_CALL int GLAD_VK_KHR_external_fence_capabilities;
 #define VK_KHR_external_fence_fd 1
 GLAD_API_CALL int GLAD_VK_KHR_external_fence_fd;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_external_fence_win32 1
+#define VK_KHR_external_fence_win32 1
 GLAD_API_CALL int GLAD_VK_KHR_external_fence_win32;
 
 #endif
@@ -9242,7 +9240,7 @@ GLAD_API_CALL int GLAD_VK_KHR_external_memory_capabilities;
 #define VK_KHR_external_memory_fd 1
 GLAD_API_CALL int GLAD_VK_KHR_external_memory_fd;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_external_memory_win32 1
+#define VK_KHR_external_memory_win32 1
 GLAD_API_CALL int GLAD_VK_KHR_external_memory_win32;
 
 #endif
@@ -9253,7 +9251,7 @@ GLAD_API_CALL int GLAD_VK_KHR_external_semaphore_capabilities;
 #define VK_KHR_external_semaphore_fd 1
 GLAD_API_CALL int GLAD_VK_KHR_external_semaphore_fd;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_external_semaphore_win32 1
+#define VK_KHR_external_semaphore_win32 1
 GLAD_API_CALL int GLAD_VK_KHR_external_semaphore_win32;
 
 #endif
@@ -9332,42 +9330,42 @@ GLAD_API_CALL int GLAD_VK_KHR_variable_pointers;
 #define VK_KHR_vulkan_memory_model 1
 GLAD_API_CALL int GLAD_VK_KHR_vulkan_memory_model;
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-#	define VK_KHR_wayland_surface 1
+#define VK_KHR_wayland_surface 1
 GLAD_API_CALL int GLAD_VK_KHR_wayland_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_win32_keyed_mutex 1
+#define VK_KHR_win32_keyed_mutex 1
 GLAD_API_CALL int GLAD_VK_KHR_win32_keyed_mutex;
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_win32_surface 1
+#define VK_KHR_win32_surface 1
 GLAD_API_CALL int GLAD_VK_KHR_win32_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-#	define VK_KHR_xcb_surface 1
+#define VK_KHR_xcb_surface 1
 GLAD_API_CALL int GLAD_VK_KHR_xcb_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-#	define VK_KHR_xlib_surface 1
+#define VK_KHR_xlib_surface 1
 GLAD_API_CALL int GLAD_VK_KHR_xlib_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_IOS_MVK)
-#	define VK_MVK_ios_surface 1
+#define VK_MVK_ios_surface 1
 GLAD_API_CALL int GLAD_VK_MVK_ios_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
-#	define VK_MVK_macos_surface 1
+#define VK_MVK_macos_surface 1
 GLAD_API_CALL int GLAD_VK_MVK_macos_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_VI_NN)
-#	define VK_NN_vi_surface 1
+#define VK_NN_vi_surface 1
 GLAD_API_CALL int GLAD_VK_NN_vi_surface;
 
 #endif
@@ -9400,7 +9398,7 @@ GLAD_API_CALL int GLAD_VK_NV_external_memory;
 #define VK_NV_external_memory_capabilities 1
 GLAD_API_CALL int GLAD_VK_NV_external_memory_capabilities;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_external_memory_win32 1
+#define VK_NV_external_memory_win32 1
 GLAD_API_CALL int GLAD_VK_NV_external_memory_win32;
 
 #endif
@@ -9439,7 +9437,7 @@ GLAD_API_CALL int GLAD_VK_NV_viewport_array2;
 #define VK_NV_viewport_swizzle 1
 GLAD_API_CALL int GLAD_VK_NV_viewport_swizzle;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_win32_keyed_mutex 1
+#define VK_NV_win32_keyed_mutex 1
 GLAD_API_CALL int GLAD_VK_NV_win32_keyed_mutex;
 
 #endif
@@ -11184,7 +11182,7 @@ typedef VkResult(GLAD_API_PTR *PFN_vkWaitSemaphoresKHR)(VkDevice                
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkAcquireFullScreenExclusiveModeEXT glad_vkAcquireFullScreenExclusiveModeEXT;
 GLAD_API_CALL PFN_vkAcquireFullScreenExclusiveModeEXT glad_debug_vkAcquireFullScreenExclusiveModeEXT;
-#	define vkAcquireFullScreenExclusiveModeEXT glad_debug_vkAcquireFullScreenExclusiveModeEXT
+#define vkAcquireFullScreenExclusiveModeEXT glad_debug_vkAcquireFullScreenExclusiveModeEXT
 
 #endif
 GLAD_API_CALL PFN_vkAcquireNextImage2KHR glad_vkAcquireNextImage2KHR;
@@ -11202,7 +11200,7 @@ GLAD_API_CALL PFN_vkAcquireProfilingLockKHR glad_debug_vkAcquireProfilingLockKHR
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
 GLAD_API_CALL PFN_vkAcquireXlibDisplayEXT glad_vkAcquireXlibDisplayEXT;
 GLAD_API_CALL PFN_vkAcquireXlibDisplayEXT glad_debug_vkAcquireXlibDisplayEXT;
-#	define vkAcquireXlibDisplayEXT glad_debug_vkAcquireXlibDisplayEXT
+#define vkAcquireXlibDisplayEXT glad_debug_vkAcquireXlibDisplayEXT
 
 #endif
 GLAD_API_CALL PFN_vkAllocateCommandBuffers glad_vkAllocateCommandBuffers;
@@ -11703,7 +11701,7 @@ GLAD_API_CALL PFN_vkCreateAccelerationStructureNV glad_debug_vkCreateAcceleratio
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 GLAD_API_CALL PFN_vkCreateAndroidSurfaceKHR glad_vkCreateAndroidSurfaceKHR;
 GLAD_API_CALL PFN_vkCreateAndroidSurfaceKHR glad_debug_vkCreateAndroidSurfaceKHR;
-#	define vkCreateAndroidSurfaceKHR glad_debug_vkCreateAndroidSurfaceKHR
+#define vkCreateAndroidSurfaceKHR glad_debug_vkCreateAndroidSurfaceKHR
 
 #endif
 GLAD_API_CALL PFN_vkCreateBuffer glad_vkCreateBuffer;
@@ -11745,7 +11743,7 @@ GLAD_API_CALL PFN_vkCreateDevice glad_debug_vkCreateDevice;
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
 GLAD_API_CALL PFN_vkCreateDirectFBSurfaceEXT glad_vkCreateDirectFBSurfaceEXT;
 GLAD_API_CALL PFN_vkCreateDirectFBSurfaceEXT glad_debug_vkCreateDirectFBSurfaceEXT;
-#	define vkCreateDirectFBSurfaceEXT glad_debug_vkCreateDirectFBSurfaceEXT
+#define vkCreateDirectFBSurfaceEXT glad_debug_vkCreateDirectFBSurfaceEXT
 
 #endif
 GLAD_API_CALL PFN_vkCreateDisplayModeKHR glad_vkCreateDisplayModeKHR;
@@ -11772,7 +11770,7 @@ GLAD_API_CALL PFN_vkCreateHeadlessSurfaceEXT glad_debug_vkCreateHeadlessSurfaceE
 #if defined(VK_USE_PLATFORM_IOS_MVK)
 GLAD_API_CALL PFN_vkCreateIOSSurfaceMVK glad_vkCreateIOSSurfaceMVK;
 GLAD_API_CALL PFN_vkCreateIOSSurfaceMVK glad_debug_vkCreateIOSSurfaceMVK;
-#	define vkCreateIOSSurfaceMVK glad_debug_vkCreateIOSSurfaceMVK
+#define vkCreateIOSSurfaceMVK glad_debug_vkCreateIOSSurfaceMVK
 
 #endif
 GLAD_API_CALL PFN_vkCreateImage glad_vkCreateImage;
@@ -11781,7 +11779,7 @@ GLAD_API_CALL PFN_vkCreateImage glad_debug_vkCreateImage;
 #if defined(VK_USE_PLATFORM_FUCHSIA)
 GLAD_API_CALL PFN_vkCreateImagePipeSurfaceFUCHSIA glad_vkCreateImagePipeSurfaceFUCHSIA;
 GLAD_API_CALL PFN_vkCreateImagePipeSurfaceFUCHSIA glad_debug_vkCreateImagePipeSurfaceFUCHSIA;
-#	define vkCreateImagePipeSurfaceFUCHSIA glad_debug_vkCreateImagePipeSurfaceFUCHSIA
+#define vkCreateImagePipeSurfaceFUCHSIA glad_debug_vkCreateImagePipeSurfaceFUCHSIA
 
 #endif
 GLAD_API_CALL PFN_vkCreateImageView glad_vkCreateImageView;
@@ -11796,13 +11794,13 @@ GLAD_API_CALL PFN_vkCreateInstance glad_debug_vkCreateInstance;
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
 GLAD_API_CALL PFN_vkCreateMacOSSurfaceMVK glad_vkCreateMacOSSurfaceMVK;
 GLAD_API_CALL PFN_vkCreateMacOSSurfaceMVK glad_debug_vkCreateMacOSSurfaceMVK;
-#	define vkCreateMacOSSurfaceMVK glad_debug_vkCreateMacOSSurfaceMVK
+#define vkCreateMacOSSurfaceMVK glad_debug_vkCreateMacOSSurfaceMVK
 
 #endif
 #if defined(VK_USE_PLATFORM_METAL_EXT)
 GLAD_API_CALL PFN_vkCreateMetalSurfaceEXT glad_vkCreateMetalSurfaceEXT;
 GLAD_API_CALL PFN_vkCreateMetalSurfaceEXT glad_debug_vkCreateMetalSurfaceEXT;
-#	define vkCreateMetalSurfaceEXT glad_debug_vkCreateMetalSurfaceEXT
+#define vkCreateMetalSurfaceEXT glad_debug_vkCreateMetalSurfaceEXT
 
 #endif
 GLAD_API_CALL PFN_vkCreatePipelineCache glad_vkCreatePipelineCache;
@@ -11853,7 +11851,7 @@ GLAD_API_CALL PFN_vkCreateSharedSwapchainsKHR glad_debug_vkCreateSharedSwapchain
 #if defined(VK_USE_PLATFORM_GGP)
 GLAD_API_CALL PFN_vkCreateStreamDescriptorSurfaceGGP glad_vkCreateStreamDescriptorSurfaceGGP;
 GLAD_API_CALL PFN_vkCreateStreamDescriptorSurfaceGGP glad_debug_vkCreateStreamDescriptorSurfaceGGP;
-#	define vkCreateStreamDescriptorSurfaceGGP glad_debug_vkCreateStreamDescriptorSurfaceGGP
+#define vkCreateStreamDescriptorSurfaceGGP glad_debug_vkCreateStreamDescriptorSurfaceGGP
 
 #endif
 GLAD_API_CALL PFN_vkCreateSwapchainKHR glad_vkCreateSwapchainKHR;
@@ -11865,31 +11863,31 @@ GLAD_API_CALL PFN_vkCreateValidationCacheEXT glad_debug_vkCreateValidationCacheE
 #if defined(VK_USE_PLATFORM_VI_NN)
 GLAD_API_CALL PFN_vkCreateViSurfaceNN glad_vkCreateViSurfaceNN;
 GLAD_API_CALL PFN_vkCreateViSurfaceNN glad_debug_vkCreateViSurfaceNN;
-#	define vkCreateViSurfaceNN glad_debug_vkCreateViSurfaceNN
+#define vkCreateViSurfaceNN glad_debug_vkCreateViSurfaceNN
 
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
 GLAD_API_CALL PFN_vkCreateWaylandSurfaceKHR glad_vkCreateWaylandSurfaceKHR;
 GLAD_API_CALL PFN_vkCreateWaylandSurfaceKHR glad_debug_vkCreateWaylandSurfaceKHR;
-#	define vkCreateWaylandSurfaceKHR glad_debug_vkCreateWaylandSurfaceKHR
+#define vkCreateWaylandSurfaceKHR glad_debug_vkCreateWaylandSurfaceKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkCreateWin32SurfaceKHR glad_vkCreateWin32SurfaceKHR;
 GLAD_API_CALL PFN_vkCreateWin32SurfaceKHR glad_debug_vkCreateWin32SurfaceKHR;
-#	define vkCreateWin32SurfaceKHR glad_debug_vkCreateWin32SurfaceKHR
+#define vkCreateWin32SurfaceKHR glad_debug_vkCreateWin32SurfaceKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
 GLAD_API_CALL PFN_vkCreateXcbSurfaceKHR glad_vkCreateXcbSurfaceKHR;
 GLAD_API_CALL PFN_vkCreateXcbSurfaceKHR glad_debug_vkCreateXcbSurfaceKHR;
-#	define vkCreateXcbSurfaceKHR glad_debug_vkCreateXcbSurfaceKHR
+#define vkCreateXcbSurfaceKHR glad_debug_vkCreateXcbSurfaceKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
 GLAD_API_CALL PFN_vkCreateXlibSurfaceKHR glad_vkCreateXlibSurfaceKHR;
 GLAD_API_CALL PFN_vkCreateXlibSurfaceKHR glad_debug_vkCreateXlibSurfaceKHR;
-#	define vkCreateXlibSurfaceKHR glad_debug_vkCreateXlibSurfaceKHR
+#define vkCreateXlibSurfaceKHR glad_debug_vkCreateXlibSurfaceKHR
 
 #endif
 GLAD_API_CALL PFN_vkDebugMarkerSetObjectNameEXT glad_vkDebugMarkerSetObjectNameEXT;
@@ -12067,7 +12065,7 @@ GLAD_API_CALL PFN_vkGetAccelerationStructureMemoryRequirementsNV
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 GLAD_API_CALL PFN_vkGetAndroidHardwareBufferPropertiesANDROID glad_vkGetAndroidHardwareBufferPropertiesANDROID;
 GLAD_API_CALL PFN_vkGetAndroidHardwareBufferPropertiesANDROID glad_debug_vkGetAndroidHardwareBufferPropertiesANDROID;
-#	define vkGetAndroidHardwareBufferPropertiesANDROID glad_debug_vkGetAndroidHardwareBufferPropertiesANDROID
+#define vkGetAndroidHardwareBufferPropertiesANDROID glad_debug_vkGetAndroidHardwareBufferPropertiesANDROID
 
 #endif
 GLAD_API_CALL PFN_vkGetBufferDeviceAddress glad_vkGetBufferDeviceAddress;
@@ -12121,7 +12119,7 @@ GLAD_API_CALL PFN_vkGetDeviceGroupPresentCapabilitiesKHR glad_debug_vkGetDeviceG
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetDeviceGroupSurfacePresentModes2EXT glad_vkGetDeviceGroupSurfacePresentModes2EXT;
 GLAD_API_CALL PFN_vkGetDeviceGroupSurfacePresentModes2EXT glad_debug_vkGetDeviceGroupSurfacePresentModes2EXT;
-#	define vkGetDeviceGroupSurfacePresentModes2EXT glad_debug_vkGetDeviceGroupSurfacePresentModes2EXT
+#define vkGetDeviceGroupSurfacePresentModes2EXT glad_debug_vkGetDeviceGroupSurfacePresentModes2EXT
 
 #endif
 GLAD_API_CALL PFN_vkGetDeviceGroupSurfacePresentModesKHR glad_vkGetDeviceGroupSurfacePresentModesKHR;
@@ -12172,7 +12170,7 @@ GLAD_API_CALL PFN_vkGetFenceStatus glad_debug_vkGetFenceStatus;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetFenceWin32HandleKHR glad_vkGetFenceWin32HandleKHR;
 GLAD_API_CALL PFN_vkGetFenceWin32HandleKHR glad_debug_vkGetFenceWin32HandleKHR;
-#	define vkGetFenceWin32HandleKHR glad_debug_vkGetFenceWin32HandleKHR
+#define vkGetFenceWin32HandleKHR glad_debug_vkGetFenceWin32HandleKHR
 
 #endif
 GLAD_API_CALL PFN_vkGetGeneratedCommandsMemoryRequirementsNV glad_vkGetGeneratedCommandsMemoryRequirementsNV;
@@ -12214,7 +12212,7 @@ GLAD_API_CALL PFN_vkGetInstanceProcAddr glad_debug_vkGetInstanceProcAddr;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 GLAD_API_CALL PFN_vkGetMemoryAndroidHardwareBufferANDROID glad_vkGetMemoryAndroidHardwareBufferANDROID;
 GLAD_API_CALL PFN_vkGetMemoryAndroidHardwareBufferANDROID glad_debug_vkGetMemoryAndroidHardwareBufferANDROID;
-#	define vkGetMemoryAndroidHardwareBufferANDROID glad_debug_vkGetMemoryAndroidHardwareBufferANDROID
+#define vkGetMemoryAndroidHardwareBufferANDROID glad_debug_vkGetMemoryAndroidHardwareBufferANDROID
 
 #endif
 GLAD_API_CALL PFN_vkGetMemoryFdKHR glad_vkGetMemoryFdKHR;
@@ -12229,19 +12227,19 @@ GLAD_API_CALL PFN_vkGetMemoryHostPointerPropertiesEXT glad_debug_vkGetMemoryHost
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetMemoryWin32HandleKHR glad_vkGetMemoryWin32HandleKHR;
 GLAD_API_CALL PFN_vkGetMemoryWin32HandleKHR glad_debug_vkGetMemoryWin32HandleKHR;
-#	define vkGetMemoryWin32HandleKHR glad_debug_vkGetMemoryWin32HandleKHR
+#define vkGetMemoryWin32HandleKHR glad_debug_vkGetMemoryWin32HandleKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetMemoryWin32HandleNV glad_vkGetMemoryWin32HandleNV;
 GLAD_API_CALL PFN_vkGetMemoryWin32HandleNV glad_debug_vkGetMemoryWin32HandleNV;
-#	define vkGetMemoryWin32HandleNV glad_debug_vkGetMemoryWin32HandleNV
+#define vkGetMemoryWin32HandleNV glad_debug_vkGetMemoryWin32HandleNV
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetMemoryWin32HandlePropertiesKHR glad_vkGetMemoryWin32HandlePropertiesKHR;
 GLAD_API_CALL PFN_vkGetMemoryWin32HandlePropertiesKHR glad_debug_vkGetMemoryWin32HandlePropertiesKHR;
-#	define vkGetMemoryWin32HandlePropertiesKHR glad_debug_vkGetMemoryWin32HandlePropertiesKHR
+#define vkGetMemoryWin32HandlePropertiesKHR glad_debug_vkGetMemoryWin32HandlePropertiesKHR
 
 #endif
 GLAD_API_CALL PFN_vkGetPastPresentationTimingGOOGLE glad_vkGetPastPresentationTimingGOOGLE;
@@ -12264,8 +12262,7 @@ GLAD_API_CALL PFN_vkGetPhysicalDeviceDirectFBPresentationSupportEXT
 	glad_vkGetPhysicalDeviceDirectFBPresentationSupportEXT;
 GLAD_API_CALL PFN_vkGetPhysicalDeviceDirectFBPresentationSupportEXT
 	glad_debug_vkGetPhysicalDeviceDirectFBPresentationSupportEXT;
-#	define vkGetPhysicalDeviceDirectFBPresentationSupportEXT \
-		glad_debug_vkGetPhysicalDeviceDirectFBPresentationSupportEXT
+#define vkGetPhysicalDeviceDirectFBPresentationSupportEXT glad_debug_vkGetPhysicalDeviceDirectFBPresentationSupportEXT
 
 #endif
 GLAD_API_CALL PFN_vkGetPhysicalDeviceDisplayPlaneProperties2KHR glad_vkGetPhysicalDeviceDisplayPlaneProperties2KHR;
@@ -12412,7 +12409,7 @@ GLAD_API_CALL PFN_vkGetPhysicalDeviceSurfaceFormatsKHR glad_debug_vkGetPhysicalD
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT glad_vkGetPhysicalDeviceSurfacePresentModes2EXT;
 GLAD_API_CALL PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT glad_debug_vkGetPhysicalDeviceSurfacePresentModes2EXT;
-#	define vkGetPhysicalDeviceSurfacePresentModes2EXT glad_debug_vkGetPhysicalDeviceSurfacePresentModes2EXT
+#define vkGetPhysicalDeviceSurfacePresentModes2EXT glad_debug_vkGetPhysicalDeviceSurfacePresentModes2EXT
 
 #endif
 GLAD_API_CALL PFN_vkGetPhysicalDeviceSurfacePresentModesKHR glad_vkGetPhysicalDeviceSurfacePresentModesKHR;
@@ -12429,28 +12426,27 @@ GLAD_API_CALL PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR
 	glad_vkGetPhysicalDeviceWaylandPresentationSupportKHR;
 GLAD_API_CALL PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR
 	glad_debug_vkGetPhysicalDeviceWaylandPresentationSupportKHR;
-#	define vkGetPhysicalDeviceWaylandPresentationSupportKHR \
-		glad_debug_vkGetPhysicalDeviceWaylandPresentationSupportKHR
+#define vkGetPhysicalDeviceWaylandPresentationSupportKHR glad_debug_vkGetPhysicalDeviceWaylandPresentationSupportKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR glad_vkGetPhysicalDeviceWin32PresentationSupportKHR;
 GLAD_API_CALL PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR
 	glad_debug_vkGetPhysicalDeviceWin32PresentationSupportKHR;
-#	define vkGetPhysicalDeviceWin32PresentationSupportKHR glad_debug_vkGetPhysicalDeviceWin32PresentationSupportKHR
+#define vkGetPhysicalDeviceWin32PresentationSupportKHR glad_debug_vkGetPhysicalDeviceWin32PresentationSupportKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
 GLAD_API_CALL PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR glad_vkGetPhysicalDeviceXcbPresentationSupportKHR;
 GLAD_API_CALL PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR glad_debug_vkGetPhysicalDeviceXcbPresentationSupportKHR;
-#	define vkGetPhysicalDeviceXcbPresentationSupportKHR glad_debug_vkGetPhysicalDeviceXcbPresentationSupportKHR
+#define vkGetPhysicalDeviceXcbPresentationSupportKHR glad_debug_vkGetPhysicalDeviceXcbPresentationSupportKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
 GLAD_API_CALL PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR glad_vkGetPhysicalDeviceXlibPresentationSupportKHR;
 GLAD_API_CALL PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR
 	glad_debug_vkGetPhysicalDeviceXlibPresentationSupportKHR;
-#	define vkGetPhysicalDeviceXlibPresentationSupportKHR glad_debug_vkGetPhysicalDeviceXlibPresentationSupportKHR
+#define vkGetPhysicalDeviceXlibPresentationSupportKHR glad_debug_vkGetPhysicalDeviceXlibPresentationSupportKHR
 
 #endif
 GLAD_API_CALL PFN_vkGetPipelineCacheData glad_vkGetPipelineCacheData;
@@ -12479,7 +12475,7 @@ GLAD_API_CALL PFN_vkGetQueueCheckpointDataNV glad_debug_vkGetQueueCheckpointData
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
 GLAD_API_CALL PFN_vkGetRandROutputDisplayEXT glad_vkGetRandROutputDisplayEXT;
 GLAD_API_CALL PFN_vkGetRandROutputDisplayEXT glad_debug_vkGetRandROutputDisplayEXT;
-#	define vkGetRandROutputDisplayEXT glad_debug_vkGetRandROutputDisplayEXT
+#define vkGetRandROutputDisplayEXT glad_debug_vkGetRandROutputDisplayEXT
 
 #endif
 GLAD_API_CALL PFN_vkGetRayTracingShaderGroupHandlesNV glad_vkGetRayTracingShaderGroupHandlesNV;
@@ -12503,7 +12499,7 @@ GLAD_API_CALL PFN_vkGetSemaphoreFdKHR glad_debug_vkGetSemaphoreFdKHR;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetSemaphoreWin32HandleKHR glad_vkGetSemaphoreWin32HandleKHR;
 GLAD_API_CALL PFN_vkGetSemaphoreWin32HandleKHR glad_debug_vkGetSemaphoreWin32HandleKHR;
-#	define vkGetSemaphoreWin32HandleKHR glad_debug_vkGetSemaphoreWin32HandleKHR
+#define vkGetSemaphoreWin32HandleKHR glad_debug_vkGetSemaphoreWin32HandleKHR
 
 #endif
 GLAD_API_CALL PFN_vkGetShaderBinaryDataEXT glad_vkGetShaderBinaryDataEXT;
@@ -12530,7 +12526,7 @@ GLAD_API_CALL PFN_vkImportFenceFdKHR glad_debug_vkImportFenceFdKHR;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkImportFenceWin32HandleKHR glad_vkImportFenceWin32HandleKHR;
 GLAD_API_CALL PFN_vkImportFenceWin32HandleKHR glad_debug_vkImportFenceWin32HandleKHR;
-#	define vkImportFenceWin32HandleKHR glad_debug_vkImportFenceWin32HandleKHR
+#define vkImportFenceWin32HandleKHR glad_debug_vkImportFenceWin32HandleKHR
 
 #endif
 GLAD_API_CALL PFN_vkImportSemaphoreFdKHR glad_vkImportSemaphoreFdKHR;
@@ -12539,7 +12535,7 @@ GLAD_API_CALL PFN_vkImportSemaphoreFdKHR glad_debug_vkImportSemaphoreFdKHR;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkImportSemaphoreWin32HandleKHR glad_vkImportSemaphoreWin32HandleKHR;
 GLAD_API_CALL PFN_vkImportSemaphoreWin32HandleKHR glad_debug_vkImportSemaphoreWin32HandleKHR;
-#	define vkImportSemaphoreWin32HandleKHR glad_debug_vkImportSemaphoreWin32HandleKHR
+#define vkImportSemaphoreWin32HandleKHR glad_debug_vkImportSemaphoreWin32HandleKHR
 
 #endif
 GLAD_API_CALL PFN_vkInitializePerformanceApiINTEL glad_vkInitializePerformanceApiINTEL;
@@ -12593,7 +12589,7 @@ GLAD_API_CALL PFN_vkReleaseDisplayEXT glad_debug_vkReleaseDisplayEXT;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkReleaseFullScreenExclusiveModeEXT glad_vkReleaseFullScreenExclusiveModeEXT;
 GLAD_API_CALL PFN_vkReleaseFullScreenExclusiveModeEXT glad_debug_vkReleaseFullScreenExclusiveModeEXT;
-#	define vkReleaseFullScreenExclusiveModeEXT glad_debug_vkReleaseFullScreenExclusiveModeEXT
+#define vkReleaseFullScreenExclusiveModeEXT glad_debug_vkReleaseFullScreenExclusiveModeEXT
 
 #endif
 GLAD_API_CALL PFN_vkReleasePerformanceConfigurationINTEL glad_vkReleasePerformanceConfigurationINTEL;
@@ -12717,13 +12713,13 @@ GLAD_API_CALL void gladLoaderUnloadVulkan(void);
 #include <string.h>
 
 #ifndef GLAD_IMPL_UTIL_C_
-#	define GLAD_IMPL_UTIL_C_
+#define GLAD_IMPL_UTIL_C_
 
-#	ifdef _MSC_VER
-#		define GLAD_IMPL_UTIL_SSCANF sscanf_s
-#	else
-#		define GLAD_IMPL_UTIL_SSCANF sscanf
-#	endif
+#ifdef _MSC_VER
+#define GLAD_IMPL_UTIL_SSCANF sscanf_s
+#else
+#define GLAD_IMPL_UTIL_SSCANF sscanf
+#endif
 
 #endif /* GLAD_IMPL_UTIL_C_ */
 
@@ -13042,17 +13038,17 @@ static VkResult GLAD_API_PTR            glad_debug_impl_vkAcquireFullScreenExclu
                                                                                             VkSwapchainKHR swapchain) {
         VkResult ret;
         _pre_call_vulkan_callback("vkAcquireFullScreenExclusiveModeEXT",
-                                  (GLADapiproc)glad_vkAcquireFullScreenExclusiveModeEXT,
-                                  2,
-                                  device,
-                                  swapchain);
+	                                     (GLADapiproc)glad_vkAcquireFullScreenExclusiveModeEXT,
+	                                     2,
+	                                     device,
+	                                     swapchain);
         ret = glad_vkAcquireFullScreenExclusiveModeEXT(device, swapchain);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkAcquireFullScreenExclusiveModeEXT",
-                                   (GLADapiproc)glad_vkAcquireFullScreenExclusiveModeEXT,
-                                   2,
-                                   device,
-                                   swapchain);
+	                                      "vkAcquireFullScreenExclusiveModeEXT",
+	                                      (GLADapiproc)glad_vkAcquireFullScreenExclusiveModeEXT,
+	                                      2,
+	                                      device,
+	                                      swapchain);
         return ret;
 }
 PFN_vkAcquireFullScreenExclusiveModeEXT glad_debug_vkAcquireFullScreenExclusiveModeEXT =
@@ -13141,17 +13137,17 @@ static VkResult GLAD_API_PTR  glad_debug_impl_vkAcquireProfilingLockKHR(VkDevice
                                                                         const VkAcquireProfilingLockInfoKHR *pInfo) {
         VkResult ret;
         _pre_call_vulkan_callback("vkAcquireProfilingLockKHR",
-                                  (GLADapiproc)glad_vkAcquireProfilingLockKHR,
-                                  2,
-                                  device,
-                                  pInfo);
+	                           (GLADapiproc)glad_vkAcquireProfilingLockKHR,
+	                           2,
+	                           device,
+	                           pInfo);
         ret = glad_vkAcquireProfilingLockKHR(device, pInfo);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkAcquireProfilingLockKHR",
-                                   (GLADapiproc)glad_vkAcquireProfilingLockKHR,
-                                   2,
-                                   device,
-                                   pInfo);
+	                            "vkAcquireProfilingLockKHR",
+	                            (GLADapiproc)glad_vkAcquireProfilingLockKHR,
+	                            2,
+	                            device,
+	                            pInfo);
         return ret;
 }
 PFN_vkAcquireProfilingLockKHR glad_debug_vkAcquireProfilingLockKHR = glad_debug_impl_vkAcquireProfilingLockKHR;
@@ -13435,17 +13431,17 @@ static void GLAD_API_PTR              glad_debug_impl_vkCmdBeginConditionalRende
                                                                                         const VkConditionalRenderingBeginInfoEXT
                                                                                                 *pConditionalRenderingBegin) {
         _pre_call_vulkan_callback("vkCmdBeginConditionalRenderingEXT",
-                                  (GLADapiproc)glad_vkCmdBeginConditionalRenderingEXT,
-                                  2,
-                                  commandBuffer,
-                                  pConditionalRenderingBegin);
+	                                       (GLADapiproc)glad_vkCmdBeginConditionalRenderingEXT,
+	                                       2,
+	                                       commandBuffer,
+	                                       pConditionalRenderingBegin);
         glad_vkCmdBeginConditionalRenderingEXT(commandBuffer, pConditionalRenderingBegin);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBeginConditionalRenderingEXT",
-                                   (GLADapiproc)glad_vkCmdBeginConditionalRenderingEXT,
-                                   2,
-                                   commandBuffer,
-                                   pConditionalRenderingBegin);
+	                                        "vkCmdBeginConditionalRenderingEXT",
+	                                        (GLADapiproc)glad_vkCmdBeginConditionalRenderingEXT,
+	                                        2,
+	                                        commandBuffer,
+	                                        pConditionalRenderingBegin);
 }
 PFN_vkCmdBeginConditionalRenderingEXT glad_debug_vkCmdBeginConditionalRenderingEXT =
 	glad_debug_impl_vkCmdBeginConditionalRenderingEXT;
@@ -13453,17 +13449,17 @@ PFN_vkCmdBeginDebugUtilsLabelEXT glad_vkCmdBeginDebugUtilsLabelEXT = NULL;
 static void GLAD_API_PTR         glad_debug_impl_vkCmdBeginDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
                                                                               const VkDebugUtilsLabelEXT *pLabelInfo) {
         _pre_call_vulkan_callback("vkCmdBeginDebugUtilsLabelEXT",
-                                  (GLADapiproc)glad_vkCmdBeginDebugUtilsLabelEXT,
-                                  2,
-                                  commandBuffer,
-                                  pLabelInfo);
+	                                  (GLADapiproc)glad_vkCmdBeginDebugUtilsLabelEXT,
+	                                  2,
+	                                  commandBuffer,
+	                                  pLabelInfo);
         glad_vkCmdBeginDebugUtilsLabelEXT(commandBuffer, pLabelInfo);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBeginDebugUtilsLabelEXT",
-                                   (GLADapiproc)glad_vkCmdBeginDebugUtilsLabelEXT,
-                                   2,
-                                   commandBuffer,
-                                   pLabelInfo);
+	                                   "vkCmdBeginDebugUtilsLabelEXT",
+	                                   (GLADapiproc)glad_vkCmdBeginDebugUtilsLabelEXT,
+	                                   2,
+	                                   commandBuffer,
+	                                   pLabelInfo);
 }
 PFN_vkCmdBeginDebugUtilsLabelEXT glad_debug_vkCmdBeginDebugUtilsLabelEXT = glad_debug_impl_vkCmdBeginDebugUtilsLabelEXT;
 PFN_vkCmdBeginQuery              glad_vkCmdBeginQuery                    = NULL;
@@ -13472,21 +13468,21 @@ static void GLAD_API_PTR         glad_debug_impl_vkCmdBeginQuery(VkCommandBuffer
                                                                  uint32_t            query,
                                                                  VkQueryControlFlags flags) {
         _pre_call_vulkan_callback("vkCmdBeginQuery",
-                                  (GLADapiproc)glad_vkCmdBeginQuery,
-                                  4,
-                                  commandBuffer,
-                                  queryPool,
-                                  query,
-                                  flags);
+	                                  (GLADapiproc)glad_vkCmdBeginQuery,
+	                                  4,
+	                                  commandBuffer,
+	                                  queryPool,
+	                                  query,
+	                                  flags);
         glad_vkCmdBeginQuery(commandBuffer, queryPool, query, flags);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBeginQuery",
-                                   (GLADapiproc)glad_vkCmdBeginQuery,
-                                   4,
-                                   commandBuffer,
-                                   queryPool,
-                                   query,
-                                   flags);
+	                                   "vkCmdBeginQuery",
+	                                   (GLADapiproc)glad_vkCmdBeginQuery,
+	                                   4,
+	                                   commandBuffer,
+	                                   queryPool,
+	                                   query,
+	                                   flags);
 }
 PFN_vkCmdBeginQuery           glad_debug_vkCmdBeginQuery     = glad_debug_impl_vkCmdBeginQuery;
 PFN_vkCmdBeginQueryIndexedEXT glad_vkCmdBeginQueryIndexedEXT = NULL;
@@ -13496,23 +13492,23 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdBeginQueryIndexedEXT(VkComman
                                                                         VkQueryControlFlags flags,
                                                                         uint32_t            index) {
         _pre_call_vulkan_callback("vkCmdBeginQueryIndexedEXT",
-                                  (GLADapiproc)glad_vkCmdBeginQueryIndexedEXT,
-                                  5,
-                                  commandBuffer,
-                                  queryPool,
-                                  query,
-                                  flags,
-                                  index);
+	                               (GLADapiproc)glad_vkCmdBeginQueryIndexedEXT,
+	                               5,
+	                               commandBuffer,
+	                               queryPool,
+	                               query,
+	                               flags,
+	                               index);
         glad_vkCmdBeginQueryIndexedEXT(commandBuffer, queryPool, query, flags, index);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBeginQueryIndexedEXT",
-                                   (GLADapiproc)glad_vkCmdBeginQueryIndexedEXT,
-                                   5,
-                                   commandBuffer,
-                                   queryPool,
-                                   query,
-                                   flags,
-                                   index);
+	                                "vkCmdBeginQueryIndexedEXT",
+	                                (GLADapiproc)glad_vkCmdBeginQueryIndexedEXT,
+	                                5,
+	                                commandBuffer,
+	                                queryPool,
+	                                query,
+	                                flags,
+	                                index);
 }
 PFN_vkCmdBeginQueryIndexedEXT glad_debug_vkCmdBeginQueryIndexedEXT = glad_debug_impl_vkCmdBeginQueryIndexedEXT;
 PFN_vkCmdBeginRenderPass      glad_vkCmdBeginRenderPass            = NULL;
@@ -13520,19 +13516,19 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdBeginRenderPass(VkCommandBuff
                                                                    const VkRenderPassBeginInfo *pRenderPassBegin,
                                                                    VkSubpassContents            contents) {
         _pre_call_vulkan_callback("vkCmdBeginRenderPass",
-                                  (GLADapiproc)glad_vkCmdBeginRenderPass,
-                                  3,
-                                  commandBuffer,
-                                  pRenderPassBegin,
-                                  contents);
+	                               (GLADapiproc)glad_vkCmdBeginRenderPass,
+	                               3,
+	                               commandBuffer,
+	                               pRenderPassBegin,
+	                               contents);
         glad_vkCmdBeginRenderPass(commandBuffer, pRenderPassBegin, contents);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBeginRenderPass",
-                                   (GLADapiproc)glad_vkCmdBeginRenderPass,
-                                   3,
-                                   commandBuffer,
-                                   pRenderPassBegin,
-                                   contents);
+	                                "vkCmdBeginRenderPass",
+	                                (GLADapiproc)glad_vkCmdBeginRenderPass,
+	                                3,
+	                                commandBuffer,
+	                                pRenderPassBegin,
+	                                contents);
 }
 PFN_vkCmdBeginRenderPass  glad_debug_vkCmdBeginRenderPass = glad_debug_impl_vkCmdBeginRenderPass;
 PFN_vkCmdBeginRenderPass2 glad_vkCmdBeginRenderPass2      = NULL;
@@ -13540,19 +13536,19 @@ static void GLAD_API_PTR  glad_debug_impl_vkCmdBeginRenderPass2(VkCommandBuffer 
                                                                 const VkRenderPassBeginInfo *pRenderPassBegin,
                                                                 const VkSubpassBeginInfo    *pSubpassBeginInfo) {
         _pre_call_vulkan_callback("vkCmdBeginRenderPass2",
-                                  (GLADapiproc)glad_vkCmdBeginRenderPass2,
-                                  3,
-                                  commandBuffer,
-                                  pRenderPassBegin,
-                                  pSubpassBeginInfo);
+	                           (GLADapiproc)glad_vkCmdBeginRenderPass2,
+	                           3,
+	                           commandBuffer,
+	                           pRenderPassBegin,
+	                           pSubpassBeginInfo);
         glad_vkCmdBeginRenderPass2(commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBeginRenderPass2",
-                                   (GLADapiproc)glad_vkCmdBeginRenderPass2,
-                                   3,
-                                   commandBuffer,
-                                   pRenderPassBegin,
-                                   pSubpassBeginInfo);
+	                            "vkCmdBeginRenderPass2",
+	                            (GLADapiproc)glad_vkCmdBeginRenderPass2,
+	                            3,
+	                            commandBuffer,
+	                            pRenderPassBegin,
+	                            pSubpassBeginInfo);
 }
 PFN_vkCmdBeginRenderPass2    glad_debug_vkCmdBeginRenderPass2 = glad_debug_impl_vkCmdBeginRenderPass2;
 PFN_vkCmdBeginRenderPass2KHR glad_vkCmdBeginRenderPass2KHR    = NULL;
@@ -13560,19 +13556,19 @@ static void GLAD_API_PTR     glad_debug_impl_vkCmdBeginRenderPass2KHR(VkCommandB
                                                                       const VkRenderPassBeginInfo *pRenderPassBegin,
                                                                       const VkSubpassBeginInfo    *pSubpassBeginInfo) {
         _pre_call_vulkan_callback("vkCmdBeginRenderPass2KHR",
-                                  (GLADapiproc)glad_vkCmdBeginRenderPass2KHR,
-                                  3,
-                                  commandBuffer,
-                                  pRenderPassBegin,
-                                  pSubpassBeginInfo);
+	                              (GLADapiproc)glad_vkCmdBeginRenderPass2KHR,
+	                              3,
+	                              commandBuffer,
+	                              pRenderPassBegin,
+	                              pSubpassBeginInfo);
         glad_vkCmdBeginRenderPass2KHR(commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBeginRenderPass2KHR",
-                                   (GLADapiproc)glad_vkCmdBeginRenderPass2KHR,
-                                   3,
-                                   commandBuffer,
-                                   pRenderPassBegin,
-                                   pSubpassBeginInfo);
+	                               "vkCmdBeginRenderPass2KHR",
+	                               (GLADapiproc)glad_vkCmdBeginRenderPass2KHR,
+	                               3,
+	                               commandBuffer,
+	                               pRenderPassBegin,
+	                               pSubpassBeginInfo);
 }
 PFN_vkCmdBeginRenderPass2KHR       glad_debug_vkCmdBeginRenderPass2KHR = glad_debug_impl_vkCmdBeginRenderPass2KHR;
 PFN_vkCmdBeginTransformFeedbackEXT glad_vkCmdBeginTransformFeedbackEXT = NULL;
@@ -13582,27 +13578,27 @@ static void GLAD_API_PTR           glad_debug_impl_vkCmdBeginTransformFeedbackEX
                                                                                   const VkBuffer     *pCounterBuffers,
                                                                                   const VkDeviceSize *pCounterBufferOffsets) {
         _pre_call_vulkan_callback("vkCmdBeginTransformFeedbackEXT",
-                                  (GLADapiproc)glad_vkCmdBeginTransformFeedbackEXT,
-                                  5,
-                                  commandBuffer,
-                                  firstCounterBuffer,
-                                  counterBufferCount,
-                                  pCounterBuffers,
-                                  pCounterBufferOffsets);
+	                                    (GLADapiproc)glad_vkCmdBeginTransformFeedbackEXT,
+	                                    5,
+	                                    commandBuffer,
+	                                    firstCounterBuffer,
+	                                    counterBufferCount,
+	                                    pCounterBuffers,
+	                                    pCounterBufferOffsets);
         glad_vkCmdBeginTransformFeedbackEXT(commandBuffer,
-                                            firstCounterBuffer,
-                                            counterBufferCount,
-                                            pCounterBuffers,
-                                            pCounterBufferOffsets);
+	                                              firstCounterBuffer,
+	                                              counterBufferCount,
+	                                              pCounterBuffers,
+	                                              pCounterBufferOffsets);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBeginTransformFeedbackEXT",
-                                   (GLADapiproc)glad_vkCmdBeginTransformFeedbackEXT,
-                                   5,
-                                   commandBuffer,
-                                   firstCounterBuffer,
-                                   counterBufferCount,
-                                   pCounterBuffers,
-                                   pCounterBufferOffsets);
+	                                     "vkCmdBeginTransformFeedbackEXT",
+	                                     (GLADapiproc)glad_vkCmdBeginTransformFeedbackEXT,
+	                                     5,
+	                                     commandBuffer,
+	                                     firstCounterBuffer,
+	                                     counterBufferCount,
+	                                     pCounterBuffers,
+	                                     pCounterBufferOffsets);
 }
 PFN_vkCmdBeginTransformFeedbackEXT glad_debug_vkCmdBeginTransformFeedbackEXT =
 	glad_debug_impl_vkCmdBeginTransformFeedbackEXT;
@@ -13616,36 +13612,36 @@ static void GLAD_API_PTR    glad_debug_impl_vkCmdBindDescriptorSets(VkCommandBuf
                                                                     uint32_t               dynamicOffsetCount,
                                                                     const uint32_t        *pDynamicOffsets) {
         _pre_call_vulkan_callback("vkCmdBindDescriptorSets",
-                                  (GLADapiproc)glad_vkCmdBindDescriptorSets,
-                                  8,
-                                  commandBuffer,
-                                  pipelineBindPoint,
-                                  layout,
-                                  firstSet,
-                                  descriptorSetCount,
-                                  pDescriptorSets,
-                                  dynamicOffsetCount,
-                                  pDynamicOffsets);
+	                             (GLADapiproc)glad_vkCmdBindDescriptorSets,
+	                             8,
+	                             commandBuffer,
+	                             pipelineBindPoint,
+	                             layout,
+	                             firstSet,
+	                             descriptorSetCount,
+	                             pDescriptorSets,
+	                             dynamicOffsetCount,
+	                             pDynamicOffsets);
         glad_vkCmdBindDescriptorSets(commandBuffer,
-                                     pipelineBindPoint,
-                                     layout,
-                                     firstSet,
-                                     descriptorSetCount,
-                                     pDescriptorSets,
-                                     dynamicOffsetCount,
-                                     pDynamicOffsets);
+	                                pipelineBindPoint,
+	                                layout,
+	                                firstSet,
+	                                descriptorSetCount,
+	                                pDescriptorSets,
+	                                dynamicOffsetCount,
+	                                pDynamicOffsets);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBindDescriptorSets",
-                                   (GLADapiproc)glad_vkCmdBindDescriptorSets,
-                                   8,
-                                   commandBuffer,
-                                   pipelineBindPoint,
-                                   layout,
-                                   firstSet,
-                                   descriptorSetCount,
-                                   pDescriptorSets,
-                                   dynamicOffsetCount,
-                                   pDynamicOffsets);
+	                              "vkCmdBindDescriptorSets",
+	                              (GLADapiproc)glad_vkCmdBindDescriptorSets,
+	                              8,
+	                              commandBuffer,
+	                              pipelineBindPoint,
+	                              layout,
+	                              firstSet,
+	                              descriptorSetCount,
+	                              pDescriptorSets,
+	                              dynamicOffsetCount,
+	                              pDynamicOffsets);
 }
 PFN_vkCmdBindDescriptorSets glad_debug_vkCmdBindDescriptorSets = glad_debug_impl_vkCmdBindDescriptorSets;
 PFN_vkCmdBindIndexBuffer    glad_vkCmdBindIndexBuffer          = NULL;
@@ -13654,21 +13650,21 @@ static void GLAD_API_PTR    glad_debug_impl_vkCmdBindIndexBuffer(VkCommandBuffer
                                                                  VkDeviceSize    offset,
                                                                  VkIndexType     indexType) {
         _pre_call_vulkan_callback("vkCmdBindIndexBuffer",
-                                  (GLADapiproc)glad_vkCmdBindIndexBuffer,
-                                  4,
-                                  commandBuffer,
-                                  buffer,
-                                  offset,
-                                  indexType);
+	                             (GLADapiproc)glad_vkCmdBindIndexBuffer,
+	                             4,
+	                             commandBuffer,
+	                             buffer,
+	                             offset,
+	                             indexType);
         glad_vkCmdBindIndexBuffer(commandBuffer, buffer, offset, indexType);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBindIndexBuffer",
-                                   (GLADapiproc)glad_vkCmdBindIndexBuffer,
-                                   4,
-                                   commandBuffer,
-                                   buffer,
-                                   offset,
-                                   indexType);
+	                              "vkCmdBindIndexBuffer",
+	                              (GLADapiproc)glad_vkCmdBindIndexBuffer,
+	                              4,
+	                              commandBuffer,
+	                              buffer,
+	                              offset,
+	                              indexType);
 }
 PFN_vkCmdBindIndexBuffer glad_debug_vkCmdBindIndexBuffer = glad_debug_impl_vkCmdBindIndexBuffer;
 PFN_vkCmdBindPipeline    glad_vkCmdBindPipeline          = NULL;
@@ -13697,21 +13693,21 @@ static void GLAD_API_PTR           glad_debug_impl_vkCmdBindPipelineShaderGroupN
                                                                                   VkPipeline          pipeline,
                                                                                   uint32_t            groupIndex) {
         _pre_call_vulkan_callback("vkCmdBindPipelineShaderGroupNV",
-                                  (GLADapiproc)glad_vkCmdBindPipelineShaderGroupNV,
-                                  4,
-                                  commandBuffer,
-                                  pipelineBindPoint,
-                                  pipeline,
-                                  groupIndex);
+	                                    (GLADapiproc)glad_vkCmdBindPipelineShaderGroupNV,
+	                                    4,
+	                                    commandBuffer,
+	                                    pipelineBindPoint,
+	                                    pipeline,
+	                                    groupIndex);
         glad_vkCmdBindPipelineShaderGroupNV(commandBuffer, pipelineBindPoint, pipeline, groupIndex);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBindPipelineShaderGroupNV",
-                                   (GLADapiproc)glad_vkCmdBindPipelineShaderGroupNV,
-                                   4,
-                                   commandBuffer,
-                                   pipelineBindPoint,
-                                   pipeline,
-                                   groupIndex);
+	                                     "vkCmdBindPipelineShaderGroupNV",
+	                                     (GLADapiproc)glad_vkCmdBindPipelineShaderGroupNV,
+	                                     4,
+	                                     commandBuffer,
+	                                     pipelineBindPoint,
+	                                     pipeline,
+	                                     groupIndex);
 }
 PFN_vkCmdBindPipelineShaderGroupNV glad_debug_vkCmdBindPipelineShaderGroupNV =
 	glad_debug_impl_vkCmdBindPipelineShaderGroupNV;
@@ -13743,19 +13739,19 @@ static void GLAD_API_PTR        glad_debug_impl_vkCmdBindShadingRateImageNV(VkCo
                                                                             VkImageView     imageView,
                                                                             VkImageLayout   imageLayout) {
         _pre_call_vulkan_callback("vkCmdBindShadingRateImageNV",
-                                  (GLADapiproc)glad_vkCmdBindShadingRateImageNV,
-                                  3,
-                                  commandBuffer,
-                                  imageView,
-                                  imageLayout);
+	                                 (GLADapiproc)glad_vkCmdBindShadingRateImageNV,
+	                                 3,
+	                                 commandBuffer,
+	                                 imageView,
+	                                 imageLayout);
         glad_vkCmdBindShadingRateImageNV(commandBuffer, imageView, imageLayout);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBindShadingRateImageNV",
-                                   (GLADapiproc)glad_vkCmdBindShadingRateImageNV,
-                                   3,
-                                   commandBuffer,
-                                   imageView,
-                                   imageLayout);
+	                                  "vkCmdBindShadingRateImageNV",
+	                                  (GLADapiproc)glad_vkCmdBindShadingRateImageNV,
+	                                  3,
+	                                  commandBuffer,
+	                                  imageView,
+	                                  imageLayout);
 }
 PFN_vkCmdBindShadingRateImageNV glad_debug_vkCmdBindShadingRateImageNV = glad_debug_impl_vkCmdBindShadingRateImageNV;
 PFN_vkCmdBindTransformFeedbackBuffersEXT glad_vkCmdBindTransformFeedbackBuffersEXT = NULL;
@@ -13800,23 +13796,23 @@ static void GLAD_API_PTR   glad_debug_impl_vkCmdBindVertexBuffers(VkCommandBuffe
                                                                   const VkBuffer     *pBuffers,
                                                                   const VkDeviceSize *pOffsets) {
         _pre_call_vulkan_callback("vkCmdBindVertexBuffers",
-                                  (GLADapiproc)glad_vkCmdBindVertexBuffers,
-                                  5,
-                                  commandBuffer,
-                                  firstBinding,
-                                  bindingCount,
-                                  pBuffers,
-                                  pOffsets);
+	                            (GLADapiproc)glad_vkCmdBindVertexBuffers,
+	                            5,
+	                            commandBuffer,
+	                            firstBinding,
+	                            bindingCount,
+	                            pBuffers,
+	                            pOffsets);
         glad_vkCmdBindVertexBuffers(commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBindVertexBuffers",
-                                   (GLADapiproc)glad_vkCmdBindVertexBuffers,
-                                   5,
-                                   commandBuffer,
-                                   firstBinding,
-                                   bindingCount,
-                                   pBuffers,
-                                   pOffsets);
+	                             "vkCmdBindVertexBuffers",
+	                             (GLADapiproc)glad_vkCmdBindVertexBuffers,
+	                             5,
+	                             commandBuffer,
+	                             firstBinding,
+	                             bindingCount,
+	                             pBuffers,
+	                             pOffsets);
 }
 PFN_vkCmdBindVertexBuffers     glad_debug_vkCmdBindVertexBuffers = glad_debug_impl_vkCmdBindVertexBuffers;
 PFN_vkCmdBindVertexBuffers2EXT glad_vkCmdBindVertexBuffers2EXT   = NULL;
@@ -13828,33 +13824,33 @@ static void GLAD_API_PTR       glad_debug_impl_vkCmdBindVertexBuffers2EXT(VkComm
                                                                           const VkDeviceSize *pSizes,
                                                                           const VkDeviceSize *pStrides) {
         _pre_call_vulkan_callback("vkCmdBindVertexBuffers2EXT",
-                                  (GLADapiproc)glad_vkCmdBindVertexBuffers2EXT,
-                                  7,
-                                  commandBuffer,
-                                  firstBinding,
-                                  bindingCount,
-                                  pBuffers,
-                                  pOffsets,
-                                  pSizes,
-                                  pStrides);
+	                                (GLADapiproc)glad_vkCmdBindVertexBuffers2EXT,
+	                                7,
+	                                commandBuffer,
+	                                firstBinding,
+	                                bindingCount,
+	                                pBuffers,
+	                                pOffsets,
+	                                pSizes,
+	                                pStrides);
         glad_vkCmdBindVertexBuffers2EXT(commandBuffer,
-                                        firstBinding,
-                                        bindingCount,
-                                        pBuffers,
-                                        pOffsets,
-                                        pSizes,
-                                        pStrides);
+	                                      firstBinding,
+	                                      bindingCount,
+	                                      pBuffers,
+	                                      pOffsets,
+	                                      pSizes,
+	                                      pStrides);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBindVertexBuffers2EXT",
-                                   (GLADapiproc)glad_vkCmdBindVertexBuffers2EXT,
-                                   7,
-                                   commandBuffer,
-                                   firstBinding,
-                                   bindingCount,
-                                   pBuffers,
-                                   pOffsets,
-                                   pSizes,
-                                   pStrides);
+	                                 "vkCmdBindVertexBuffers2EXT",
+	                                 (GLADapiproc)glad_vkCmdBindVertexBuffers2EXT,
+	                                 7,
+	                                 commandBuffer,
+	                                 firstBinding,
+	                                 bindingCount,
+	                                 pBuffers,
+	                                 pOffsets,
+	                                 pSizes,
+	                                 pStrides);
 }
 PFN_vkCmdBindVertexBuffers2EXT glad_debug_vkCmdBindVertexBuffers2EXT = glad_debug_impl_vkCmdBindVertexBuffers2EXT;
 PFN_vkCmdBlitImage             glad_vkCmdBlitImage                   = NULL;
@@ -13867,36 +13863,36 @@ static void GLAD_API_PTR       glad_debug_impl_vkCmdBlitImage(VkCommandBuffer   
                                                               const VkImageBlit *pRegions,
                                                               VkFilter           filter) {
         _pre_call_vulkan_callback("vkCmdBlitImage",
-                                  (GLADapiproc)glad_vkCmdBlitImage,
-                                  8,
-                                  commandBuffer,
-                                  srcImage,
-                                  srcImageLayout,
-                                  dstImage,
-                                  dstImageLayout,
-                                  regionCount,
-                                  pRegions,
-                                  filter);
+	                                (GLADapiproc)glad_vkCmdBlitImage,
+	                                8,
+	                                commandBuffer,
+	                                srcImage,
+	                                srcImageLayout,
+	                                dstImage,
+	                                dstImageLayout,
+	                                regionCount,
+	                                pRegions,
+	                                filter);
         glad_vkCmdBlitImage(commandBuffer,
-                            srcImage,
-                            srcImageLayout,
-                            dstImage,
-                            dstImageLayout,
-                            regionCount,
-                            pRegions,
-                            filter);
+	                          srcImage,
+	                          srcImageLayout,
+	                          dstImage,
+	                          dstImageLayout,
+	                          regionCount,
+	                          pRegions,
+	                          filter);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBlitImage",
-                                   (GLADapiproc)glad_vkCmdBlitImage,
-                                   8,
-                                   commandBuffer,
-                                   srcImage,
-                                   srcImageLayout,
-                                   dstImage,
-                                   dstImageLayout,
-                                   regionCount,
-                                   pRegions,
-                                   filter);
+	                                 "vkCmdBlitImage",
+	                                 (GLADapiproc)glad_vkCmdBlitImage,
+	                                 8,
+	                                 commandBuffer,
+	                                 srcImage,
+	                                 srcImageLayout,
+	                                 dstImage,
+	                                 dstImageLayout,
+	                                 regionCount,
+	                                 pRegions,
+	                                 filter);
 }
 PFN_vkCmdBlitImage                    glad_debug_vkCmdBlitImage              = glad_debug_impl_vkCmdBlitImage;
 PFN_vkCmdBuildAccelerationStructureNV glad_vkCmdBuildAccelerationStructureNV = NULL;
@@ -13910,39 +13906,39 @@ static void GLAD_API_PTR              glad_debug_impl_vkCmdBuildAccelerationStru
                                                                                         VkBuffer                  scratch,
                                                                                         VkDeviceSize              scratchOffset) {
         _pre_call_vulkan_callback("vkCmdBuildAccelerationStructureNV",
-                                  (GLADapiproc)glad_vkCmdBuildAccelerationStructureNV,
-                                  9,
-                                  commandBuffer,
-                                  pInfo,
-                                  instanceData,
-                                  instanceOffset,
-                                  update,
-                                  dst,
-                                  src,
-                                  scratch,
-                                  scratchOffset);
+	                                       (GLADapiproc)glad_vkCmdBuildAccelerationStructureNV,
+	                                       9,
+	                                       commandBuffer,
+	                                       pInfo,
+	                                       instanceData,
+	                                       instanceOffset,
+	                                       update,
+	                                       dst,
+	                                       src,
+	                                       scratch,
+	                                       scratchOffset);
         glad_vkCmdBuildAccelerationStructureNV(commandBuffer,
-                                               pInfo,
-                                               instanceData,
-                                               instanceOffset,
-                                               update,
-                                               dst,
-                                               src,
-                                               scratch,
-                                               scratchOffset);
+	                                                    pInfo,
+	                                                    instanceData,
+	                                                    instanceOffset,
+	                                                    update,
+	                                                    dst,
+	                                                    src,
+	                                                    scratch,
+	                                                    scratchOffset);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdBuildAccelerationStructureNV",
-                                   (GLADapiproc)glad_vkCmdBuildAccelerationStructureNV,
-                                   9,
-                                   commandBuffer,
-                                   pInfo,
-                                   instanceData,
-                                   instanceOffset,
-                                   update,
-                                   dst,
-                                   src,
-                                   scratch,
-                                   scratchOffset);
+	                                        "vkCmdBuildAccelerationStructureNV",
+	                                        (GLADapiproc)glad_vkCmdBuildAccelerationStructureNV,
+	                                        9,
+	                                        commandBuffer,
+	                                        pInfo,
+	                                        instanceData,
+	                                        instanceOffset,
+	                                        update,
+	                                        dst,
+	                                        src,
+	                                        scratch,
+	                                        scratchOffset);
 }
 PFN_vkCmdBuildAccelerationStructureNV glad_debug_vkCmdBuildAccelerationStructureNV =
 	glad_debug_impl_vkCmdBuildAccelerationStructureNV;
@@ -13953,23 +13949,23 @@ static void GLAD_API_PTR  glad_debug_impl_vkCmdClearAttachments(VkCommandBuffer 
                                                                 uint32_t                 rectCount,
                                                                 const VkClearRect       *pRects) {
         _pre_call_vulkan_callback("vkCmdClearAttachments",
-                                  (GLADapiproc)glad_vkCmdClearAttachments,
-                                  5,
-                                  commandBuffer,
-                                  attachmentCount,
-                                  pAttachments,
-                                  rectCount,
-                                  pRects);
+	                           (GLADapiproc)glad_vkCmdClearAttachments,
+	                           5,
+	                           commandBuffer,
+	                           attachmentCount,
+	                           pAttachments,
+	                           rectCount,
+	                           pRects);
         glad_vkCmdClearAttachments(commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdClearAttachments",
-                                   (GLADapiproc)glad_vkCmdClearAttachments,
-                                   5,
-                                   commandBuffer,
-                                   attachmentCount,
-                                   pAttachments,
-                                   rectCount,
-                                   pRects);
+	                            "vkCmdClearAttachments",
+	                            (GLADapiproc)glad_vkCmdClearAttachments,
+	                            5,
+	                            commandBuffer,
+	                            attachmentCount,
+	                            pAttachments,
+	                            rectCount,
+	                            pRects);
 }
 PFN_vkCmdClearAttachments glad_debug_vkCmdClearAttachments = glad_debug_impl_vkCmdClearAttachments;
 PFN_vkCmdClearColorImage  glad_vkCmdClearColorImage        = NULL;
@@ -13980,25 +13976,25 @@ static void GLAD_API_PTR  glad_debug_impl_vkCmdClearColorImage(VkCommandBuffer  
                                                                uint32_t                       rangeCount,
                                                                const VkImageSubresourceRange *pRanges) {
         _pre_call_vulkan_callback("vkCmdClearColorImage",
-                                  (GLADapiproc)glad_vkCmdClearColorImage,
-                                  6,
-                                  commandBuffer,
-                                  image,
-                                  imageLayout,
-                                  pColor,
-                                  rangeCount,
-                                  pRanges);
+	                           (GLADapiproc)glad_vkCmdClearColorImage,
+	                           6,
+	                           commandBuffer,
+	                           image,
+	                           imageLayout,
+	                           pColor,
+	                           rangeCount,
+	                           pRanges);
         glad_vkCmdClearColorImage(commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdClearColorImage",
-                                   (GLADapiproc)glad_vkCmdClearColorImage,
-                                   6,
-                                   commandBuffer,
-                                   image,
-                                   imageLayout,
-                                   pColor,
-                                   rangeCount,
-                                   pRanges);
+	                            "vkCmdClearColorImage",
+	                            (GLADapiproc)glad_vkCmdClearColorImage,
+	                            6,
+	                            commandBuffer,
+	                            image,
+	                            imageLayout,
+	                            pColor,
+	                            rangeCount,
+	                            pRanges);
 }
 PFN_vkCmdClearColorImage        glad_debug_vkCmdClearColorImage  = glad_debug_impl_vkCmdClearColorImage;
 PFN_vkCmdClearDepthStencilImage glad_vkCmdClearDepthStencilImage = NULL;
@@ -14009,25 +14005,25 @@ static void GLAD_API_PTR        glad_debug_impl_vkCmdClearDepthStencilImage(VkCo
                                                                             uint32_t                        rangeCount,
                                                                             const VkImageSubresourceRange  *pRanges) {
         _pre_call_vulkan_callback("vkCmdClearDepthStencilImage",
-                                  (GLADapiproc)glad_vkCmdClearDepthStencilImage,
-                                  6,
-                                  commandBuffer,
-                                  image,
-                                  imageLayout,
-                                  pDepthStencil,
-                                  rangeCount,
-                                  pRanges);
+	                                 (GLADapiproc)glad_vkCmdClearDepthStencilImage,
+	                                 6,
+	                                 commandBuffer,
+	                                 image,
+	                                 imageLayout,
+	                                 pDepthStencil,
+	                                 rangeCount,
+	                                 pRanges);
         glad_vkCmdClearDepthStencilImage(commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdClearDepthStencilImage",
-                                   (GLADapiproc)glad_vkCmdClearDepthStencilImage,
-                                   6,
-                                   commandBuffer,
-                                   image,
-                                   imageLayout,
-                                   pDepthStencil,
-                                   rangeCount,
-                                   pRanges);
+	                                  "vkCmdClearDepthStencilImage",
+	                                  (GLADapiproc)glad_vkCmdClearDepthStencilImage,
+	                                  6,
+	                                  commandBuffer,
+	                                  image,
+	                                  imageLayout,
+	                                  pDepthStencil,
+	                                  rangeCount,
+	                                  pRanges);
 }
 PFN_vkCmdClearDepthStencilImage glad_debug_vkCmdClearDepthStencilImage = glad_debug_impl_vkCmdClearDepthStencilImage;
 PFN_vkCmdCopyAccelerationStructureNV glad_vkCmdCopyAccelerationStructureNV = NULL;
@@ -14036,21 +14032,21 @@ static void GLAD_API_PTR             glad_debug_impl_vkCmdCopyAccelerationStruct
                                                                                       VkAccelerationStructureNV src,
                                                                                       VkCopyAccelerationStructureModeKHR mode) {
         _pre_call_vulkan_callback("vkCmdCopyAccelerationStructureNV",
-                                  (GLADapiproc)glad_vkCmdCopyAccelerationStructureNV,
-                                  4,
-                                  commandBuffer,
-                                  dst,
-                                  src,
-                                  mode);
+	                                      (GLADapiproc)glad_vkCmdCopyAccelerationStructureNV,
+	                                      4,
+	                                      commandBuffer,
+	                                      dst,
+	                                      src,
+	                                      mode);
         glad_vkCmdCopyAccelerationStructureNV(commandBuffer, dst, src, mode);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdCopyAccelerationStructureNV",
-                                   (GLADapiproc)glad_vkCmdCopyAccelerationStructureNV,
-                                   4,
-                                   commandBuffer,
-                                   dst,
-                                   src,
-                                   mode);
+	                                       "vkCmdCopyAccelerationStructureNV",
+	                                       (GLADapiproc)glad_vkCmdCopyAccelerationStructureNV,
+	                                       4,
+	                                       commandBuffer,
+	                                       dst,
+	                                       src,
+	                                       mode);
 }
 PFN_vkCmdCopyAccelerationStructureNV glad_debug_vkCmdCopyAccelerationStructureNV =
 	glad_debug_impl_vkCmdCopyAccelerationStructureNV;
@@ -14088,25 +14084,25 @@ static void GLAD_API_PTR   glad_debug_impl_vkCmdCopyBufferToImage(VkCommandBuffe
                                                                   uint32_t                 regionCount,
                                                                   const VkBufferImageCopy *pRegions) {
         _pre_call_vulkan_callback("vkCmdCopyBufferToImage",
-                                  (GLADapiproc)glad_vkCmdCopyBufferToImage,
-                                  6,
-                                  commandBuffer,
-                                  srcBuffer,
-                                  dstImage,
-                                  dstImageLayout,
-                                  regionCount,
-                                  pRegions);
+	                            (GLADapiproc)glad_vkCmdCopyBufferToImage,
+	                            6,
+	                            commandBuffer,
+	                            srcBuffer,
+	                            dstImage,
+	                            dstImageLayout,
+	                            regionCount,
+	                            pRegions);
         glad_vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdCopyBufferToImage",
-                                   (GLADapiproc)glad_vkCmdCopyBufferToImage,
-                                   6,
-                                   commandBuffer,
-                                   srcBuffer,
-                                   dstImage,
-                                   dstImageLayout,
-                                   regionCount,
-                                   pRegions);
+	                             "vkCmdCopyBufferToImage",
+	                             (GLADapiproc)glad_vkCmdCopyBufferToImage,
+	                             6,
+	                             commandBuffer,
+	                             srcBuffer,
+	                             dstImage,
+	                             dstImageLayout,
+	                             regionCount,
+	                             pRegions);
 }
 PFN_vkCmdCopyBufferToImage glad_debug_vkCmdCopyBufferToImage = glad_debug_impl_vkCmdCopyBufferToImage;
 PFN_vkCmdCopyImage         glad_vkCmdCopyImage               = NULL;
@@ -14118,27 +14114,27 @@ static void GLAD_API_PTR   glad_debug_impl_vkCmdCopyImage(VkCommandBuffer    com
                                                           uint32_t           regionCount,
                                                           const VkImageCopy *pRegions) {
         _pre_call_vulkan_callback("vkCmdCopyImage",
-                                  (GLADapiproc)glad_vkCmdCopyImage,
-                                  7,
-                                  commandBuffer,
-                                  srcImage,
-                                  srcImageLayout,
-                                  dstImage,
-                                  dstImageLayout,
-                                  regionCount,
-                                  pRegions);
+	                            (GLADapiproc)glad_vkCmdCopyImage,
+	                            7,
+	                            commandBuffer,
+	                            srcImage,
+	                            srcImageLayout,
+	                            dstImage,
+	                            dstImageLayout,
+	                            regionCount,
+	                            pRegions);
         glad_vkCmdCopyImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdCopyImage",
-                                   (GLADapiproc)glad_vkCmdCopyImage,
-                                   7,
-                                   commandBuffer,
-                                   srcImage,
-                                   srcImageLayout,
-                                   dstImage,
-                                   dstImageLayout,
-                                   regionCount,
-                                   pRegions);
+	                             "vkCmdCopyImage",
+	                             (GLADapiproc)glad_vkCmdCopyImage,
+	                             7,
+	                             commandBuffer,
+	                             srcImage,
+	                             srcImageLayout,
+	                             dstImage,
+	                             dstImageLayout,
+	                             regionCount,
+	                             pRegions);
 }
 PFN_vkCmdCopyImage         glad_debug_vkCmdCopyImage   = glad_debug_impl_vkCmdCopyImage;
 PFN_vkCmdCopyImageToBuffer glad_vkCmdCopyImageToBuffer = NULL;
@@ -14149,25 +14145,25 @@ static void GLAD_API_PTR   glad_debug_impl_vkCmdCopyImageToBuffer(VkCommandBuffe
                                                                   uint32_t                 regionCount,
                                                                   const VkBufferImageCopy *pRegions) {
         _pre_call_vulkan_callback("vkCmdCopyImageToBuffer",
-                                  (GLADapiproc)glad_vkCmdCopyImageToBuffer,
-                                  6,
-                                  commandBuffer,
-                                  srcImage,
-                                  srcImageLayout,
-                                  dstBuffer,
-                                  regionCount,
-                                  pRegions);
+	                            (GLADapiproc)glad_vkCmdCopyImageToBuffer,
+	                            6,
+	                            commandBuffer,
+	                            srcImage,
+	                            srcImageLayout,
+	                            dstBuffer,
+	                            regionCount,
+	                            pRegions);
         glad_vkCmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdCopyImageToBuffer",
-                                   (GLADapiproc)glad_vkCmdCopyImageToBuffer,
-                                   6,
-                                   commandBuffer,
-                                   srcImage,
-                                   srcImageLayout,
-                                   dstBuffer,
-                                   regionCount,
-                                   pRegions);
+	                             "vkCmdCopyImageToBuffer",
+	                             (GLADapiproc)glad_vkCmdCopyImageToBuffer,
+	                             6,
+	                             commandBuffer,
+	                             srcImage,
+	                             srcImageLayout,
+	                             dstBuffer,
+	                             regionCount,
+	                             pRegions);
 }
 PFN_vkCmdCopyImageToBuffer    glad_debug_vkCmdCopyImageToBuffer = glad_debug_impl_vkCmdCopyImageToBuffer;
 PFN_vkCmdCopyQueryPoolResults glad_vkCmdCopyQueryPoolResults    = NULL;
@@ -14180,53 +14176,53 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdCopyQueryPoolResults(VkComman
                                                                         VkDeviceSize       stride,
                                                                         VkQueryResultFlags flags) {
         _pre_call_vulkan_callback("vkCmdCopyQueryPoolResults",
-                                  (GLADapiproc)glad_vkCmdCopyQueryPoolResults,
-                                  8,
-                                  commandBuffer,
-                                  queryPool,
-                                  firstQuery,
-                                  queryCount,
-                                  dstBuffer,
-                                  dstOffset,
-                                  stride,
-                                  flags);
+	                               (GLADapiproc)glad_vkCmdCopyQueryPoolResults,
+	                               8,
+	                               commandBuffer,
+	                               queryPool,
+	                               firstQuery,
+	                               queryCount,
+	                               dstBuffer,
+	                               dstOffset,
+	                               stride,
+	                               flags);
         glad_vkCmdCopyQueryPoolResults(commandBuffer,
-                                       queryPool,
-                                       firstQuery,
-                                       queryCount,
-                                       dstBuffer,
-                                       dstOffset,
-                                       stride,
-                                       flags);
+	                                    queryPool,
+	                                    firstQuery,
+	                                    queryCount,
+	                                    dstBuffer,
+	                                    dstOffset,
+	                                    stride,
+	                                    flags);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdCopyQueryPoolResults",
-                                   (GLADapiproc)glad_vkCmdCopyQueryPoolResults,
-                                   8,
-                                   commandBuffer,
-                                   queryPool,
-                                   firstQuery,
-                                   queryCount,
-                                   dstBuffer,
-                                   dstOffset,
-                                   stride,
-                                   flags);
+	                                "vkCmdCopyQueryPoolResults",
+	                                (GLADapiproc)glad_vkCmdCopyQueryPoolResults,
+	                                8,
+	                                commandBuffer,
+	                                queryPool,
+	                                firstQuery,
+	                                queryCount,
+	                                dstBuffer,
+	                                dstOffset,
+	                                stride,
+	                                flags);
 }
 PFN_vkCmdCopyQueryPoolResults glad_debug_vkCmdCopyQueryPoolResults = glad_debug_impl_vkCmdCopyQueryPoolResults;
 PFN_vkCmdDebugMarkerBeginEXT  glad_vkCmdDebugMarkerBeginEXT        = NULL;
 static void GLAD_API_PTR      glad_debug_impl_vkCmdDebugMarkerBeginEXT(VkCommandBuffer                   commandBuffer,
                                                                        const VkDebugMarkerMarkerInfoEXT *pMarkerInfo) {
         _pre_call_vulkan_callback("vkCmdDebugMarkerBeginEXT",
-                                  (GLADapiproc)glad_vkCmdDebugMarkerBeginEXT,
-                                  2,
-                                  commandBuffer,
-                                  pMarkerInfo);
+	                               (GLADapiproc)glad_vkCmdDebugMarkerBeginEXT,
+	                               2,
+	                               commandBuffer,
+	                               pMarkerInfo);
         glad_vkCmdDebugMarkerBeginEXT(commandBuffer, pMarkerInfo);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDebugMarkerBeginEXT",
-                                   (GLADapiproc)glad_vkCmdDebugMarkerBeginEXT,
-                                   2,
-                                   commandBuffer,
-                                   pMarkerInfo);
+	                                "vkCmdDebugMarkerBeginEXT",
+	                                (GLADapiproc)glad_vkCmdDebugMarkerBeginEXT,
+	                                2,
+	                                commandBuffer,
+	                                pMarkerInfo);
 }
 PFN_vkCmdDebugMarkerBeginEXT glad_debug_vkCmdDebugMarkerBeginEXT = glad_debug_impl_vkCmdDebugMarkerBeginEXT;
 PFN_vkCmdDebugMarkerEndEXT   glad_vkCmdDebugMarkerEndEXT         = NULL;
@@ -14234,27 +14230,27 @@ static void GLAD_API_PTR     glad_debug_impl_vkCmdDebugMarkerEndEXT(VkCommandBuf
         _pre_call_vulkan_callback("vkCmdDebugMarkerEndEXT", (GLADapiproc)glad_vkCmdDebugMarkerEndEXT, 1, commandBuffer);
         glad_vkCmdDebugMarkerEndEXT(commandBuffer);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDebugMarkerEndEXT",
-                                   (GLADapiproc)glad_vkCmdDebugMarkerEndEXT,
-                                   1,
-                                   commandBuffer);
+	                               "vkCmdDebugMarkerEndEXT",
+	                               (GLADapiproc)glad_vkCmdDebugMarkerEndEXT,
+	                               1,
+	                               commandBuffer);
 }
 PFN_vkCmdDebugMarkerEndEXT    glad_debug_vkCmdDebugMarkerEndEXT = glad_debug_impl_vkCmdDebugMarkerEndEXT;
 PFN_vkCmdDebugMarkerInsertEXT glad_vkCmdDebugMarkerInsertEXT    = NULL;
 static void GLAD_API_PTR      glad_debug_impl_vkCmdDebugMarkerInsertEXT(VkCommandBuffer                   commandBuffer,
                                                                         const VkDebugMarkerMarkerInfoEXT *pMarkerInfo) {
         _pre_call_vulkan_callback("vkCmdDebugMarkerInsertEXT",
-                                  (GLADapiproc)glad_vkCmdDebugMarkerInsertEXT,
-                                  2,
-                                  commandBuffer,
-                                  pMarkerInfo);
+	                               (GLADapiproc)glad_vkCmdDebugMarkerInsertEXT,
+	                               2,
+	                               commandBuffer,
+	                               pMarkerInfo);
         glad_vkCmdDebugMarkerInsertEXT(commandBuffer, pMarkerInfo);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDebugMarkerInsertEXT",
-                                   (GLADapiproc)glad_vkCmdDebugMarkerInsertEXT,
-                                   2,
-                                   commandBuffer,
-                                   pMarkerInfo);
+	                                "vkCmdDebugMarkerInsertEXT",
+	                                (GLADapiproc)glad_vkCmdDebugMarkerInsertEXT,
+	                                2,
+	                                commandBuffer,
+	                                pMarkerInfo);
 }
 PFN_vkCmdDebugMarkerInsertEXT glad_debug_vkCmdDebugMarkerInsertEXT = glad_debug_impl_vkCmdDebugMarkerInsertEXT;
 PFN_vkCmdDispatch             glad_vkCmdDispatch                   = NULL;
@@ -14263,21 +14259,21 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdDispatch(VkCommandBuffer comm
                                                             uint32_t        groupCountY,
                                                             uint32_t        groupCountZ) {
         _pre_call_vulkan_callback("vkCmdDispatch",
-                                  (GLADapiproc)glad_vkCmdDispatch,
-                                  4,
-                                  commandBuffer,
-                                  groupCountX,
-                                  groupCountY,
-                                  groupCountZ);
+	                               (GLADapiproc)glad_vkCmdDispatch,
+	                               4,
+	                               commandBuffer,
+	                               groupCountX,
+	                               groupCountY,
+	                               groupCountZ);
         glad_vkCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDispatch",
-                                   (GLADapiproc)glad_vkCmdDispatch,
-                                   4,
-                                   commandBuffer,
-                                   groupCountX,
-                                   groupCountY,
-                                   groupCountZ);
+	                                "vkCmdDispatch",
+	                                (GLADapiproc)glad_vkCmdDispatch,
+	                                4,
+	                                commandBuffer,
+	                                groupCountX,
+	                                groupCountY,
+	                                groupCountZ);
 }
 PFN_vkCmdDispatch        glad_debug_vkCmdDispatch = glad_debug_impl_vkCmdDispatch;
 PFN_vkCmdDispatchBase    glad_vkCmdDispatchBase   = NULL;
@@ -14361,19 +14357,19 @@ static void GLAD_API_PTR  glad_debug_impl_vkCmdDispatchIndirect(VkCommandBuffer 
                                                                 VkBuffer        buffer,
                                                                 VkDeviceSize    offset) {
         _pre_call_vulkan_callback("vkCmdDispatchIndirect",
-                                  (GLADapiproc)glad_vkCmdDispatchIndirect,
-                                  3,
-                                  commandBuffer,
-                                  buffer,
-                                  offset);
+	                           (GLADapiproc)glad_vkCmdDispatchIndirect,
+	                           3,
+	                           commandBuffer,
+	                           buffer,
+	                           offset);
         glad_vkCmdDispatchIndirect(commandBuffer, buffer, offset);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDispatchIndirect",
-                                   (GLADapiproc)glad_vkCmdDispatchIndirect,
-                                   3,
-                                   commandBuffer,
-                                   buffer,
-                                   offset);
+	                            "vkCmdDispatchIndirect",
+	                            (GLADapiproc)glad_vkCmdDispatchIndirect,
+	                            3,
+	                            commandBuffer,
+	                            buffer,
+	                            offset);
 }
 PFN_vkCmdDispatchIndirect glad_debug_vkCmdDispatchIndirect = glad_debug_impl_vkCmdDispatchIndirect;
 PFN_vkCmdDraw             glad_vkCmdDraw                   = NULL;
@@ -14383,23 +14379,23 @@ static void GLAD_API_PTR  glad_debug_impl_vkCmdDraw(VkCommandBuffer commandBuffe
                                                     uint32_t        firstVertex,
                                                     uint32_t        firstInstance) {
         _pre_call_vulkan_callback("vkCmdDraw",
-                                  (GLADapiproc)glad_vkCmdDraw,
-                                  5,
-                                  commandBuffer,
-                                  vertexCount,
-                                  instanceCount,
-                                  firstVertex,
-                                  firstInstance);
+	                           (GLADapiproc)glad_vkCmdDraw,
+	                           5,
+	                           commandBuffer,
+	                           vertexCount,
+	                           instanceCount,
+	                           firstVertex,
+	                           firstInstance);
         glad_vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDraw",
-                                   (GLADapiproc)glad_vkCmdDraw,
-                                   5,
-                                   commandBuffer,
-                                   vertexCount,
-                                   instanceCount,
-                                   firstVertex,
-                                   firstInstance);
+	                            "vkCmdDraw",
+	                            (GLADapiproc)glad_vkCmdDraw,
+	                            5,
+	                            commandBuffer,
+	                            vertexCount,
+	                            instanceCount,
+	                            firstVertex,
+	                            firstInstance);
 }
 PFN_vkCmdDraw            glad_debug_vkCmdDraw  = glad_debug_impl_vkCmdDraw;
 PFN_vkCmdDrawIndexed     glad_vkCmdDrawIndexed = NULL;
@@ -14438,23 +14434,23 @@ static void GLAD_API_PTR     glad_debug_impl_vkCmdDrawIndexedIndirect(VkCommandB
                                                                       uint32_t        drawCount,
                                                                       uint32_t        stride) {
         _pre_call_vulkan_callback("vkCmdDrawIndexedIndirect",
-                                  (GLADapiproc)glad_vkCmdDrawIndexedIndirect,
-                                  5,
-                                  commandBuffer,
-                                  buffer,
-                                  offset,
-                                  drawCount,
-                                  stride);
+	                              (GLADapiproc)glad_vkCmdDrawIndexedIndirect,
+	                              5,
+	                              commandBuffer,
+	                              buffer,
+	                              offset,
+	                              drawCount,
+	                              stride);
         glad_vkCmdDrawIndexedIndirect(commandBuffer, buffer, offset, drawCount, stride);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawIndexedIndirect",
-                                   (GLADapiproc)glad_vkCmdDrawIndexedIndirect,
-                                   5,
-                                   commandBuffer,
-                                   buffer,
-                                   offset,
-                                   drawCount,
-                                   stride);
+	                               "vkCmdDrawIndexedIndirect",
+	                               (GLADapiproc)glad_vkCmdDrawIndexedIndirect,
+	                               5,
+	                               commandBuffer,
+	                               buffer,
+	                               offset,
+	                               drawCount,
+	                               stride);
 }
 PFN_vkCmdDrawIndexedIndirect      glad_debug_vkCmdDrawIndexedIndirect = glad_debug_impl_vkCmdDrawIndexedIndirect;
 PFN_vkCmdDrawIndexedIndirectCount glad_vkCmdDrawIndexedIndirectCount  = NULL;
@@ -14466,33 +14462,33 @@ static void GLAD_API_PTR          glad_debug_impl_vkCmdDrawIndexedIndirectCount(
                                                                                 uint32_t        maxDrawCount,
                                                                                 uint32_t        stride) {
         _pre_call_vulkan_callback("vkCmdDrawIndexedIndirectCount",
-                                  (GLADapiproc)glad_vkCmdDrawIndexedIndirectCount,
-                                  7,
-                                  commandBuffer,
-                                  buffer,
-                                  offset,
-                                  countBuffer,
-                                  countBufferOffset,
-                                  maxDrawCount,
-                                  stride);
+	                                   (GLADapiproc)glad_vkCmdDrawIndexedIndirectCount,
+	                                   7,
+	                                   commandBuffer,
+	                                   buffer,
+	                                   offset,
+	                                   countBuffer,
+	                                   countBufferOffset,
+	                                   maxDrawCount,
+	                                   stride);
         glad_vkCmdDrawIndexedIndirectCount(commandBuffer,
-                                           buffer,
-                                           offset,
-                                           countBuffer,
-                                           countBufferOffset,
-                                           maxDrawCount,
-                                           stride);
+	                                            buffer,
+	                                            offset,
+	                                            countBuffer,
+	                                            countBufferOffset,
+	                                            maxDrawCount,
+	                                            stride);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawIndexedIndirectCount",
-                                   (GLADapiproc)glad_vkCmdDrawIndexedIndirectCount,
-                                   7,
-                                   commandBuffer,
-                                   buffer,
-                                   offset,
-                                   countBuffer,
-                                   countBufferOffset,
-                                   maxDrawCount,
-                                   stride);
+	                                    "vkCmdDrawIndexedIndirectCount",
+	                                    (GLADapiproc)glad_vkCmdDrawIndexedIndirectCount,
+	                                    7,
+	                                    commandBuffer,
+	                                    buffer,
+	                                    offset,
+	                                    countBuffer,
+	                                    countBufferOffset,
+	                                    maxDrawCount,
+	                                    stride);
 }
 PFN_vkCmdDrawIndexedIndirectCount glad_debug_vkCmdDrawIndexedIndirectCount =
 	glad_debug_impl_vkCmdDrawIndexedIndirectCount;
@@ -14505,33 +14501,33 @@ static void GLAD_API_PTR             glad_debug_impl_vkCmdDrawIndexedIndirectCou
                                                                                       uint32_t        maxDrawCount,
                                                                                       uint32_t        stride) {
         _pre_call_vulkan_callback("vkCmdDrawIndexedIndirectCountAMD",
-                                  (GLADapiproc)glad_vkCmdDrawIndexedIndirectCountAMD,
-                                  7,
-                                  commandBuffer,
-                                  buffer,
-                                  offset,
-                                  countBuffer,
-                                  countBufferOffset,
-                                  maxDrawCount,
-                                  stride);
+	                                      (GLADapiproc)glad_vkCmdDrawIndexedIndirectCountAMD,
+	                                      7,
+	                                      commandBuffer,
+	                                      buffer,
+	                                      offset,
+	                                      countBuffer,
+	                                      countBufferOffset,
+	                                      maxDrawCount,
+	                                      stride);
         glad_vkCmdDrawIndexedIndirectCountAMD(commandBuffer,
-                                              buffer,
-                                              offset,
-                                              countBuffer,
-                                              countBufferOffset,
-                                              maxDrawCount,
-                                              stride);
+	                                                  buffer,
+	                                                  offset,
+	                                                  countBuffer,
+	                                                  countBufferOffset,
+	                                                  maxDrawCount,
+	                                                  stride);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawIndexedIndirectCountAMD",
-                                   (GLADapiproc)glad_vkCmdDrawIndexedIndirectCountAMD,
-                                   7,
-                                   commandBuffer,
-                                   buffer,
-                                   offset,
-                                   countBuffer,
-                                   countBufferOffset,
-                                   maxDrawCount,
-                                   stride);
+	                                       "vkCmdDrawIndexedIndirectCountAMD",
+	                                       (GLADapiproc)glad_vkCmdDrawIndexedIndirectCountAMD,
+	                                       7,
+	                                       commandBuffer,
+	                                       buffer,
+	                                       offset,
+	                                       countBuffer,
+	                                       countBufferOffset,
+	                                       maxDrawCount,
+	                                       stride);
 }
 PFN_vkCmdDrawIndexedIndirectCountAMD glad_debug_vkCmdDrawIndexedIndirectCountAMD =
 	glad_debug_impl_vkCmdDrawIndexedIndirectCountAMD;
@@ -14544,33 +14540,33 @@ static void GLAD_API_PTR             glad_debug_impl_vkCmdDrawIndexedIndirectCou
                                                                                       uint32_t        maxDrawCount,
                                                                                       uint32_t        stride) {
         _pre_call_vulkan_callback("vkCmdDrawIndexedIndirectCountKHR",
-                                  (GLADapiproc)glad_vkCmdDrawIndexedIndirectCountKHR,
-                                  7,
-                                  commandBuffer,
-                                  buffer,
-                                  offset,
-                                  countBuffer,
-                                  countBufferOffset,
-                                  maxDrawCount,
-                                  stride);
+	                                      (GLADapiproc)glad_vkCmdDrawIndexedIndirectCountKHR,
+	                                      7,
+	                                      commandBuffer,
+	                                      buffer,
+	                                      offset,
+	                                      countBuffer,
+	                                      countBufferOffset,
+	                                      maxDrawCount,
+	                                      stride);
         glad_vkCmdDrawIndexedIndirectCountKHR(commandBuffer,
-                                              buffer,
-                                              offset,
-                                              countBuffer,
-                                              countBufferOffset,
-                                              maxDrawCount,
-                                              stride);
+	                                                  buffer,
+	                                                  offset,
+	                                                  countBuffer,
+	                                                  countBufferOffset,
+	                                                  maxDrawCount,
+	                                                  stride);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawIndexedIndirectCountKHR",
-                                   (GLADapiproc)glad_vkCmdDrawIndexedIndirectCountKHR,
-                                   7,
-                                   commandBuffer,
-                                   buffer,
-                                   offset,
-                                   countBuffer,
-                                   countBufferOffset,
-                                   maxDrawCount,
-                                   stride);
+	                                       "vkCmdDrawIndexedIndirectCountKHR",
+	                                       (GLADapiproc)glad_vkCmdDrawIndexedIndirectCountKHR,
+	                                       7,
+	                                       commandBuffer,
+	                                       buffer,
+	                                       offset,
+	                                       countBuffer,
+	                                       countBufferOffset,
+	                                       maxDrawCount,
+	                                       stride);
 }
 PFN_vkCmdDrawIndexedIndirectCountKHR glad_debug_vkCmdDrawIndexedIndirectCountKHR =
 	glad_debug_impl_vkCmdDrawIndexedIndirectCountKHR;
@@ -14609,33 +14605,33 @@ static void GLAD_API_PTR          glad_debug_impl_vkCmdDrawIndirectByteCountEXT(
                                                                                 uint32_t        counterOffset,
                                                                                 uint32_t        vertexStride) {
         _pre_call_vulkan_callback("vkCmdDrawIndirectByteCountEXT",
-                                  (GLADapiproc)glad_vkCmdDrawIndirectByteCountEXT,
-                                  7,
-                                  commandBuffer,
-                                  instanceCount,
-                                  firstInstance,
-                                  counterBuffer,
-                                  counterBufferOffset,
-                                  counterOffset,
-                                  vertexStride);
+	                                   (GLADapiproc)glad_vkCmdDrawIndirectByteCountEXT,
+	                                   7,
+	                                   commandBuffer,
+	                                   instanceCount,
+	                                   firstInstance,
+	                                   counterBuffer,
+	                                   counterBufferOffset,
+	                                   counterOffset,
+	                                   vertexStride);
         glad_vkCmdDrawIndirectByteCountEXT(commandBuffer,
-                                           instanceCount,
-                                           firstInstance,
-                                           counterBuffer,
-                                           counterBufferOffset,
-                                           counterOffset,
-                                           vertexStride);
+	                                            instanceCount,
+	                                            firstInstance,
+	                                            counterBuffer,
+	                                            counterBufferOffset,
+	                                            counterOffset,
+	                                            vertexStride);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawIndirectByteCountEXT",
-                                   (GLADapiproc)glad_vkCmdDrawIndirectByteCountEXT,
-                                   7,
-                                   commandBuffer,
-                                   instanceCount,
-                                   firstInstance,
-                                   counterBuffer,
-                                   counterBufferOffset,
-                                   counterOffset,
-                                   vertexStride);
+	                                    "vkCmdDrawIndirectByteCountEXT",
+	                                    (GLADapiproc)glad_vkCmdDrawIndirectByteCountEXT,
+	                                    7,
+	                                    commandBuffer,
+	                                    instanceCount,
+	                                    firstInstance,
+	                                    counterBuffer,
+	                                    counterBufferOffset,
+	                                    counterOffset,
+	                                    vertexStride);
 }
 PFN_vkCmdDrawIndirectByteCountEXT glad_debug_vkCmdDrawIndirectByteCountEXT =
 	glad_debug_impl_vkCmdDrawIndirectByteCountEXT;
@@ -14648,33 +14644,33 @@ static void GLAD_API_PTR   glad_debug_impl_vkCmdDrawIndirectCount(VkCommandBuffe
                                                                   uint32_t        maxDrawCount,
                                                                   uint32_t        stride) {
         _pre_call_vulkan_callback("vkCmdDrawIndirectCount",
-                                  (GLADapiproc)glad_vkCmdDrawIndirectCount,
-                                  7,
-                                  commandBuffer,
-                                  buffer,
-                                  offset,
-                                  countBuffer,
-                                  countBufferOffset,
-                                  maxDrawCount,
-                                  stride);
+	                            (GLADapiproc)glad_vkCmdDrawIndirectCount,
+	                            7,
+	                            commandBuffer,
+	                            buffer,
+	                            offset,
+	                            countBuffer,
+	                            countBufferOffset,
+	                            maxDrawCount,
+	                            stride);
         glad_vkCmdDrawIndirectCount(commandBuffer,
-                                    buffer,
-                                    offset,
-                                    countBuffer,
-                                    countBufferOffset,
-                                    maxDrawCount,
-                                    stride);
+	                              buffer,
+	                              offset,
+	                              countBuffer,
+	                              countBufferOffset,
+	                              maxDrawCount,
+	                              stride);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawIndirectCount",
-                                   (GLADapiproc)glad_vkCmdDrawIndirectCount,
-                                   7,
-                                   commandBuffer,
-                                   buffer,
-                                   offset,
-                                   countBuffer,
-                                   countBufferOffset,
-                                   maxDrawCount,
-                                   stride);
+	                             "vkCmdDrawIndirectCount",
+	                             (GLADapiproc)glad_vkCmdDrawIndirectCount,
+	                             7,
+	                             commandBuffer,
+	                             buffer,
+	                             offset,
+	                             countBuffer,
+	                             countBufferOffset,
+	                             maxDrawCount,
+	                             stride);
 }
 PFN_vkCmdDrawIndirectCount    glad_debug_vkCmdDrawIndirectCount = glad_debug_impl_vkCmdDrawIndirectCount;
 PFN_vkCmdDrawIndirectCountAMD glad_vkCmdDrawIndirectCountAMD    = NULL;
@@ -14686,33 +14682,33 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdDrawIndirectCountAMD(VkComman
                                                                         uint32_t        maxDrawCount,
                                                                         uint32_t        stride) {
         _pre_call_vulkan_callback("vkCmdDrawIndirectCountAMD",
-                                  (GLADapiproc)glad_vkCmdDrawIndirectCountAMD,
-                                  7,
-                                  commandBuffer,
-                                  buffer,
-                                  offset,
-                                  countBuffer,
-                                  countBufferOffset,
-                                  maxDrawCount,
-                                  stride);
+	                               (GLADapiproc)glad_vkCmdDrawIndirectCountAMD,
+	                               7,
+	                               commandBuffer,
+	                               buffer,
+	                               offset,
+	                               countBuffer,
+	                               countBufferOffset,
+	                               maxDrawCount,
+	                               stride);
         glad_vkCmdDrawIndirectCountAMD(commandBuffer,
-                                       buffer,
-                                       offset,
-                                       countBuffer,
-                                       countBufferOffset,
-                                       maxDrawCount,
-                                       stride);
+	                                    buffer,
+	                                    offset,
+	                                    countBuffer,
+	                                    countBufferOffset,
+	                                    maxDrawCount,
+	                                    stride);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawIndirectCountAMD",
-                                   (GLADapiproc)glad_vkCmdDrawIndirectCountAMD,
-                                   7,
-                                   commandBuffer,
-                                   buffer,
-                                   offset,
-                                   countBuffer,
-                                   countBufferOffset,
-                                   maxDrawCount,
-                                   stride);
+	                                "vkCmdDrawIndirectCountAMD",
+	                                (GLADapiproc)glad_vkCmdDrawIndirectCountAMD,
+	                                7,
+	                                commandBuffer,
+	                                buffer,
+	                                offset,
+	                                countBuffer,
+	                                countBufferOffset,
+	                                maxDrawCount,
+	                                stride);
 }
 PFN_vkCmdDrawIndirectCountAMD glad_debug_vkCmdDrawIndirectCountAMD = glad_debug_impl_vkCmdDrawIndirectCountAMD;
 PFN_vkCmdDrawIndirectCountKHR glad_vkCmdDrawIndirectCountKHR       = NULL;
@@ -14724,33 +14720,33 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdDrawIndirectCountKHR(VkComman
                                                                         uint32_t        maxDrawCount,
                                                                         uint32_t        stride) {
         _pre_call_vulkan_callback("vkCmdDrawIndirectCountKHR",
-                                  (GLADapiproc)glad_vkCmdDrawIndirectCountKHR,
-                                  7,
-                                  commandBuffer,
-                                  buffer,
-                                  offset,
-                                  countBuffer,
-                                  countBufferOffset,
-                                  maxDrawCount,
-                                  stride);
+	                               (GLADapiproc)glad_vkCmdDrawIndirectCountKHR,
+	                               7,
+	                               commandBuffer,
+	                               buffer,
+	                               offset,
+	                               countBuffer,
+	                               countBufferOffset,
+	                               maxDrawCount,
+	                               stride);
         glad_vkCmdDrawIndirectCountKHR(commandBuffer,
-                                       buffer,
-                                       offset,
-                                       countBuffer,
-                                       countBufferOffset,
-                                       maxDrawCount,
-                                       stride);
+	                                    buffer,
+	                                    offset,
+	                                    countBuffer,
+	                                    countBufferOffset,
+	                                    maxDrawCount,
+	                                    stride);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawIndirectCountKHR",
-                                   (GLADapiproc)glad_vkCmdDrawIndirectCountKHR,
-                                   7,
-                                   commandBuffer,
-                                   buffer,
-                                   offset,
-                                   countBuffer,
-                                   countBufferOffset,
-                                   maxDrawCount,
-                                   stride);
+	                                "vkCmdDrawIndirectCountKHR",
+	                                (GLADapiproc)glad_vkCmdDrawIndirectCountKHR,
+	                                7,
+	                                commandBuffer,
+	                                buffer,
+	                                offset,
+	                                countBuffer,
+	                                countBufferOffset,
+	                                maxDrawCount,
+	                                stride);
 }
 PFN_vkCmdDrawIndirectCountKHR         glad_debug_vkCmdDrawIndirectCountKHR = glad_debug_impl_vkCmdDrawIndirectCountKHR;
 PFN_vkCmdDrawMeshTasksIndirectCountNV glad_vkCmdDrawMeshTasksIndirectCountNV = NULL;
@@ -14762,33 +14758,33 @@ static void GLAD_API_PTR              glad_debug_impl_vkCmdDrawMeshTasksIndirect
                                                                                         uint32_t        maxDrawCount,
                                                                                         uint32_t        stride) {
         _pre_call_vulkan_callback("vkCmdDrawMeshTasksIndirectCountNV",
-                                  (GLADapiproc)glad_vkCmdDrawMeshTasksIndirectCountNV,
-                                  7,
-                                  commandBuffer,
-                                  buffer,
-                                  offset,
-                                  countBuffer,
-                                  countBufferOffset,
-                                  maxDrawCount,
-                                  stride);
+	                                       (GLADapiproc)glad_vkCmdDrawMeshTasksIndirectCountNV,
+	                                       7,
+	                                       commandBuffer,
+	                                       buffer,
+	                                       offset,
+	                                       countBuffer,
+	                                       countBufferOffset,
+	                                       maxDrawCount,
+	                                       stride);
         glad_vkCmdDrawMeshTasksIndirectCountNV(commandBuffer,
-                                               buffer,
-                                               offset,
-                                               countBuffer,
-                                               countBufferOffset,
-                                               maxDrawCount,
-                                               stride);
+	                                                    buffer,
+	                                                    offset,
+	                                                    countBuffer,
+	                                                    countBufferOffset,
+	                                                    maxDrawCount,
+	                                                    stride);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawMeshTasksIndirectCountNV",
-                                   (GLADapiproc)glad_vkCmdDrawMeshTasksIndirectCountNV,
-                                   7,
-                                   commandBuffer,
-                                   buffer,
-                                   offset,
-                                   countBuffer,
-                                   countBufferOffset,
-                                   maxDrawCount,
-                                   stride);
+	                                        "vkCmdDrawMeshTasksIndirectCountNV",
+	                                        (GLADapiproc)glad_vkCmdDrawMeshTasksIndirectCountNV,
+	                                        7,
+	                                        commandBuffer,
+	                                        buffer,
+	                                        offset,
+	                                        countBuffer,
+	                                        countBufferOffset,
+	                                        maxDrawCount,
+	                                        stride);
 }
 PFN_vkCmdDrawMeshTasksIndirectCountNV glad_debug_vkCmdDrawMeshTasksIndirectCountNV =
 	glad_debug_impl_vkCmdDrawMeshTasksIndirectCountNV;
@@ -14799,23 +14795,23 @@ static void GLAD_API_PTR         glad_debug_impl_vkCmdDrawMeshTasksIndirectNV(Vk
                                                                               uint32_t        drawCount,
                                                                               uint32_t        stride) {
         _pre_call_vulkan_callback("vkCmdDrawMeshTasksIndirectNV",
-                                  (GLADapiproc)glad_vkCmdDrawMeshTasksIndirectNV,
-                                  5,
-                                  commandBuffer,
-                                  buffer,
-                                  offset,
-                                  drawCount,
-                                  stride);
+	                                  (GLADapiproc)glad_vkCmdDrawMeshTasksIndirectNV,
+	                                  5,
+	                                  commandBuffer,
+	                                  buffer,
+	                                  offset,
+	                                  drawCount,
+	                                  stride);
         glad_vkCmdDrawMeshTasksIndirectNV(commandBuffer, buffer, offset, drawCount, stride);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawMeshTasksIndirectNV",
-                                   (GLADapiproc)glad_vkCmdDrawMeshTasksIndirectNV,
-                                   5,
-                                   commandBuffer,
-                                   buffer,
-                                   offset,
-                                   drawCount,
-                                   stride);
+	                                   "vkCmdDrawMeshTasksIndirectNV",
+	                                   (GLADapiproc)glad_vkCmdDrawMeshTasksIndirectNV,
+	                                   5,
+	                                   commandBuffer,
+	                                   buffer,
+	                                   offset,
+	                                   drawCount,
+	                                   stride);
 }
 PFN_vkCmdDrawMeshTasksIndirectNV glad_debug_vkCmdDrawMeshTasksIndirectNV = glad_debug_impl_vkCmdDrawMeshTasksIndirectNV;
 PFN_vkCmdDrawMeshTasksNV         glad_vkCmdDrawMeshTasksNV               = NULL;
@@ -14823,48 +14819,48 @@ static void GLAD_API_PTR         glad_debug_impl_vkCmdDrawMeshTasksNV(VkCommandB
                                                                       uint32_t        taskCount,
                                                                       uint32_t        firstTask) {
         _pre_call_vulkan_callback("vkCmdDrawMeshTasksNV",
-                                  (GLADapiproc)glad_vkCmdDrawMeshTasksNV,
-                                  3,
-                                  commandBuffer,
-                                  taskCount,
-                                  firstTask);
+	                                  (GLADapiproc)glad_vkCmdDrawMeshTasksNV,
+	                                  3,
+	                                  commandBuffer,
+	                                  taskCount,
+	                                  firstTask);
         glad_vkCmdDrawMeshTasksNV(commandBuffer, taskCount, firstTask);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdDrawMeshTasksNV",
-                                   (GLADapiproc)glad_vkCmdDrawMeshTasksNV,
-                                   3,
-                                   commandBuffer,
-                                   taskCount,
-                                   firstTask);
+	                                   "vkCmdDrawMeshTasksNV",
+	                                   (GLADapiproc)glad_vkCmdDrawMeshTasksNV,
+	                                   3,
+	                                   commandBuffer,
+	                                   taskCount,
+	                                   firstTask);
 }
 PFN_vkCmdDrawMeshTasksNV            glad_debug_vkCmdDrawMeshTasksNV      = glad_debug_impl_vkCmdDrawMeshTasksNV;
 PFN_vkCmdEndConditionalRenderingEXT glad_vkCmdEndConditionalRenderingEXT = NULL;
 static void GLAD_API_PTR            glad_debug_impl_vkCmdEndConditionalRenderingEXT(VkCommandBuffer commandBuffer) {
         _pre_call_vulkan_callback("vkCmdEndConditionalRenderingEXT",
-                                  (GLADapiproc)glad_vkCmdEndConditionalRenderingEXT,
-                                  1,
-                                  commandBuffer);
+	                                     (GLADapiproc)glad_vkCmdEndConditionalRenderingEXT,
+	                                     1,
+	                                     commandBuffer);
         glad_vkCmdEndConditionalRenderingEXT(commandBuffer);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdEndConditionalRenderingEXT",
-                                   (GLADapiproc)glad_vkCmdEndConditionalRenderingEXT,
-                                   1,
-                                   commandBuffer);
+	                                      "vkCmdEndConditionalRenderingEXT",
+	                                      (GLADapiproc)glad_vkCmdEndConditionalRenderingEXT,
+	                                      1,
+	                                      commandBuffer);
 }
 PFN_vkCmdEndConditionalRenderingEXT glad_debug_vkCmdEndConditionalRenderingEXT =
 	glad_debug_impl_vkCmdEndConditionalRenderingEXT;
 PFN_vkCmdEndDebugUtilsLabelEXT glad_vkCmdEndDebugUtilsLabelEXT = NULL;
 static void GLAD_API_PTR       glad_debug_impl_vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer) {
         _pre_call_vulkan_callback("vkCmdEndDebugUtilsLabelEXT",
-                                  (GLADapiproc)glad_vkCmdEndDebugUtilsLabelEXT,
-                                  1,
-                                  commandBuffer);
+	                                (GLADapiproc)glad_vkCmdEndDebugUtilsLabelEXT,
+	                                1,
+	                                commandBuffer);
         glad_vkCmdEndDebugUtilsLabelEXT(commandBuffer);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdEndDebugUtilsLabelEXT",
-                                   (GLADapiproc)glad_vkCmdEndDebugUtilsLabelEXT,
-                                   1,
-                                   commandBuffer);
+	                                 "vkCmdEndDebugUtilsLabelEXT",
+	                                 (GLADapiproc)glad_vkCmdEndDebugUtilsLabelEXT,
+	                                 1,
+	                                 commandBuffer);
 }
 PFN_vkCmdEndDebugUtilsLabelEXT glad_debug_vkCmdEndDebugUtilsLabelEXT = glad_debug_impl_vkCmdEndDebugUtilsLabelEXT;
 PFN_vkCmdEndQuery              glad_vkCmdEndQuery                    = NULL;
@@ -14874,12 +14870,12 @@ static void GLAD_API_PTR       glad_debug_impl_vkCmdEndQuery(VkCommandBuffer com
         _pre_call_vulkan_callback("vkCmdEndQuery", (GLADapiproc)glad_vkCmdEndQuery, 3, commandBuffer, queryPool, query);
         glad_vkCmdEndQuery(commandBuffer, queryPool, query);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdEndQuery",
-                                   (GLADapiproc)glad_vkCmdEndQuery,
-                                   3,
-                                   commandBuffer,
-                                   queryPool,
-                                   query);
+	                                 "vkCmdEndQuery",
+	                                 (GLADapiproc)glad_vkCmdEndQuery,
+	                                 3,
+	                                 commandBuffer,
+	                                 queryPool,
+	                                 query);
 }
 PFN_vkCmdEndQuery           glad_debug_vkCmdEndQuery     = glad_debug_impl_vkCmdEndQuery;
 PFN_vkCmdEndQueryIndexedEXT glad_vkCmdEndQueryIndexedEXT = NULL;
@@ -14888,21 +14884,21 @@ static void GLAD_API_PTR    glad_debug_impl_vkCmdEndQueryIndexedEXT(VkCommandBuf
                                                                     uint32_t        query,
                                                                     uint32_t        index) {
         _pre_call_vulkan_callback("vkCmdEndQueryIndexedEXT",
-                                  (GLADapiproc)glad_vkCmdEndQueryIndexedEXT,
-                                  4,
-                                  commandBuffer,
-                                  queryPool,
-                                  query,
-                                  index);
+	                             (GLADapiproc)glad_vkCmdEndQueryIndexedEXT,
+	                             4,
+	                             commandBuffer,
+	                             queryPool,
+	                             query,
+	                             index);
         glad_vkCmdEndQueryIndexedEXT(commandBuffer, queryPool, query, index);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdEndQueryIndexedEXT",
-                                   (GLADapiproc)glad_vkCmdEndQueryIndexedEXT,
-                                   4,
-                                   commandBuffer,
-                                   queryPool,
-                                   query,
-                                   index);
+	                              "vkCmdEndQueryIndexedEXT",
+	                              (GLADapiproc)glad_vkCmdEndQueryIndexedEXT,
+	                              4,
+	                              commandBuffer,
+	                              queryPool,
+	                              query,
+	                              index);
 }
 PFN_vkCmdEndQueryIndexedEXT glad_debug_vkCmdEndQueryIndexedEXT = glad_debug_impl_vkCmdEndQueryIndexedEXT;
 PFN_vkCmdEndRenderPass      glad_vkCmdEndRenderPass            = NULL;
@@ -14933,17 +14929,17 @@ PFN_vkCmdEndRenderPass2KHR glad_vkCmdEndRenderPass2KHR    = NULL;
 static void GLAD_API_PTR   glad_debug_impl_vkCmdEndRenderPass2KHR(VkCommandBuffer         commandBuffer,
                                                                   const VkSubpassEndInfo *pSubpassEndInfo) {
         _pre_call_vulkan_callback("vkCmdEndRenderPass2KHR",
-                                  (GLADapiproc)glad_vkCmdEndRenderPass2KHR,
-                                  2,
-                                  commandBuffer,
-                                  pSubpassEndInfo);
+	                            (GLADapiproc)glad_vkCmdEndRenderPass2KHR,
+	                            2,
+	                            commandBuffer,
+	                            pSubpassEndInfo);
         glad_vkCmdEndRenderPass2KHR(commandBuffer, pSubpassEndInfo);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdEndRenderPass2KHR",
-                                   (GLADapiproc)glad_vkCmdEndRenderPass2KHR,
-                                   2,
-                                   commandBuffer,
-                                   pSubpassEndInfo);
+	                             "vkCmdEndRenderPass2KHR",
+	                             (GLADapiproc)glad_vkCmdEndRenderPass2KHR,
+	                             2,
+	                             commandBuffer,
+	                             pSubpassEndInfo);
 }
 PFN_vkCmdEndRenderPass2KHR       glad_debug_vkCmdEndRenderPass2KHR = glad_debug_impl_vkCmdEndRenderPass2KHR;
 PFN_vkCmdEndTransformFeedbackEXT glad_vkCmdEndTransformFeedbackEXT = NULL;
@@ -14953,27 +14949,27 @@ static void GLAD_API_PTR         glad_debug_impl_vkCmdEndTransformFeedbackEXT(Vk
                                                                               const VkBuffer     *pCounterBuffers,
                                                                               const VkDeviceSize *pCounterBufferOffsets) {
         _pre_call_vulkan_callback("vkCmdEndTransformFeedbackEXT",
-                                  (GLADapiproc)glad_vkCmdEndTransformFeedbackEXT,
-                                  5,
-                                  commandBuffer,
-                                  firstCounterBuffer,
-                                  counterBufferCount,
-                                  pCounterBuffers,
-                                  pCounterBufferOffsets);
+	                                  (GLADapiproc)glad_vkCmdEndTransformFeedbackEXT,
+	                                  5,
+	                                  commandBuffer,
+	                                  firstCounterBuffer,
+	                                  counterBufferCount,
+	                                  pCounterBuffers,
+	                                  pCounterBufferOffsets);
         glad_vkCmdEndTransformFeedbackEXT(commandBuffer,
-                                          firstCounterBuffer,
-                                          counterBufferCount,
-                                          pCounterBuffers,
-                                          pCounterBufferOffsets);
+	                                          firstCounterBuffer,
+	                                          counterBufferCount,
+	                                          pCounterBuffers,
+	                                          pCounterBufferOffsets);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdEndTransformFeedbackEXT",
-                                   (GLADapiproc)glad_vkCmdEndTransformFeedbackEXT,
-                                   5,
-                                   commandBuffer,
-                                   firstCounterBuffer,
-                                   counterBufferCount,
-                                   pCounterBuffers,
-                                   pCounterBufferOffsets);
+	                                   "vkCmdEndTransformFeedbackEXT",
+	                                   (GLADapiproc)glad_vkCmdEndTransformFeedbackEXT,
+	                                   5,
+	                                   commandBuffer,
+	                                   firstCounterBuffer,
+	                                   counterBufferCount,
+	                                   pCounterBuffers,
+	                                   pCounterBufferOffsets);
 }
 PFN_vkCmdEndTransformFeedbackEXT glad_debug_vkCmdEndTransformFeedbackEXT = glad_debug_impl_vkCmdEndTransformFeedbackEXT;
 PFN_vkCmdExecuteCommands         glad_vkCmdExecuteCommands               = NULL;
@@ -14981,19 +14977,19 @@ static void GLAD_API_PTR         glad_debug_impl_vkCmdExecuteCommands(VkCommandB
                                                                       uint32_t               commandBufferCount,
                                                                       const VkCommandBuffer *pCommandBuffers) {
         _pre_call_vulkan_callback("vkCmdExecuteCommands",
-                                  (GLADapiproc)glad_vkCmdExecuteCommands,
-                                  3,
-                                  commandBuffer,
-                                  commandBufferCount,
-                                  pCommandBuffers);
+	                                  (GLADapiproc)glad_vkCmdExecuteCommands,
+	                                  3,
+	                                  commandBuffer,
+	                                  commandBufferCount,
+	                                  pCommandBuffers);
         glad_vkCmdExecuteCommands(commandBuffer, commandBufferCount, pCommandBuffers);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdExecuteCommands",
-                                   (GLADapiproc)glad_vkCmdExecuteCommands,
-                                   3,
-                                   commandBuffer,
-                                   commandBufferCount,
-                                   pCommandBuffers);
+	                                   "vkCmdExecuteCommands",
+	                                   (GLADapiproc)glad_vkCmdExecuteCommands,
+	                                   3,
+	                                   commandBuffer,
+	                                   commandBufferCount,
+	                                   pCommandBuffers);
 }
 PFN_vkCmdExecuteCommands            glad_debug_vkCmdExecuteCommands      = glad_debug_impl_vkCmdExecuteCommands;
 PFN_vkCmdExecuteGeneratedCommandsNV glad_vkCmdExecuteGeneratedCommandsNV = NULL;
@@ -15048,17 +15044,17 @@ PFN_vkCmdInsertDebugUtilsLabelEXT glad_vkCmdInsertDebugUtilsLabelEXT = NULL;
 static void GLAD_API_PTR          glad_debug_impl_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
                                                                                 const VkDebugUtilsLabelEXT *pLabelInfo) {
         _pre_call_vulkan_callback("vkCmdInsertDebugUtilsLabelEXT",
-                                  (GLADapiproc)glad_vkCmdInsertDebugUtilsLabelEXT,
-                                  2,
-                                  commandBuffer,
-                                  pLabelInfo);
+	                                   (GLADapiproc)glad_vkCmdInsertDebugUtilsLabelEXT,
+	                                   2,
+	                                   commandBuffer,
+	                                   pLabelInfo);
         glad_vkCmdInsertDebugUtilsLabelEXT(commandBuffer, pLabelInfo);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdInsertDebugUtilsLabelEXT",
-                                   (GLADapiproc)glad_vkCmdInsertDebugUtilsLabelEXT,
-                                   2,
-                                   commandBuffer,
-                                   pLabelInfo);
+	                                    "vkCmdInsertDebugUtilsLabelEXT",
+	                                    (GLADapiproc)glad_vkCmdInsertDebugUtilsLabelEXT,
+	                                    2,
+	                                    commandBuffer,
+	                                    pLabelInfo);
 }
 PFN_vkCmdInsertDebugUtilsLabelEXT glad_debug_vkCmdInsertDebugUtilsLabelEXT =
 	glad_debug_impl_vkCmdInsertDebugUtilsLabelEXT;
@@ -15220,30 +15216,30 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdPushDescriptorSetKHR(VkComman
                                                                         uint32_t                    descriptorWriteCount,
                                                                         const VkWriteDescriptorSet *pDescriptorWrites) {
         _pre_call_vulkan_callback("vkCmdPushDescriptorSetKHR",
-                                  (GLADapiproc)glad_vkCmdPushDescriptorSetKHR,
-                                  6,
-                                  commandBuffer,
-                                  pipelineBindPoint,
-                                  layout,
-                                  set,
-                                  descriptorWriteCount,
-                                  pDescriptorWrites);
+	                               (GLADapiproc)glad_vkCmdPushDescriptorSetKHR,
+	                               6,
+	                               commandBuffer,
+	                               pipelineBindPoint,
+	                               layout,
+	                               set,
+	                               descriptorWriteCount,
+	                               pDescriptorWrites);
         glad_vkCmdPushDescriptorSetKHR(commandBuffer,
-                                       pipelineBindPoint,
-                                       layout,
-                                       set,
-                                       descriptorWriteCount,
-                                       pDescriptorWrites);
+	                                    pipelineBindPoint,
+	                                    layout,
+	                                    set,
+	                                    descriptorWriteCount,
+	                                    pDescriptorWrites);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdPushDescriptorSetKHR",
-                                   (GLADapiproc)glad_vkCmdPushDescriptorSetKHR,
-                                   6,
-                                   commandBuffer,
-                                   pipelineBindPoint,
-                                   layout,
-                                   set,
-                                   descriptorWriteCount,
-                                   pDescriptorWrites);
+	                                "vkCmdPushDescriptorSetKHR",
+	                                (GLADapiproc)glad_vkCmdPushDescriptorSetKHR,
+	                                6,
+	                                commandBuffer,
+	                                pipelineBindPoint,
+	                                layout,
+	                                set,
+	                                descriptorWriteCount,
+	                                pDescriptorWrites);
 }
 PFN_vkCmdPushDescriptorSetKHR glad_debug_vkCmdPushDescriptorSetKHR = glad_debug_impl_vkCmdPushDescriptorSetKHR;
 PFN_vkCmdPushDescriptorSetWithTemplateKHR glad_vkCmdPushDescriptorSetWithTemplateKHR = NULL;
@@ -15359,17 +15355,17 @@ PFN_vkCmdSetAlphaToCoverageEnableEXT glad_vkCmdSetAlphaToCoverageEnableEXT = NUL
 static void GLAD_API_PTR             glad_debug_impl_vkCmdSetAlphaToCoverageEnableEXT(VkCommandBuffer commandBuffer,
                                                                                       VkBool32        alphaToCoverageEnable) {
         _pre_call_vulkan_callback("vkCmdSetAlphaToCoverageEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetAlphaToCoverageEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  alphaToCoverageEnable);
+	                                      (GLADapiproc)glad_vkCmdSetAlphaToCoverageEnableEXT,
+	                                      2,
+	                                      commandBuffer,
+	                                      alphaToCoverageEnable);
         glad_vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, alphaToCoverageEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetAlphaToCoverageEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetAlphaToCoverageEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   alphaToCoverageEnable);
+	                                       "vkCmdSetAlphaToCoverageEnableEXT",
+	                                       (GLADapiproc)glad_vkCmdSetAlphaToCoverageEnableEXT,
+	                                       2,
+	                                       commandBuffer,
+	                                       alphaToCoverageEnable);
 }
 PFN_vkCmdSetAlphaToCoverageEnableEXT glad_debug_vkCmdSetAlphaToCoverageEnableEXT =
 	glad_debug_impl_vkCmdSetAlphaToCoverageEnableEXT;
@@ -15377,51 +15373,51 @@ PFN_vkCmdSetAlphaToOneEnableEXT glad_vkCmdSetAlphaToOneEnableEXT = NULL;
 static void GLAD_API_PTR        glad_debug_impl_vkCmdSetAlphaToOneEnableEXT(VkCommandBuffer commandBuffer,
                                                                             VkBool32        alphaToOneEnable) {
         _pre_call_vulkan_callback("vkCmdSetAlphaToOneEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetAlphaToOneEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  alphaToOneEnable);
+	                                 (GLADapiproc)glad_vkCmdSetAlphaToOneEnableEXT,
+	                                 2,
+	                                 commandBuffer,
+	                                 alphaToOneEnable);
         glad_vkCmdSetAlphaToOneEnableEXT(commandBuffer, alphaToOneEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetAlphaToOneEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetAlphaToOneEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   alphaToOneEnable);
+	                                  "vkCmdSetAlphaToOneEnableEXT",
+	                                  (GLADapiproc)glad_vkCmdSetAlphaToOneEnableEXT,
+	                                  2,
+	                                  commandBuffer,
+	                                  alphaToOneEnable);
 }
 PFN_vkCmdSetAlphaToOneEnableEXT glad_debug_vkCmdSetAlphaToOneEnableEXT = glad_debug_impl_vkCmdSetAlphaToOneEnableEXT;
 PFN_vkCmdSetBlendConstants      glad_vkCmdSetBlendConstants            = NULL;
 static void GLAD_API_PTR        glad_debug_impl_vkCmdSetBlendConstants(VkCommandBuffer commandBuffer,
                                                                        const float     blendConstants[4]) {
         _pre_call_vulkan_callback("vkCmdSetBlendConstants",
-                                  (GLADapiproc)glad_vkCmdSetBlendConstants,
-                                  2,
-                                  commandBuffer,
-                                  blendConstants);
+	                                 (GLADapiproc)glad_vkCmdSetBlendConstants,
+	                                 2,
+	                                 commandBuffer,
+	                                 blendConstants);
         glad_vkCmdSetBlendConstants(commandBuffer, blendConstants);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetBlendConstants",
-                                   (GLADapiproc)glad_vkCmdSetBlendConstants,
-                                   2,
-                                   commandBuffer,
-                                   blendConstants);
+	                                  "vkCmdSetBlendConstants",
+	                                  (GLADapiproc)glad_vkCmdSetBlendConstants,
+	                                  2,
+	                                  commandBuffer,
+	                                  blendConstants);
 }
 PFN_vkCmdSetBlendConstants glad_debug_vkCmdSetBlendConstants = glad_debug_impl_vkCmdSetBlendConstants;
 PFN_vkCmdSetCheckpointNV   glad_vkCmdSetCheckpointNV         = NULL;
 static void GLAD_API_PTR   glad_debug_impl_vkCmdSetCheckpointNV(VkCommandBuffer commandBuffer,
                                                                 const void     *pCheckpointMarker) {
         _pre_call_vulkan_callback("vkCmdSetCheckpointNV",
-                                  (GLADapiproc)glad_vkCmdSetCheckpointNV,
-                                  2,
-                                  commandBuffer,
-                                  pCheckpointMarker);
+	                            (GLADapiproc)glad_vkCmdSetCheckpointNV,
+	                            2,
+	                            commandBuffer,
+	                            pCheckpointMarker);
         glad_vkCmdSetCheckpointNV(commandBuffer, pCheckpointMarker);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetCheckpointNV",
-                                   (GLADapiproc)glad_vkCmdSetCheckpointNV,
-                                   2,
-                                   commandBuffer,
-                                   pCheckpointMarker);
+	                             "vkCmdSetCheckpointNV",
+	                             (GLADapiproc)glad_vkCmdSetCheckpointNV,
+	                             2,
+	                             commandBuffer,
+	                             pCheckpointMarker);
 }
 PFN_vkCmdSetCheckpointNV        glad_debug_vkCmdSetCheckpointNV  = glad_debug_impl_vkCmdSetCheckpointNV;
 PFN_vkCmdSetCoarseSampleOrderNV glad_vkCmdSetCoarseSampleOrderNV = NULL;
@@ -15479,21 +15475,21 @@ static void GLAD_API_PTR        glad_debug_impl_vkCmdSetColorBlendEnableEXT(VkCo
                                                                             uint32_t        attachmentCount,
                                                                             const VkBool32 *pColorBlendEnables) {
         _pre_call_vulkan_callback("vkCmdSetColorBlendEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetColorBlendEnableEXT,
-                                  4,
-                                  commandBuffer,
-                                  firstAttachment,
-                                  attachmentCount,
-                                  pColorBlendEnables);
+	                                 (GLADapiproc)glad_vkCmdSetColorBlendEnableEXT,
+	                                 4,
+	                                 commandBuffer,
+	                                 firstAttachment,
+	                                 attachmentCount,
+	                                 pColorBlendEnables);
         glad_vkCmdSetColorBlendEnableEXT(commandBuffer, firstAttachment, attachmentCount, pColorBlendEnables);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetColorBlendEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetColorBlendEnableEXT,
-                                   4,
-                                   commandBuffer,
-                                   firstAttachment,
-                                   attachmentCount,
-                                   pColorBlendEnables);
+	                                  "vkCmdSetColorBlendEnableEXT",
+	                                  (GLADapiproc)glad_vkCmdSetColorBlendEnableEXT,
+	                                  4,
+	                                  commandBuffer,
+	                                  firstAttachment,
+	                                  attachmentCount,
+	                                  pColorBlendEnables);
 }
 PFN_vkCmdSetColorBlendEnableEXT   glad_debug_vkCmdSetColorBlendEnableEXT = glad_debug_impl_vkCmdSetColorBlendEnableEXT;
 PFN_vkCmdSetColorBlendEquationEXT glad_vkCmdSetColorBlendEquationEXT     = NULL;
@@ -15527,21 +15523,21 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdSetColorWriteMaskEXT(VkComman
                                                                         uint32_t                     attachmentCount,
                                                                         const VkColorComponentFlags *pColorWriteMasks) {
         _pre_call_vulkan_callback("vkCmdSetColorWriteMaskEXT",
-                                  (GLADapiproc)glad_vkCmdSetColorWriteMaskEXT,
-                                  4,
-                                  commandBuffer,
-                                  firstAttachment,
-                                  attachmentCount,
-                                  pColorWriteMasks);
+	                               (GLADapiproc)glad_vkCmdSetColorWriteMaskEXT,
+	                               4,
+	                               commandBuffer,
+	                               firstAttachment,
+	                               attachmentCount,
+	                               pColorWriteMasks);
         glad_vkCmdSetColorWriteMaskEXT(commandBuffer, firstAttachment, attachmentCount, pColorWriteMasks);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetColorWriteMaskEXT",
-                                   (GLADapiproc)glad_vkCmdSetColorWriteMaskEXT,
-                                   4,
-                                   commandBuffer,
-                                   firstAttachment,
-                                   attachmentCount,
-                                   pColorWriteMasks);
+	                                "vkCmdSetColorWriteMaskEXT",
+	                                (GLADapiproc)glad_vkCmdSetColorWriteMaskEXT,
+	                                4,
+	                                commandBuffer,
+	                                firstAttachment,
+	                                attachmentCount,
+	                                pColorWriteMasks);
 }
 PFN_vkCmdSetColorWriteMaskEXT glad_debug_vkCmdSetColorWriteMaskEXT = glad_debug_impl_vkCmdSetColorWriteMaskEXT;
 PFN_vkCmdSetConservativeRasterizationModeEXT glad_vkCmdSetConservativeRasterizationModeEXT = NULL;
@@ -15607,19 +15603,19 @@ static void GLAD_API_PTR              glad_debug_impl_vkCmdSetCoverageModulation
                                                                                         uint32_t        coverageModulationTableCount,
                                                                                         const float    *pCoverageModulationTable) {
         _pre_call_vulkan_callback("vkCmdSetCoverageModulationTableNV",
-                                  (GLADapiproc)glad_vkCmdSetCoverageModulationTableNV,
-                                  3,
-                                  commandBuffer,
-                                  coverageModulationTableCount,
-                                  pCoverageModulationTable);
+	                                       (GLADapiproc)glad_vkCmdSetCoverageModulationTableNV,
+	                                       3,
+	                                       commandBuffer,
+	                                       coverageModulationTableCount,
+	                                       pCoverageModulationTable);
         glad_vkCmdSetCoverageModulationTableNV(commandBuffer, coverageModulationTableCount, pCoverageModulationTable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetCoverageModulationTableNV",
-                                   (GLADapiproc)glad_vkCmdSetCoverageModulationTableNV,
-                                   3,
-                                   commandBuffer,
-                                   coverageModulationTableCount,
-                                   pCoverageModulationTable);
+	                                        "vkCmdSetCoverageModulationTableNV",
+	                                        (GLADapiproc)glad_vkCmdSetCoverageModulationTableNV,
+	                                        3,
+	                                        commandBuffer,
+	                                        coverageModulationTableCount,
+	                                        pCoverageModulationTable);
 }
 PFN_vkCmdSetCoverageModulationTableNV glad_debug_vkCmdSetCoverageModulationTableNV =
 	glad_debug_impl_vkCmdSetCoverageModulationTableNV;
@@ -15646,17 +15642,17 @@ PFN_vkCmdSetCoverageToColorEnableNV glad_vkCmdSetCoverageToColorEnableNV = NULL;
 static void GLAD_API_PTR            glad_debug_impl_vkCmdSetCoverageToColorEnableNV(VkCommandBuffer commandBuffer,
                                                                                     VkBool32        coverageToColorEnable) {
         _pre_call_vulkan_callback("vkCmdSetCoverageToColorEnableNV",
-                                  (GLADapiproc)glad_vkCmdSetCoverageToColorEnableNV,
-                                  2,
-                                  commandBuffer,
-                                  coverageToColorEnable);
+	                                     (GLADapiproc)glad_vkCmdSetCoverageToColorEnableNV,
+	                                     2,
+	                                     commandBuffer,
+	                                     coverageToColorEnable);
         glad_vkCmdSetCoverageToColorEnableNV(commandBuffer, coverageToColorEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetCoverageToColorEnableNV",
-                                   (GLADapiproc)glad_vkCmdSetCoverageToColorEnableNV,
-                                   2,
-                                   commandBuffer,
-                                   coverageToColorEnable);
+	                                      "vkCmdSetCoverageToColorEnableNV",
+	                                      (GLADapiproc)glad_vkCmdSetCoverageToColorEnableNV,
+	                                      2,
+	                                      commandBuffer,
+	                                      coverageToColorEnable);
 }
 PFN_vkCmdSetCoverageToColorEnableNV glad_debug_vkCmdSetCoverageToColorEnableNV =
 	glad_debug_impl_vkCmdSetCoverageToColorEnableNV;
@@ -15664,17 +15660,17 @@ PFN_vkCmdSetCoverageToColorLocationNV glad_vkCmdSetCoverageToColorLocationNV = N
 static void GLAD_API_PTR              glad_debug_impl_vkCmdSetCoverageToColorLocationNV(VkCommandBuffer commandBuffer,
                                                                                         uint32_t        coverageToColorLocation) {
         _pre_call_vulkan_callback("vkCmdSetCoverageToColorLocationNV",
-                                  (GLADapiproc)glad_vkCmdSetCoverageToColorLocationNV,
-                                  2,
-                                  commandBuffer,
-                                  coverageToColorLocation);
+	                                       (GLADapiproc)glad_vkCmdSetCoverageToColorLocationNV,
+	                                       2,
+	                                       commandBuffer,
+	                                       coverageToColorLocation);
         glad_vkCmdSetCoverageToColorLocationNV(commandBuffer, coverageToColorLocation);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetCoverageToColorLocationNV",
-                                   (GLADapiproc)glad_vkCmdSetCoverageToColorLocationNV,
-                                   2,
-                                   commandBuffer,
-                                   coverageToColorLocation);
+	                                        "vkCmdSetCoverageToColorLocationNV",
+	                                        (GLADapiproc)glad_vkCmdSetCoverageToColorLocationNV,
+	                                        2,
+	                                        commandBuffer,
+	                                        coverageToColorLocation);
 }
 PFN_vkCmdSetCoverageToColorLocationNV glad_debug_vkCmdSetCoverageToColorLocationNV =
 	glad_debug_impl_vkCmdSetCoverageToColorLocationNV;
@@ -15721,17 +15717,17 @@ PFN_vkCmdSetDepthBiasEnableEXT glad_vkCmdSetDepthBiasEnableEXT = NULL;
 static void GLAD_API_PTR       glad_debug_impl_vkCmdSetDepthBiasEnableEXT(VkCommandBuffer commandBuffer,
                                                                           VkBool32        depthBiasEnable) {
         _pre_call_vulkan_callback("vkCmdSetDepthBiasEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetDepthBiasEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  depthBiasEnable);
+	                                (GLADapiproc)glad_vkCmdSetDepthBiasEnableEXT,
+	                                2,
+	                                commandBuffer,
+	                                depthBiasEnable);
         glad_vkCmdSetDepthBiasEnableEXT(commandBuffer, depthBiasEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDepthBiasEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetDepthBiasEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   depthBiasEnable);
+	                                 "vkCmdSetDepthBiasEnableEXT",
+	                                 (GLADapiproc)glad_vkCmdSetDepthBiasEnableEXT,
+	                                 2,
+	                                 commandBuffer,
+	                                 depthBiasEnable);
 }
 PFN_vkCmdSetDepthBiasEnableEXT glad_debug_vkCmdSetDepthBiasEnableEXT = glad_debug_impl_vkCmdSetDepthBiasEnableEXT;
 PFN_vkCmdSetDepthBounds        glad_vkCmdSetDepthBounds              = NULL;
@@ -15739,36 +15735,36 @@ static void GLAD_API_PTR       glad_debug_impl_vkCmdSetDepthBounds(VkCommandBuff
                                                                    float           minDepthBounds,
                                                                    float           maxDepthBounds) {
         _pre_call_vulkan_callback("vkCmdSetDepthBounds",
-                                  (GLADapiproc)glad_vkCmdSetDepthBounds,
-                                  3,
-                                  commandBuffer,
-                                  minDepthBounds,
-                                  maxDepthBounds);
+	                                (GLADapiproc)glad_vkCmdSetDepthBounds,
+	                                3,
+	                                commandBuffer,
+	                                minDepthBounds,
+	                                maxDepthBounds);
         glad_vkCmdSetDepthBounds(commandBuffer, minDepthBounds, maxDepthBounds);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDepthBounds",
-                                   (GLADapiproc)glad_vkCmdSetDepthBounds,
-                                   3,
-                                   commandBuffer,
-                                   minDepthBounds,
-                                   maxDepthBounds);
+	                                 "vkCmdSetDepthBounds",
+	                                 (GLADapiproc)glad_vkCmdSetDepthBounds,
+	                                 3,
+	                                 commandBuffer,
+	                                 minDepthBounds,
+	                                 maxDepthBounds);
 }
 PFN_vkCmdSetDepthBounds              glad_debug_vkCmdSetDepthBounds        = glad_debug_impl_vkCmdSetDepthBounds;
 PFN_vkCmdSetDepthBoundsTestEnableEXT glad_vkCmdSetDepthBoundsTestEnableEXT = NULL;
 static void GLAD_API_PTR             glad_debug_impl_vkCmdSetDepthBoundsTestEnableEXT(VkCommandBuffer commandBuffer,
                                                                                       VkBool32        depthBoundsTestEnable) {
         _pre_call_vulkan_callback("vkCmdSetDepthBoundsTestEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetDepthBoundsTestEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  depthBoundsTestEnable);
+	                                      (GLADapiproc)glad_vkCmdSetDepthBoundsTestEnableEXT,
+	                                      2,
+	                                      commandBuffer,
+	                                      depthBoundsTestEnable);
         glad_vkCmdSetDepthBoundsTestEnableEXT(commandBuffer, depthBoundsTestEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDepthBoundsTestEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetDepthBoundsTestEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   depthBoundsTestEnable);
+	                                       "vkCmdSetDepthBoundsTestEnableEXT",
+	                                       (GLADapiproc)glad_vkCmdSetDepthBoundsTestEnableEXT,
+	                                       2,
+	                                       commandBuffer,
+	                                       depthBoundsTestEnable);
 }
 PFN_vkCmdSetDepthBoundsTestEnableEXT glad_debug_vkCmdSetDepthBoundsTestEnableEXT =
 	glad_debug_impl_vkCmdSetDepthBoundsTestEnableEXT;
@@ -15776,34 +15772,34 @@ PFN_vkCmdSetDepthClampEnableEXT glad_vkCmdSetDepthClampEnableEXT = NULL;
 static void GLAD_API_PTR        glad_debug_impl_vkCmdSetDepthClampEnableEXT(VkCommandBuffer commandBuffer,
                                                                             VkBool32        depthClampEnable) {
         _pre_call_vulkan_callback("vkCmdSetDepthClampEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetDepthClampEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  depthClampEnable);
+	                                 (GLADapiproc)glad_vkCmdSetDepthClampEnableEXT,
+	                                 2,
+	                                 commandBuffer,
+	                                 depthClampEnable);
         glad_vkCmdSetDepthClampEnableEXT(commandBuffer, depthClampEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDepthClampEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetDepthClampEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   depthClampEnable);
+	                                  "vkCmdSetDepthClampEnableEXT",
+	                                  (GLADapiproc)glad_vkCmdSetDepthClampEnableEXT,
+	                                  2,
+	                                  commandBuffer,
+	                                  depthClampEnable);
 }
 PFN_vkCmdSetDepthClampEnableEXT glad_debug_vkCmdSetDepthClampEnableEXT = glad_debug_impl_vkCmdSetDepthClampEnableEXT;
 PFN_vkCmdSetDepthClipEnableEXT  glad_vkCmdSetDepthClipEnableEXT        = NULL;
 static void GLAD_API_PTR        glad_debug_impl_vkCmdSetDepthClipEnableEXT(VkCommandBuffer commandBuffer,
                                                                            VkBool32        depthClipEnable) {
         _pre_call_vulkan_callback("vkCmdSetDepthClipEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetDepthClipEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  depthClipEnable);
+	                                 (GLADapiproc)glad_vkCmdSetDepthClipEnableEXT,
+	                                 2,
+	                                 commandBuffer,
+	                                 depthClipEnable);
         glad_vkCmdSetDepthClipEnableEXT(commandBuffer, depthClipEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDepthClipEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetDepthClipEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   depthClipEnable);
+	                                  "vkCmdSetDepthClipEnableEXT",
+	                                  (GLADapiproc)glad_vkCmdSetDepthClipEnableEXT,
+	                                  2,
+	                                  commandBuffer,
+	                                  depthClipEnable);
 }
 PFN_vkCmdSetDepthClipEnableEXT glad_debug_vkCmdSetDepthClipEnableEXT = glad_debug_impl_vkCmdSetDepthClipEnableEXT;
 PFN_vkCmdSetDepthClipNegativeOneToOneEXT glad_vkCmdSetDepthClipNegativeOneToOneEXT = NULL;
@@ -15828,83 +15824,83 @@ PFN_vkCmdSetDepthCompareOpEXT glad_vkCmdSetDepthCompareOpEXT = NULL;
 static void GLAD_API_PTR      glad_debug_impl_vkCmdSetDepthCompareOpEXT(VkCommandBuffer commandBuffer,
                                                                         VkCompareOp     depthCompareOp) {
         _pre_call_vulkan_callback("vkCmdSetDepthCompareOpEXT",
-                                  (GLADapiproc)glad_vkCmdSetDepthCompareOpEXT,
-                                  2,
-                                  commandBuffer,
-                                  depthCompareOp);
+	                               (GLADapiproc)glad_vkCmdSetDepthCompareOpEXT,
+	                               2,
+	                               commandBuffer,
+	                               depthCompareOp);
         glad_vkCmdSetDepthCompareOpEXT(commandBuffer, depthCompareOp);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDepthCompareOpEXT",
-                                   (GLADapiproc)glad_vkCmdSetDepthCompareOpEXT,
-                                   2,
-                                   commandBuffer,
-                                   depthCompareOp);
+	                                "vkCmdSetDepthCompareOpEXT",
+	                                (GLADapiproc)glad_vkCmdSetDepthCompareOpEXT,
+	                                2,
+	                                commandBuffer,
+	                                depthCompareOp);
 }
 PFN_vkCmdSetDepthCompareOpEXT  glad_debug_vkCmdSetDepthCompareOpEXT = glad_debug_impl_vkCmdSetDepthCompareOpEXT;
 PFN_vkCmdSetDepthTestEnableEXT glad_vkCmdSetDepthTestEnableEXT      = NULL;
 static void GLAD_API_PTR       glad_debug_impl_vkCmdSetDepthTestEnableEXT(VkCommandBuffer commandBuffer,
                                                                           VkBool32        depthTestEnable) {
         _pre_call_vulkan_callback("vkCmdSetDepthTestEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetDepthTestEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  depthTestEnable);
+	                                (GLADapiproc)glad_vkCmdSetDepthTestEnableEXT,
+	                                2,
+	                                commandBuffer,
+	                                depthTestEnable);
         glad_vkCmdSetDepthTestEnableEXT(commandBuffer, depthTestEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDepthTestEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetDepthTestEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   depthTestEnable);
+	                                 "vkCmdSetDepthTestEnableEXT",
+	                                 (GLADapiproc)glad_vkCmdSetDepthTestEnableEXT,
+	                                 2,
+	                                 commandBuffer,
+	                                 depthTestEnable);
 }
 PFN_vkCmdSetDepthTestEnableEXT  glad_debug_vkCmdSetDepthTestEnableEXT = glad_debug_impl_vkCmdSetDepthTestEnableEXT;
 PFN_vkCmdSetDepthWriteEnableEXT glad_vkCmdSetDepthWriteEnableEXT      = NULL;
 static void GLAD_API_PTR        glad_debug_impl_vkCmdSetDepthWriteEnableEXT(VkCommandBuffer commandBuffer,
                                                                             VkBool32        depthWriteEnable) {
         _pre_call_vulkan_callback("vkCmdSetDepthWriteEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetDepthWriteEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  depthWriteEnable);
+	                                 (GLADapiproc)glad_vkCmdSetDepthWriteEnableEXT,
+	                                 2,
+	                                 commandBuffer,
+	                                 depthWriteEnable);
         glad_vkCmdSetDepthWriteEnableEXT(commandBuffer, depthWriteEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDepthWriteEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetDepthWriteEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   depthWriteEnable);
+	                                  "vkCmdSetDepthWriteEnableEXT",
+	                                  (GLADapiproc)glad_vkCmdSetDepthWriteEnableEXT,
+	                                  2,
+	                                  commandBuffer,
+	                                  depthWriteEnable);
 }
 PFN_vkCmdSetDepthWriteEnableEXT glad_debug_vkCmdSetDepthWriteEnableEXT = glad_debug_impl_vkCmdSetDepthWriteEnableEXT;
 PFN_vkCmdSetDeviceMask          glad_vkCmdSetDeviceMask                = NULL;
 static void GLAD_API_PTR        glad_debug_impl_vkCmdSetDeviceMask(VkCommandBuffer commandBuffer, uint32_t deviceMask) {
         _pre_call_vulkan_callback("vkCmdSetDeviceMask",
-                                  (GLADapiproc)glad_vkCmdSetDeviceMask,
-                                  2,
-                                  commandBuffer,
-                                  deviceMask);
+	                                 (GLADapiproc)glad_vkCmdSetDeviceMask,
+	                                 2,
+	                                 commandBuffer,
+	                                 deviceMask);
         glad_vkCmdSetDeviceMask(commandBuffer, deviceMask);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDeviceMask",
-                                   (GLADapiproc)glad_vkCmdSetDeviceMask,
-                                   2,
-                                   commandBuffer,
-                                   deviceMask);
+	                                  "vkCmdSetDeviceMask",
+	                                  (GLADapiproc)glad_vkCmdSetDeviceMask,
+	                                  2,
+	                                  commandBuffer,
+	                                  deviceMask);
 }
 PFN_vkCmdSetDeviceMask    glad_debug_vkCmdSetDeviceMask = glad_debug_impl_vkCmdSetDeviceMask;
 PFN_vkCmdSetDeviceMaskKHR glad_vkCmdSetDeviceMaskKHR    = NULL;
 static void GLAD_API_PTR  glad_debug_impl_vkCmdSetDeviceMaskKHR(VkCommandBuffer commandBuffer, uint32_t deviceMask) {
         _pre_call_vulkan_callback("vkCmdSetDeviceMaskKHR",
-                                  (GLADapiproc)glad_vkCmdSetDeviceMaskKHR,
-                                  2,
-                                  commandBuffer,
-                                  deviceMask);
+	                           (GLADapiproc)glad_vkCmdSetDeviceMaskKHR,
+	                           2,
+	                           commandBuffer,
+	                           deviceMask);
         glad_vkCmdSetDeviceMaskKHR(commandBuffer, deviceMask);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDeviceMaskKHR",
-                                   (GLADapiproc)glad_vkCmdSetDeviceMaskKHR,
-                                   2,
-                                   commandBuffer,
-                                   deviceMask);
+	                            "vkCmdSetDeviceMaskKHR",
+	                            (GLADapiproc)glad_vkCmdSetDeviceMaskKHR,
+	                            2,
+	                            commandBuffer,
+	                            deviceMask);
 }
 PFN_vkCmdSetDeviceMaskKHR       glad_debug_vkCmdSetDeviceMaskKHR = glad_debug_impl_vkCmdSetDeviceMaskKHR;
 PFN_vkCmdSetDiscardRectangleEXT glad_vkCmdSetDiscardRectangleEXT = NULL;
@@ -15913,41 +15909,41 @@ static void GLAD_API_PTR        glad_debug_impl_vkCmdSetDiscardRectangleEXT(VkCo
                                                                             uint32_t        discardRectangleCount,
                                                                             const VkRect2D *pDiscardRectangles) {
         _pre_call_vulkan_callback("vkCmdSetDiscardRectangleEXT",
-                                  (GLADapiproc)glad_vkCmdSetDiscardRectangleEXT,
-                                  4,
-                                  commandBuffer,
-                                  firstDiscardRectangle,
-                                  discardRectangleCount,
-                                  pDiscardRectangles);
+	                                 (GLADapiproc)glad_vkCmdSetDiscardRectangleEXT,
+	                                 4,
+	                                 commandBuffer,
+	                                 firstDiscardRectangle,
+	                                 discardRectangleCount,
+	                                 pDiscardRectangles);
         glad_vkCmdSetDiscardRectangleEXT(commandBuffer,
-                                         firstDiscardRectangle,
-                                         discardRectangleCount,
-                                         pDiscardRectangles);
+	                                        firstDiscardRectangle,
+	                                        discardRectangleCount,
+	                                        pDiscardRectangles);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDiscardRectangleEXT",
-                                   (GLADapiproc)glad_vkCmdSetDiscardRectangleEXT,
-                                   4,
-                                   commandBuffer,
-                                   firstDiscardRectangle,
-                                   discardRectangleCount,
-                                   pDiscardRectangles);
+	                                  "vkCmdSetDiscardRectangleEXT",
+	                                  (GLADapiproc)glad_vkCmdSetDiscardRectangleEXT,
+	                                  4,
+	                                  commandBuffer,
+	                                  firstDiscardRectangle,
+	                                  discardRectangleCount,
+	                                  pDiscardRectangles);
 }
 PFN_vkCmdSetDiscardRectangleEXT glad_debug_vkCmdSetDiscardRectangleEXT = glad_debug_impl_vkCmdSetDiscardRectangleEXT;
 PFN_vkCmdSetDiscardRectangleEnableEXT glad_vkCmdSetDiscardRectangleEnableEXT = NULL;
 static void GLAD_API_PTR              glad_debug_impl_vkCmdSetDiscardRectangleEnableEXT(VkCommandBuffer commandBuffer,
                                                                                         VkBool32        discardRectangleEnable) {
         _pre_call_vulkan_callback("vkCmdSetDiscardRectangleEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetDiscardRectangleEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  discardRectangleEnable);
+	                                       (GLADapiproc)glad_vkCmdSetDiscardRectangleEnableEXT,
+	                                       2,
+	                                       commandBuffer,
+	                                       discardRectangleEnable);
         glad_vkCmdSetDiscardRectangleEnableEXT(commandBuffer, discardRectangleEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetDiscardRectangleEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetDiscardRectangleEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   discardRectangleEnable);
+	                                        "vkCmdSetDiscardRectangleEnableEXT",
+	                                        (GLADapiproc)glad_vkCmdSetDiscardRectangleEnableEXT,
+	                                        2,
+	                                        commandBuffer,
+	                                        discardRectangleEnable);
 }
 PFN_vkCmdSetDiscardRectangleEnableEXT glad_debug_vkCmdSetDiscardRectangleEnableEXT =
 	glad_debug_impl_vkCmdSetDiscardRectangleEnableEXT;
@@ -15991,24 +15987,24 @@ static void GLAD_API_PTR             glad_debug_impl_vkCmdSetExclusiveScissorEna
                                                                                       uint32_t        exclusiveScissorCount,
                                                                                       const VkBool32 *pExclusiveScissorEnables) {
         _pre_call_vulkan_callback("vkCmdSetExclusiveScissorEnableNV",
-                                  (GLADapiproc)glad_vkCmdSetExclusiveScissorEnableNV,
-                                  4,
-                                  commandBuffer,
-                                  firstExclusiveScissor,
-                                  exclusiveScissorCount,
-                                  pExclusiveScissorEnables);
+	                                      (GLADapiproc)glad_vkCmdSetExclusiveScissorEnableNV,
+	                                      4,
+	                                      commandBuffer,
+	                                      firstExclusiveScissor,
+	                                      exclusiveScissorCount,
+	                                      pExclusiveScissorEnables);
         glad_vkCmdSetExclusiveScissorEnableNV(commandBuffer,
-                                              firstExclusiveScissor,
-                                              exclusiveScissorCount,
-                                              pExclusiveScissorEnables);
+	                                                  firstExclusiveScissor,
+	                                                  exclusiveScissorCount,
+	                                                  pExclusiveScissorEnables);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetExclusiveScissorEnableNV",
-                                   (GLADapiproc)glad_vkCmdSetExclusiveScissorEnableNV,
-                                   4,
-                                   commandBuffer,
-                                   firstExclusiveScissor,
-                                   exclusiveScissorCount,
-                                   pExclusiveScissorEnables);
+	                                       "vkCmdSetExclusiveScissorEnableNV",
+	                                       (GLADapiproc)glad_vkCmdSetExclusiveScissorEnableNV,
+	                                       4,
+	                                       commandBuffer,
+	                                       firstExclusiveScissor,
+	                                       exclusiveScissorCount,
+	                                       pExclusiveScissorEnables);
 }
 PFN_vkCmdSetExclusiveScissorEnableNV glad_debug_vkCmdSetExclusiveScissorEnableNV =
 	glad_debug_impl_vkCmdSetExclusiveScissorEnableNV;
@@ -16018,24 +16014,24 @@ static void GLAD_API_PTR       glad_debug_impl_vkCmdSetExclusiveScissorNV(VkComm
                                                                           uint32_t        exclusiveScissorCount,
                                                                           const VkRect2D *pExclusiveScissors) {
         _pre_call_vulkan_callback("vkCmdSetExclusiveScissorNV",
-                                  (GLADapiproc)glad_vkCmdSetExclusiveScissorNV,
-                                  4,
-                                  commandBuffer,
-                                  firstExclusiveScissor,
-                                  exclusiveScissorCount,
-                                  pExclusiveScissors);
+	                                (GLADapiproc)glad_vkCmdSetExclusiveScissorNV,
+	                                4,
+	                                commandBuffer,
+	                                firstExclusiveScissor,
+	                                exclusiveScissorCount,
+	                                pExclusiveScissors);
         glad_vkCmdSetExclusiveScissorNV(commandBuffer,
-                                        firstExclusiveScissor,
-                                        exclusiveScissorCount,
-                                        pExclusiveScissors);
+	                                      firstExclusiveScissor,
+	                                      exclusiveScissorCount,
+	                                      pExclusiveScissors);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetExclusiveScissorNV",
-                                   (GLADapiproc)glad_vkCmdSetExclusiveScissorNV,
-                                   4,
-                                   commandBuffer,
-                                   firstExclusiveScissor,
-                                   exclusiveScissorCount,
-                                   pExclusiveScissors);
+	                                 "vkCmdSetExclusiveScissorNV",
+	                                 (GLADapiproc)glad_vkCmdSetExclusiveScissorNV,
+	                                 4,
+	                                 commandBuffer,
+	                                 firstExclusiveScissor,
+	                                 exclusiveScissorCount,
+	                                 pExclusiveScissors);
 }
 PFN_vkCmdSetExclusiveScissorNV glad_debug_vkCmdSetExclusiveScissorNV = glad_debug_impl_vkCmdSetExclusiveScissorNV;
 PFN_vkCmdSetExtraPrimitiveOverestimationSizeEXT glad_vkCmdSetExtraPrimitiveOverestimationSizeEXT = NULL;
@@ -16097,52 +16093,52 @@ static void GLAD_API_PTR   glad_debug_impl_vkCmdSetLineStippleEXT(VkCommandBuffe
                                                                   uint32_t        lineStippleFactor,
                                                                   uint16_t        lineStipplePattern) {
         _pre_call_vulkan_callback("vkCmdSetLineStippleEXT",
-                                  (GLADapiproc)glad_vkCmdSetLineStippleEXT,
-                                  3,
-                                  commandBuffer,
-                                  lineStippleFactor,
-                                  lineStipplePattern);
+	                            (GLADapiproc)glad_vkCmdSetLineStippleEXT,
+	                            3,
+	                            commandBuffer,
+	                            lineStippleFactor,
+	                            lineStipplePattern);
         glad_vkCmdSetLineStippleEXT(commandBuffer, lineStippleFactor, lineStipplePattern);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetLineStippleEXT",
-                                   (GLADapiproc)glad_vkCmdSetLineStippleEXT,
-                                   3,
-                                   commandBuffer,
-                                   lineStippleFactor,
-                                   lineStipplePattern);
+	                             "vkCmdSetLineStippleEXT",
+	                             (GLADapiproc)glad_vkCmdSetLineStippleEXT,
+	                             3,
+	                             commandBuffer,
+	                             lineStippleFactor,
+	                             lineStipplePattern);
 }
 PFN_vkCmdSetLineStippleEXT       glad_debug_vkCmdSetLineStippleEXT = glad_debug_impl_vkCmdSetLineStippleEXT;
 PFN_vkCmdSetLineStippleEnableEXT glad_vkCmdSetLineStippleEnableEXT = NULL;
 static void GLAD_API_PTR         glad_debug_impl_vkCmdSetLineStippleEnableEXT(VkCommandBuffer commandBuffer,
                                                                               VkBool32        stippledLineEnable) {
         _pre_call_vulkan_callback("vkCmdSetLineStippleEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetLineStippleEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  stippledLineEnable);
+	                                  (GLADapiproc)glad_vkCmdSetLineStippleEnableEXT,
+	                                  2,
+	                                  commandBuffer,
+	                                  stippledLineEnable);
         glad_vkCmdSetLineStippleEnableEXT(commandBuffer, stippledLineEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetLineStippleEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetLineStippleEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   stippledLineEnable);
+	                                   "vkCmdSetLineStippleEnableEXT",
+	                                   (GLADapiproc)glad_vkCmdSetLineStippleEnableEXT,
+	                                   2,
+	                                   commandBuffer,
+	                                   stippledLineEnable);
 }
 PFN_vkCmdSetLineStippleEnableEXT glad_debug_vkCmdSetLineStippleEnableEXT = glad_debug_impl_vkCmdSetLineStippleEnableEXT;
 PFN_vkCmdSetLineWidth            glad_vkCmdSetLineWidth                  = NULL;
 static void GLAD_API_PTR         glad_debug_impl_vkCmdSetLineWidth(VkCommandBuffer commandBuffer, float lineWidth) {
         _pre_call_vulkan_callback("vkCmdSetLineWidth",
-                                  (GLADapiproc)glad_vkCmdSetLineWidth,
-                                  2,
-                                  commandBuffer,
-                                  lineWidth);
+	                                  (GLADapiproc)glad_vkCmdSetLineWidth,
+	                                  2,
+	                                  commandBuffer,
+	                                  lineWidth);
         glad_vkCmdSetLineWidth(commandBuffer, lineWidth);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetLineWidth",
-                                   (GLADapiproc)glad_vkCmdSetLineWidth,
-                                   2,
-                                   commandBuffer,
-                                   lineWidth);
+	                                   "vkCmdSetLineWidth",
+	                                   (GLADapiproc)glad_vkCmdSetLineWidth,
+	                                   2,
+	                                   commandBuffer,
+	                                   lineWidth);
 }
 PFN_vkCmdSetLineWidth    glad_debug_vkCmdSetLineWidth = glad_debug_impl_vkCmdSetLineWidth;
 PFN_vkCmdSetLogicOpEXT   glad_vkCmdSetLogicOpEXT      = NULL;
@@ -16165,34 +16161,34 @@ PFN_vkCmdSetLogicOpEnableEXT glad_vkCmdSetLogicOpEnableEXT = NULL;
 static void GLAD_API_PTR     glad_debug_impl_vkCmdSetLogicOpEnableEXT(VkCommandBuffer commandBuffer,
                                                                       VkBool32        logicOpEnable) {
         _pre_call_vulkan_callback("vkCmdSetLogicOpEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetLogicOpEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  logicOpEnable);
+	                              (GLADapiproc)glad_vkCmdSetLogicOpEnableEXT,
+	                              2,
+	                              commandBuffer,
+	                              logicOpEnable);
         glad_vkCmdSetLogicOpEnableEXT(commandBuffer, logicOpEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetLogicOpEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetLogicOpEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   logicOpEnable);
+	                               "vkCmdSetLogicOpEnableEXT",
+	                               (GLADapiproc)glad_vkCmdSetLogicOpEnableEXT,
+	                               2,
+	                               commandBuffer,
+	                               logicOpEnable);
 }
 PFN_vkCmdSetLogicOpEnableEXT      glad_debug_vkCmdSetLogicOpEnableEXT = glad_debug_impl_vkCmdSetLogicOpEnableEXT;
 PFN_vkCmdSetPatchControlPointsEXT glad_vkCmdSetPatchControlPointsEXT  = NULL;
 static void GLAD_API_PTR          glad_debug_impl_vkCmdSetPatchControlPointsEXT(VkCommandBuffer commandBuffer,
                                                                                 uint32_t        patchControlPoints) {
         _pre_call_vulkan_callback("vkCmdSetPatchControlPointsEXT",
-                                  (GLADapiproc)glad_vkCmdSetPatchControlPointsEXT,
-                                  2,
-                                  commandBuffer,
-                                  patchControlPoints);
+	                                   (GLADapiproc)glad_vkCmdSetPatchControlPointsEXT,
+	                                   2,
+	                                   commandBuffer,
+	                                   patchControlPoints);
         glad_vkCmdSetPatchControlPointsEXT(commandBuffer, patchControlPoints);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetPatchControlPointsEXT",
-                                   (GLADapiproc)glad_vkCmdSetPatchControlPointsEXT,
-                                   2,
-                                   commandBuffer,
-                                   patchControlPoints);
+	                                    "vkCmdSetPatchControlPointsEXT",
+	                                    (GLADapiproc)glad_vkCmdSetPatchControlPointsEXT,
+	                                    2,
+	                                    commandBuffer,
+	                                    patchControlPoints);
 }
 PFN_vkCmdSetPatchControlPointsEXT glad_debug_vkCmdSetPatchControlPointsEXT =
 	glad_debug_impl_vkCmdSetPatchControlPointsEXT;
@@ -16263,34 +16259,34 @@ PFN_vkCmdSetPolygonModeEXT glad_vkCmdSetPolygonModeEXT = NULL;
 static void GLAD_API_PTR   glad_debug_impl_vkCmdSetPolygonModeEXT(VkCommandBuffer commandBuffer,
                                                                   VkPolygonMode   polygonMode) {
         _pre_call_vulkan_callback("vkCmdSetPolygonModeEXT",
-                                  (GLADapiproc)glad_vkCmdSetPolygonModeEXT,
-                                  2,
-                                  commandBuffer,
-                                  polygonMode);
+	                            (GLADapiproc)glad_vkCmdSetPolygonModeEXT,
+	                            2,
+	                            commandBuffer,
+	                            polygonMode);
         glad_vkCmdSetPolygonModeEXT(commandBuffer, polygonMode);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetPolygonModeEXT",
-                                   (GLADapiproc)glad_vkCmdSetPolygonModeEXT,
-                                   2,
-                                   commandBuffer,
-                                   polygonMode);
+	                             "vkCmdSetPolygonModeEXT",
+	                             (GLADapiproc)glad_vkCmdSetPolygonModeEXT,
+	                             2,
+	                             commandBuffer,
+	                             polygonMode);
 }
 PFN_vkCmdSetPolygonModeEXT            glad_debug_vkCmdSetPolygonModeEXT      = glad_debug_impl_vkCmdSetPolygonModeEXT;
 PFN_vkCmdSetPrimitiveRestartEnableEXT glad_vkCmdSetPrimitiveRestartEnableEXT = NULL;
 static void GLAD_API_PTR              glad_debug_impl_vkCmdSetPrimitiveRestartEnableEXT(VkCommandBuffer commandBuffer,
                                                                                         VkBool32        primitiveRestartEnable) {
         _pre_call_vulkan_callback("vkCmdSetPrimitiveRestartEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetPrimitiveRestartEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  primitiveRestartEnable);
+	                                       (GLADapiproc)glad_vkCmdSetPrimitiveRestartEnableEXT,
+	                                       2,
+	                                       commandBuffer,
+	                                       primitiveRestartEnable);
         glad_vkCmdSetPrimitiveRestartEnableEXT(commandBuffer, primitiveRestartEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetPrimitiveRestartEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetPrimitiveRestartEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   primitiveRestartEnable);
+	                                        "vkCmdSetPrimitiveRestartEnableEXT",
+	                                        (GLADapiproc)glad_vkCmdSetPrimitiveRestartEnableEXT,
+	                                        2,
+	                                        commandBuffer,
+	                                        primitiveRestartEnable);
 }
 PFN_vkCmdSetPrimitiveRestartEnableEXT glad_debug_vkCmdSetPrimitiveRestartEnableEXT =
 	glad_debug_impl_vkCmdSetPrimitiveRestartEnableEXT;
@@ -16298,34 +16294,34 @@ PFN_vkCmdSetPrimitiveTopologyEXT glad_vkCmdSetPrimitiveTopologyEXT = NULL;
 static void GLAD_API_PTR         glad_debug_impl_vkCmdSetPrimitiveTopologyEXT(VkCommandBuffer     commandBuffer,
                                                                               VkPrimitiveTopology primitiveTopology) {
         _pre_call_vulkan_callback("vkCmdSetPrimitiveTopologyEXT",
-                                  (GLADapiproc)glad_vkCmdSetPrimitiveTopologyEXT,
-                                  2,
-                                  commandBuffer,
-                                  primitiveTopology);
+	                                  (GLADapiproc)glad_vkCmdSetPrimitiveTopologyEXT,
+	                                  2,
+	                                  commandBuffer,
+	                                  primitiveTopology);
         glad_vkCmdSetPrimitiveTopologyEXT(commandBuffer, primitiveTopology);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetPrimitiveTopologyEXT",
-                                   (GLADapiproc)glad_vkCmdSetPrimitiveTopologyEXT,
-                                   2,
-                                   commandBuffer,
-                                   primitiveTopology);
+	                                   "vkCmdSetPrimitiveTopologyEXT",
+	                                   (GLADapiproc)glad_vkCmdSetPrimitiveTopologyEXT,
+	                                   2,
+	                                   commandBuffer,
+	                                   primitiveTopology);
 }
 PFN_vkCmdSetPrimitiveTopologyEXT glad_debug_vkCmdSetPrimitiveTopologyEXT = glad_debug_impl_vkCmdSetPrimitiveTopologyEXT;
 PFN_vkCmdSetProvokingVertexModeEXT glad_vkCmdSetProvokingVertexModeEXT   = NULL;
 static void GLAD_API_PTR           glad_debug_impl_vkCmdSetProvokingVertexModeEXT(VkCommandBuffer          commandBuffer,
                                                                                   VkProvokingVertexModeEXT provokingVertexMode) {
         _pre_call_vulkan_callback("vkCmdSetProvokingVertexModeEXT",
-                                  (GLADapiproc)glad_vkCmdSetProvokingVertexModeEXT,
-                                  2,
-                                  commandBuffer,
-                                  provokingVertexMode);
+	                                    (GLADapiproc)glad_vkCmdSetProvokingVertexModeEXT,
+	                                    2,
+	                                    commandBuffer,
+	                                    provokingVertexMode);
         glad_vkCmdSetProvokingVertexModeEXT(commandBuffer, provokingVertexMode);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetProvokingVertexModeEXT",
-                                   (GLADapiproc)glad_vkCmdSetProvokingVertexModeEXT,
-                                   2,
-                                   commandBuffer,
-                                   provokingVertexMode);
+	                                     "vkCmdSetProvokingVertexModeEXT",
+	                                     (GLADapiproc)glad_vkCmdSetProvokingVertexModeEXT,
+	                                     2,
+	                                     commandBuffer,
+	                                     provokingVertexMode);
 }
 PFN_vkCmdSetProvokingVertexModeEXT glad_debug_vkCmdSetProvokingVertexModeEXT =
 	glad_debug_impl_vkCmdSetProvokingVertexModeEXT;
@@ -16333,17 +16329,17 @@ PFN_vkCmdSetRasterizationSamplesEXT glad_vkCmdSetRasterizationSamplesEXT = NULL;
 static void GLAD_API_PTR            glad_debug_impl_vkCmdSetRasterizationSamplesEXT(VkCommandBuffer       commandBuffer,
                                                                                     VkSampleCountFlagBits rasterizationSamples) {
         _pre_call_vulkan_callback("vkCmdSetRasterizationSamplesEXT",
-                                  (GLADapiproc)glad_vkCmdSetRasterizationSamplesEXT,
-                                  2,
-                                  commandBuffer,
-                                  rasterizationSamples);
+	                                     (GLADapiproc)glad_vkCmdSetRasterizationSamplesEXT,
+	                                     2,
+	                                     commandBuffer,
+	                                     rasterizationSamples);
         glad_vkCmdSetRasterizationSamplesEXT(commandBuffer, rasterizationSamples);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetRasterizationSamplesEXT",
-                                   (GLADapiproc)glad_vkCmdSetRasterizationSamplesEXT,
-                                   2,
-                                   commandBuffer,
-                                   rasterizationSamples);
+	                                      "vkCmdSetRasterizationSamplesEXT",
+	                                      (GLADapiproc)glad_vkCmdSetRasterizationSamplesEXT,
+	                                      2,
+	                                      commandBuffer,
+	                                      rasterizationSamples);
 }
 PFN_vkCmdSetRasterizationSamplesEXT glad_debug_vkCmdSetRasterizationSamplesEXT =
 	glad_debug_impl_vkCmdSetRasterizationSamplesEXT;
@@ -16351,17 +16347,17 @@ PFN_vkCmdSetRasterizationStreamEXT glad_vkCmdSetRasterizationStreamEXT = NULL;
 static void GLAD_API_PTR           glad_debug_impl_vkCmdSetRasterizationStreamEXT(VkCommandBuffer commandBuffer,
                                                                                   uint32_t        rasterizationStream) {
         _pre_call_vulkan_callback("vkCmdSetRasterizationStreamEXT",
-                                  (GLADapiproc)glad_vkCmdSetRasterizationStreamEXT,
-                                  2,
-                                  commandBuffer,
-                                  rasterizationStream);
+	                                    (GLADapiproc)glad_vkCmdSetRasterizationStreamEXT,
+	                                    2,
+	                                    commandBuffer,
+	                                    rasterizationStream);
         glad_vkCmdSetRasterizationStreamEXT(commandBuffer, rasterizationStream);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetRasterizationStreamEXT",
-                                   (GLADapiproc)glad_vkCmdSetRasterizationStreamEXT,
-                                   2,
-                                   commandBuffer,
-                                   rasterizationStream);
+	                                     "vkCmdSetRasterizationStreamEXT",
+	                                     (GLADapiproc)glad_vkCmdSetRasterizationStreamEXT,
+	                                     2,
+	                                     commandBuffer,
+	                                     rasterizationStream);
 }
 PFN_vkCmdSetRasterizationStreamEXT glad_debug_vkCmdSetRasterizationStreamEXT =
 	glad_debug_impl_vkCmdSetRasterizationStreamEXT;
@@ -16369,17 +16365,17 @@ PFN_vkCmdSetRasterizerDiscardEnableEXT glad_vkCmdSetRasterizerDiscardEnableEXT =
 static void GLAD_API_PTR               glad_debug_impl_vkCmdSetRasterizerDiscardEnableEXT(VkCommandBuffer commandBuffer,
                                                                                           VkBool32        rasterizerDiscardEnable) {
         _pre_call_vulkan_callback("vkCmdSetRasterizerDiscardEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetRasterizerDiscardEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  rasterizerDiscardEnable);
+	                                        (GLADapiproc)glad_vkCmdSetRasterizerDiscardEnableEXT,
+	                                        2,
+	                                        commandBuffer,
+	                                        rasterizerDiscardEnable);
         glad_vkCmdSetRasterizerDiscardEnableEXT(commandBuffer, rasterizerDiscardEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetRasterizerDiscardEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetRasterizerDiscardEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   rasterizerDiscardEnable);
+	                                         "vkCmdSetRasterizerDiscardEnableEXT",
+	                                         (GLADapiproc)glad_vkCmdSetRasterizerDiscardEnableEXT,
+	                                         2,
+	                                         commandBuffer,
+	                                         rasterizerDiscardEnable);
 }
 PFN_vkCmdSetRasterizerDiscardEnableEXT glad_debug_vkCmdSetRasterizerDiscardEnableEXT =
 	glad_debug_impl_vkCmdSetRasterizerDiscardEnableEXT;
@@ -16424,17 +16420,17 @@ PFN_vkCmdSetSampleLocationsEnableEXT glad_vkCmdSetSampleLocationsEnableEXT = NUL
 static void GLAD_API_PTR             glad_debug_impl_vkCmdSetSampleLocationsEnableEXT(VkCommandBuffer commandBuffer,
                                                                                       VkBool32        sampleLocationsEnable) {
         _pre_call_vulkan_callback("vkCmdSetSampleLocationsEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetSampleLocationsEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  sampleLocationsEnable);
+	                                      (GLADapiproc)glad_vkCmdSetSampleLocationsEnableEXT,
+	                                      2,
+	                                      commandBuffer,
+	                                      sampleLocationsEnable);
         glad_vkCmdSetSampleLocationsEnableEXT(commandBuffer, sampleLocationsEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetSampleLocationsEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetSampleLocationsEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   sampleLocationsEnable);
+	                                       "vkCmdSetSampleLocationsEnableEXT",
+	                                       (GLADapiproc)glad_vkCmdSetSampleLocationsEnableEXT,
+	                                       2,
+	                                       commandBuffer,
+	                                       sampleLocationsEnable);
 }
 PFN_vkCmdSetSampleLocationsEnableEXT glad_debug_vkCmdSetSampleLocationsEnableEXT =
 	glad_debug_impl_vkCmdSetSampleLocationsEnableEXT;
@@ -16443,19 +16439,19 @@ static void GLAD_API_PTR  glad_debug_impl_vkCmdSetSampleMaskEXT(VkCommandBuffer 
                                                                 VkSampleCountFlagBits samples,
                                                                 const VkSampleMask   *pSampleMask) {
         _pre_call_vulkan_callback("vkCmdSetSampleMaskEXT",
-                                  (GLADapiproc)glad_vkCmdSetSampleMaskEXT,
-                                  3,
-                                  commandBuffer,
-                                  samples,
-                                  pSampleMask);
+	                           (GLADapiproc)glad_vkCmdSetSampleMaskEXT,
+	                           3,
+	                           commandBuffer,
+	                           samples,
+	                           pSampleMask);
         glad_vkCmdSetSampleMaskEXT(commandBuffer, samples, pSampleMask);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetSampleMaskEXT",
-                                   (GLADapiproc)glad_vkCmdSetSampleMaskEXT,
-                                   3,
-                                   commandBuffer,
-                                   samples,
-                                   pSampleMask);
+	                            "vkCmdSetSampleMaskEXT",
+	                            (GLADapiproc)glad_vkCmdSetSampleMaskEXT,
+	                            3,
+	                            commandBuffer,
+	                            samples,
+	                            pSampleMask);
 }
 PFN_vkCmdSetSampleMaskEXT glad_debug_vkCmdSetSampleMaskEXT = glad_debug_impl_vkCmdSetSampleMaskEXT;
 PFN_vkCmdSetScissor       glad_vkCmdSetScissor             = NULL;
@@ -16464,21 +16460,21 @@ static void GLAD_API_PTR  glad_debug_impl_vkCmdSetScissor(VkCommandBuffer comman
                                                           uint32_t        scissorCount,
                                                           const VkRect2D *pScissors) {
         _pre_call_vulkan_callback("vkCmdSetScissor",
-                                  (GLADapiproc)glad_vkCmdSetScissor,
-                                  4,
-                                  commandBuffer,
-                                  firstScissor,
-                                  scissorCount,
-                                  pScissors);
+	                           (GLADapiproc)glad_vkCmdSetScissor,
+	                           4,
+	                           commandBuffer,
+	                           firstScissor,
+	                           scissorCount,
+	                           pScissors);
         glad_vkCmdSetScissor(commandBuffer, firstScissor, scissorCount, pScissors);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetScissor",
-                                   (GLADapiproc)glad_vkCmdSetScissor,
-                                   4,
-                                   commandBuffer,
-                                   firstScissor,
-                                   scissorCount,
-                                   pScissors);
+	                            "vkCmdSetScissor",
+	                            (GLADapiproc)glad_vkCmdSetScissor,
+	                            4,
+	                            commandBuffer,
+	                            firstScissor,
+	                            scissorCount,
+	                            pScissors);
 }
 PFN_vkCmdSetScissor             glad_debug_vkCmdSetScissor       = glad_debug_impl_vkCmdSetScissor;
 PFN_vkCmdSetScissorWithCountEXT glad_vkCmdSetScissorWithCountEXT = NULL;
@@ -16486,36 +16482,36 @@ static void GLAD_API_PTR        glad_debug_impl_vkCmdSetScissorWithCountEXT(VkCo
                                                                             uint32_t        scissorCount,
                                                                             const VkRect2D *pScissors) {
         _pre_call_vulkan_callback("vkCmdSetScissorWithCountEXT",
-                                  (GLADapiproc)glad_vkCmdSetScissorWithCountEXT,
-                                  3,
-                                  commandBuffer,
-                                  scissorCount,
-                                  pScissors);
+	                                 (GLADapiproc)glad_vkCmdSetScissorWithCountEXT,
+	                                 3,
+	                                 commandBuffer,
+	                                 scissorCount,
+	                                 pScissors);
         glad_vkCmdSetScissorWithCountEXT(commandBuffer, scissorCount, pScissors);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetScissorWithCountEXT",
-                                   (GLADapiproc)glad_vkCmdSetScissorWithCountEXT,
-                                   3,
-                                   commandBuffer,
-                                   scissorCount,
-                                   pScissors);
+	                                  "vkCmdSetScissorWithCountEXT",
+	                                  (GLADapiproc)glad_vkCmdSetScissorWithCountEXT,
+	                                  3,
+	                                  commandBuffer,
+	                                  scissorCount,
+	                                  pScissors);
 }
 PFN_vkCmdSetScissorWithCountEXT glad_debug_vkCmdSetScissorWithCountEXT = glad_debug_impl_vkCmdSetScissorWithCountEXT;
 PFN_vkCmdSetShadingRateImageEnableNV glad_vkCmdSetShadingRateImageEnableNV = NULL;
 static void GLAD_API_PTR             glad_debug_impl_vkCmdSetShadingRateImageEnableNV(VkCommandBuffer commandBuffer,
                                                                                       VkBool32        shadingRateImageEnable) {
         _pre_call_vulkan_callback("vkCmdSetShadingRateImageEnableNV",
-                                  (GLADapiproc)glad_vkCmdSetShadingRateImageEnableNV,
-                                  2,
-                                  commandBuffer,
-                                  shadingRateImageEnable);
+	                                      (GLADapiproc)glad_vkCmdSetShadingRateImageEnableNV,
+	                                      2,
+	                                      commandBuffer,
+	                                      shadingRateImageEnable);
         glad_vkCmdSetShadingRateImageEnableNV(commandBuffer, shadingRateImageEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetShadingRateImageEnableNV",
-                                   (GLADapiproc)glad_vkCmdSetShadingRateImageEnableNV,
-                                   2,
-                                   commandBuffer,
-                                   shadingRateImageEnable);
+	                                       "vkCmdSetShadingRateImageEnableNV",
+	                                       (GLADapiproc)glad_vkCmdSetShadingRateImageEnableNV,
+	                                       2,
+	                                       commandBuffer,
+	                                       shadingRateImageEnable);
 }
 PFN_vkCmdSetShadingRateImageEnableNV glad_debug_vkCmdSetShadingRateImageEnableNV =
 	glad_debug_impl_vkCmdSetShadingRateImageEnableNV;
@@ -16524,19 +16520,19 @@ static void GLAD_API_PTR       glad_debug_impl_vkCmdSetStencilCompareMask(VkComm
                                                                           VkStencilFaceFlags faceMask,
                                                                           uint32_t           compareMask) {
         _pre_call_vulkan_callback("vkCmdSetStencilCompareMask",
-                                  (GLADapiproc)glad_vkCmdSetStencilCompareMask,
-                                  3,
-                                  commandBuffer,
-                                  faceMask,
-                                  compareMask);
+	                                (GLADapiproc)glad_vkCmdSetStencilCompareMask,
+	                                3,
+	                                commandBuffer,
+	                                faceMask,
+	                                compareMask);
         glad_vkCmdSetStencilCompareMask(commandBuffer, faceMask, compareMask);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetStencilCompareMask",
-                                   (GLADapiproc)glad_vkCmdSetStencilCompareMask,
-                                   3,
-                                   commandBuffer,
-                                   faceMask,
-                                   compareMask);
+	                                 "vkCmdSetStencilCompareMask",
+	                                 (GLADapiproc)glad_vkCmdSetStencilCompareMask,
+	                                 3,
+	                                 commandBuffer,
+	                                 faceMask,
+	                                 compareMask);
 }
 PFN_vkCmdSetStencilCompareMask glad_debug_vkCmdSetStencilCompareMask = glad_debug_impl_vkCmdSetStencilCompareMask;
 PFN_vkCmdSetStencilOpEXT       glad_vkCmdSetStencilOpEXT             = NULL;
@@ -16547,25 +16543,25 @@ static void GLAD_API_PTR       glad_debug_impl_vkCmdSetStencilOpEXT(VkCommandBuf
                                                                     VkStencilOp        depthFailOp,
                                                                     VkCompareOp        compareOp) {
         _pre_call_vulkan_callback("vkCmdSetStencilOpEXT",
-                                  (GLADapiproc)glad_vkCmdSetStencilOpEXT,
-                                  6,
-                                  commandBuffer,
-                                  faceMask,
-                                  failOp,
-                                  passOp,
-                                  depthFailOp,
-                                  compareOp);
+	                                (GLADapiproc)glad_vkCmdSetStencilOpEXT,
+	                                6,
+	                                commandBuffer,
+	                                faceMask,
+	                                failOp,
+	                                passOp,
+	                                depthFailOp,
+	                                compareOp);
         glad_vkCmdSetStencilOpEXT(commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetStencilOpEXT",
-                                   (GLADapiproc)glad_vkCmdSetStencilOpEXT,
-                                   6,
-                                   commandBuffer,
-                                   faceMask,
-                                   failOp,
-                                   passOp,
-                                   depthFailOp,
-                                   compareOp);
+	                                 "vkCmdSetStencilOpEXT",
+	                                 (GLADapiproc)glad_vkCmdSetStencilOpEXT,
+	                                 6,
+	                                 commandBuffer,
+	                                 faceMask,
+	                                 failOp,
+	                                 passOp,
+	                                 depthFailOp,
+	                                 compareOp);
 }
 PFN_vkCmdSetStencilOpEXT     glad_debug_vkCmdSetStencilOpEXT = glad_debug_impl_vkCmdSetStencilOpEXT;
 PFN_vkCmdSetStencilReference glad_vkCmdSetStencilReference   = NULL;
@@ -16573,36 +16569,36 @@ static void GLAD_API_PTR     glad_debug_impl_vkCmdSetStencilReference(VkCommandB
                                                                       VkStencilFaceFlags faceMask,
                                                                       uint32_t           reference) {
         _pre_call_vulkan_callback("vkCmdSetStencilReference",
-                                  (GLADapiproc)glad_vkCmdSetStencilReference,
-                                  3,
-                                  commandBuffer,
-                                  faceMask,
-                                  reference);
+	                              (GLADapiproc)glad_vkCmdSetStencilReference,
+	                              3,
+	                              commandBuffer,
+	                              faceMask,
+	                              reference);
         glad_vkCmdSetStencilReference(commandBuffer, faceMask, reference);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetStencilReference",
-                                   (GLADapiproc)glad_vkCmdSetStencilReference,
-                                   3,
-                                   commandBuffer,
-                                   faceMask,
-                                   reference);
+	                               "vkCmdSetStencilReference",
+	                               (GLADapiproc)glad_vkCmdSetStencilReference,
+	                               3,
+	                               commandBuffer,
+	                               faceMask,
+	                               reference);
 }
 PFN_vkCmdSetStencilReference     glad_debug_vkCmdSetStencilReference = glad_debug_impl_vkCmdSetStencilReference;
 PFN_vkCmdSetStencilTestEnableEXT glad_vkCmdSetStencilTestEnableEXT   = NULL;
 static void GLAD_API_PTR         glad_debug_impl_vkCmdSetStencilTestEnableEXT(VkCommandBuffer commandBuffer,
                                                                               VkBool32        stencilTestEnable) {
         _pre_call_vulkan_callback("vkCmdSetStencilTestEnableEXT",
-                                  (GLADapiproc)glad_vkCmdSetStencilTestEnableEXT,
-                                  2,
-                                  commandBuffer,
-                                  stencilTestEnable);
+	                                  (GLADapiproc)glad_vkCmdSetStencilTestEnableEXT,
+	                                  2,
+	                                  commandBuffer,
+	                                  stencilTestEnable);
         glad_vkCmdSetStencilTestEnableEXT(commandBuffer, stencilTestEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetStencilTestEnableEXT",
-                                   (GLADapiproc)glad_vkCmdSetStencilTestEnableEXT,
-                                   2,
-                                   commandBuffer,
-                                   stencilTestEnable);
+	                                   "vkCmdSetStencilTestEnableEXT",
+	                                   (GLADapiproc)glad_vkCmdSetStencilTestEnableEXT,
+	                                   2,
+	                                   commandBuffer,
+	                                   stencilTestEnable);
 }
 PFN_vkCmdSetStencilTestEnableEXT glad_debug_vkCmdSetStencilTestEnableEXT = glad_debug_impl_vkCmdSetStencilTestEnableEXT;
 PFN_vkCmdSetStencilWriteMask     glad_vkCmdSetStencilWriteMask           = NULL;
@@ -16610,19 +16606,19 @@ static void GLAD_API_PTR         glad_debug_impl_vkCmdSetStencilWriteMask(VkComm
                                                                           VkStencilFaceFlags faceMask,
                                                                           uint32_t           writeMask) {
         _pre_call_vulkan_callback("vkCmdSetStencilWriteMask",
-                                  (GLADapiproc)glad_vkCmdSetStencilWriteMask,
-                                  3,
-                                  commandBuffer,
-                                  faceMask,
-                                  writeMask);
+	                                  (GLADapiproc)glad_vkCmdSetStencilWriteMask,
+	                                  3,
+	                                  commandBuffer,
+	                                  faceMask,
+	                                  writeMask);
         glad_vkCmdSetStencilWriteMask(commandBuffer, faceMask, writeMask);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetStencilWriteMask",
-                                   (GLADapiproc)glad_vkCmdSetStencilWriteMask,
-                                   3,
-                                   commandBuffer,
-                                   faceMask,
-                                   writeMask);
+	                                   "vkCmdSetStencilWriteMask",
+	                                   (GLADapiproc)glad_vkCmdSetStencilWriteMask,
+	                                   3,
+	                                   commandBuffer,
+	                                   faceMask,
+	                                   writeMask);
 }
 PFN_vkCmdSetStencilWriteMask            glad_debug_vkCmdSetStencilWriteMask = glad_debug_impl_vkCmdSetStencilWriteMask;
 PFN_vkCmdSetTessellationDomainOriginEXT glad_vkCmdSetTessellationDomainOriginEXT = NULL;
@@ -16680,21 +16676,21 @@ static void GLAD_API_PTR   glad_debug_impl_vkCmdSetViewport(VkCommandBuffer   co
                                                             uint32_t          viewportCount,
                                                             const VkViewport *pViewports) {
         _pre_call_vulkan_callback("vkCmdSetViewport",
-                                  (GLADapiproc)glad_vkCmdSetViewport,
-                                  4,
-                                  commandBuffer,
-                                  firstViewport,
-                                  viewportCount,
-                                  pViewports);
+	                            (GLADapiproc)glad_vkCmdSetViewport,
+	                            4,
+	                            commandBuffer,
+	                            firstViewport,
+	                            viewportCount,
+	                            pViewports);
         glad_vkCmdSetViewport(commandBuffer, firstViewport, viewportCount, pViewports);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetViewport",
-                                   (GLADapiproc)glad_vkCmdSetViewport,
-                                   4,
-                                   commandBuffer,
-                                   firstViewport,
-                                   viewportCount,
-                                   pViewports);
+	                             "vkCmdSetViewport",
+	                             (GLADapiproc)glad_vkCmdSetViewport,
+	                             4,
+	                             commandBuffer,
+	                             firstViewport,
+	                             viewportCount,
+	                             pViewports);
 }
 PFN_vkCmdSetViewport                     glad_debug_vkCmdSetViewport               = glad_debug_impl_vkCmdSetViewport;
 PFN_vkCmdSetViewportShadingRatePaletteNV glad_vkCmdSetViewportShadingRatePaletteNV = NULL;
@@ -16728,38 +16724,38 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdSetViewportSwizzleNV(VkComman
                                                                         uint32_t                   viewportCount,
                                                                         const VkViewportSwizzleNV *pViewportSwizzles) {
         _pre_call_vulkan_callback("vkCmdSetViewportSwizzleNV",
-                                  (GLADapiproc)glad_vkCmdSetViewportSwizzleNV,
-                                  4,
-                                  commandBuffer,
-                                  firstViewport,
-                                  viewportCount,
-                                  pViewportSwizzles);
+	                               (GLADapiproc)glad_vkCmdSetViewportSwizzleNV,
+	                               4,
+	                               commandBuffer,
+	                               firstViewport,
+	                               viewportCount,
+	                               pViewportSwizzles);
         glad_vkCmdSetViewportSwizzleNV(commandBuffer, firstViewport, viewportCount, pViewportSwizzles);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetViewportSwizzleNV",
-                                   (GLADapiproc)glad_vkCmdSetViewportSwizzleNV,
-                                   4,
-                                   commandBuffer,
-                                   firstViewport,
-                                   viewportCount,
-                                   pViewportSwizzles);
+	                                "vkCmdSetViewportSwizzleNV",
+	                                (GLADapiproc)glad_vkCmdSetViewportSwizzleNV,
+	                                4,
+	                                commandBuffer,
+	                                firstViewport,
+	                                viewportCount,
+	                                pViewportSwizzles);
 }
 PFN_vkCmdSetViewportSwizzleNV        glad_debug_vkCmdSetViewportSwizzleNV  = glad_debug_impl_vkCmdSetViewportSwizzleNV;
 PFN_vkCmdSetViewportWScalingEnableNV glad_vkCmdSetViewportWScalingEnableNV = NULL;
 static void GLAD_API_PTR             glad_debug_impl_vkCmdSetViewportWScalingEnableNV(VkCommandBuffer commandBuffer,
                                                                                       VkBool32        viewportWScalingEnable) {
         _pre_call_vulkan_callback("vkCmdSetViewportWScalingEnableNV",
-                                  (GLADapiproc)glad_vkCmdSetViewportWScalingEnableNV,
-                                  2,
-                                  commandBuffer,
-                                  viewportWScalingEnable);
+	                                      (GLADapiproc)glad_vkCmdSetViewportWScalingEnableNV,
+	                                      2,
+	                                      commandBuffer,
+	                                      viewportWScalingEnable);
         glad_vkCmdSetViewportWScalingEnableNV(commandBuffer, viewportWScalingEnable);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetViewportWScalingEnableNV",
-                                   (GLADapiproc)glad_vkCmdSetViewportWScalingEnableNV,
-                                   2,
-                                   commandBuffer,
-                                   viewportWScalingEnable);
+	                                       "vkCmdSetViewportWScalingEnableNV",
+	                                       (GLADapiproc)glad_vkCmdSetViewportWScalingEnableNV,
+	                                       2,
+	                                       commandBuffer,
+	                                       viewportWScalingEnable);
 }
 PFN_vkCmdSetViewportWScalingEnableNV glad_debug_vkCmdSetViewportWScalingEnableNV =
 	glad_debug_impl_vkCmdSetViewportWScalingEnableNV;
@@ -16769,21 +16765,21 @@ static void GLAD_API_PTR       glad_debug_impl_vkCmdSetViewportWScalingNV(VkComm
                                                                           uint32_t                    viewportCount,
                                                                           const VkViewportWScalingNV *pViewportWScalings) {
         _pre_call_vulkan_callback("vkCmdSetViewportWScalingNV",
-                                  (GLADapiproc)glad_vkCmdSetViewportWScalingNV,
-                                  4,
-                                  commandBuffer,
-                                  firstViewport,
-                                  viewportCount,
-                                  pViewportWScalings);
+	                                (GLADapiproc)glad_vkCmdSetViewportWScalingNV,
+	                                4,
+	                                commandBuffer,
+	                                firstViewport,
+	                                viewportCount,
+	                                pViewportWScalings);
         glad_vkCmdSetViewportWScalingNV(commandBuffer, firstViewport, viewportCount, pViewportWScalings);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetViewportWScalingNV",
-                                   (GLADapiproc)glad_vkCmdSetViewportWScalingNV,
-                                   4,
-                                   commandBuffer,
-                                   firstViewport,
-                                   viewportCount,
-                                   pViewportWScalings);
+	                                 "vkCmdSetViewportWScalingNV",
+	                                 (GLADapiproc)glad_vkCmdSetViewportWScalingNV,
+	                                 4,
+	                                 commandBuffer,
+	                                 firstViewport,
+	                                 viewportCount,
+	                                 pViewportWScalings);
 }
 PFN_vkCmdSetViewportWScalingNV   glad_debug_vkCmdSetViewportWScalingNV = glad_debug_impl_vkCmdSetViewportWScalingNV;
 PFN_vkCmdSetViewportWithCountEXT glad_vkCmdSetViewportWithCountEXT     = NULL;
@@ -16791,19 +16787,19 @@ static void GLAD_API_PTR         glad_debug_impl_vkCmdSetViewportWithCountEXT(Vk
                                                                               uint32_t          viewportCount,
                                                                               const VkViewport *pViewports) {
         _pre_call_vulkan_callback("vkCmdSetViewportWithCountEXT",
-                                  (GLADapiproc)glad_vkCmdSetViewportWithCountEXT,
-                                  3,
-                                  commandBuffer,
-                                  viewportCount,
-                                  pViewports);
+	                                  (GLADapiproc)glad_vkCmdSetViewportWithCountEXT,
+	                                  3,
+	                                  commandBuffer,
+	                                  viewportCount,
+	                                  pViewports);
         glad_vkCmdSetViewportWithCountEXT(commandBuffer, viewportCount, pViewports);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdSetViewportWithCountEXT",
-                                   (GLADapiproc)glad_vkCmdSetViewportWithCountEXT,
-                                   3,
-                                   commandBuffer,
-                                   viewportCount,
-                                   pViewports);
+	                                   "vkCmdSetViewportWithCountEXT",
+	                                   (GLADapiproc)glad_vkCmdSetViewportWithCountEXT,
+	                                   3,
+	                                   commandBuffer,
+	                                   viewportCount,
+	                                   pViewports);
 }
 PFN_vkCmdSetViewportWithCountEXT glad_debug_vkCmdSetViewportWithCountEXT = glad_debug_impl_vkCmdSetViewportWithCountEXT;
 PFN_vkCmdTraceRaysNV             glad_vkCmdTraceRaysNV                   = NULL;
@@ -16823,57 +16819,57 @@ static void GLAD_API_PTR         glad_debug_impl_vkCmdTraceRaysNV(VkCommandBuffe
                                                                   uint32_t        height,
                                                                   uint32_t        depth) {
         _pre_call_vulkan_callback("vkCmdTraceRaysNV",
-                                  (GLADapiproc)glad_vkCmdTraceRaysNV,
-                                  15,
-                                  commandBuffer,
-                                  raygenShaderBindingTableBuffer,
-                                  raygenShaderBindingOffset,
-                                  missShaderBindingTableBuffer,
-                                  missShaderBindingOffset,
-                                  missShaderBindingStride,
-                                  hitShaderBindingTableBuffer,
-                                  hitShaderBindingOffset,
-                                  hitShaderBindingStride,
-                                  callableShaderBindingTableBuffer,
-                                  callableShaderBindingOffset,
-                                  callableShaderBindingStride,
-                                  width,
-                                  height,
-                                  depth);
+	                                  (GLADapiproc)glad_vkCmdTraceRaysNV,
+	                                  15,
+	                                  commandBuffer,
+	                                  raygenShaderBindingTableBuffer,
+	                                  raygenShaderBindingOffset,
+	                                  missShaderBindingTableBuffer,
+	                                  missShaderBindingOffset,
+	                                  missShaderBindingStride,
+	                                  hitShaderBindingTableBuffer,
+	                                  hitShaderBindingOffset,
+	                                  hitShaderBindingStride,
+	                                  callableShaderBindingTableBuffer,
+	                                  callableShaderBindingOffset,
+	                                  callableShaderBindingStride,
+	                                  width,
+	                                  height,
+	                                  depth);
         glad_vkCmdTraceRaysNV(commandBuffer,
-                              raygenShaderBindingTableBuffer,
-                              raygenShaderBindingOffset,
-                              missShaderBindingTableBuffer,
-                              missShaderBindingOffset,
-                              missShaderBindingStride,
-                              hitShaderBindingTableBuffer,
-                              hitShaderBindingOffset,
-                              hitShaderBindingStride,
-                              callableShaderBindingTableBuffer,
-                              callableShaderBindingOffset,
-                              callableShaderBindingStride,
-                              width,
-                              height,
-                              depth);
+	                              raygenShaderBindingTableBuffer,
+	                              raygenShaderBindingOffset,
+	                              missShaderBindingTableBuffer,
+	                              missShaderBindingOffset,
+	                              missShaderBindingStride,
+	                              hitShaderBindingTableBuffer,
+	                              hitShaderBindingOffset,
+	                              hitShaderBindingStride,
+	                              callableShaderBindingTableBuffer,
+	                              callableShaderBindingOffset,
+	                              callableShaderBindingStride,
+	                              width,
+	                              height,
+	                              depth);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdTraceRaysNV",
-                                   (GLADapiproc)glad_vkCmdTraceRaysNV,
-                                   15,
-                                   commandBuffer,
-                                   raygenShaderBindingTableBuffer,
-                                   raygenShaderBindingOffset,
-                                   missShaderBindingTableBuffer,
-                                   missShaderBindingOffset,
-                                   missShaderBindingStride,
-                                   hitShaderBindingTableBuffer,
-                                   hitShaderBindingOffset,
-                                   hitShaderBindingStride,
-                                   callableShaderBindingTableBuffer,
-                                   callableShaderBindingOffset,
-                                   callableShaderBindingStride,
-                                   width,
-                                   height,
-                                   depth);
+	                                   "vkCmdTraceRaysNV",
+	                                   (GLADapiproc)glad_vkCmdTraceRaysNV,
+	                                   15,
+	                                   commandBuffer,
+	                                   raygenShaderBindingTableBuffer,
+	                                   raygenShaderBindingOffset,
+	                                   missShaderBindingTableBuffer,
+	                                   missShaderBindingOffset,
+	                                   missShaderBindingStride,
+	                                   hitShaderBindingTableBuffer,
+	                                   hitShaderBindingOffset,
+	                                   hitShaderBindingStride,
+	                                   callableShaderBindingTableBuffer,
+	                                   callableShaderBindingOffset,
+	                                   callableShaderBindingStride,
+	                                   width,
+	                                   height,
+	                                   depth);
 }
 PFN_vkCmdTraceRaysNV     glad_debug_vkCmdTraceRaysNV = glad_debug_impl_vkCmdTraceRaysNV;
 PFN_vkCmdUpdateBuffer    glad_vkCmdUpdateBuffer      = NULL;
@@ -16999,23 +16995,23 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdWriteBufferMarkerAMD(VkComman
                                                                         VkDeviceSize            dstOffset,
                                                                         uint32_t                marker) {
         _pre_call_vulkan_callback("vkCmdWriteBufferMarkerAMD",
-                                  (GLADapiproc)glad_vkCmdWriteBufferMarkerAMD,
-                                  5,
-                                  commandBuffer,
-                                  pipelineStage,
-                                  dstBuffer,
-                                  dstOffset,
-                                  marker);
+	                               (GLADapiproc)glad_vkCmdWriteBufferMarkerAMD,
+	                               5,
+	                               commandBuffer,
+	                               pipelineStage,
+	                               dstBuffer,
+	                               dstOffset,
+	                               marker);
         glad_vkCmdWriteBufferMarkerAMD(commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdWriteBufferMarkerAMD",
-                                   (GLADapiproc)glad_vkCmdWriteBufferMarkerAMD,
-                                   5,
-                                   commandBuffer,
-                                   pipelineStage,
-                                   dstBuffer,
-                                   dstOffset,
-                                   marker);
+	                                "vkCmdWriteBufferMarkerAMD",
+	                                (GLADapiproc)glad_vkCmdWriteBufferMarkerAMD,
+	                                5,
+	                                commandBuffer,
+	                                pipelineStage,
+	                                dstBuffer,
+	                                dstOffset,
+	                                marker);
 }
 PFN_vkCmdWriteBufferMarkerAMD glad_debug_vkCmdWriteBufferMarkerAMD = glad_debug_impl_vkCmdWriteBufferMarkerAMD;
 PFN_vkCmdWriteTimestamp       glad_vkCmdWriteTimestamp             = NULL;
@@ -17024,21 +17020,21 @@ static void GLAD_API_PTR      glad_debug_impl_vkCmdWriteTimestamp(VkCommandBuffe
                                                                   VkQueryPool             queryPool,
                                                                   uint32_t                query) {
         _pre_call_vulkan_callback("vkCmdWriteTimestamp",
-                                  (GLADapiproc)glad_vkCmdWriteTimestamp,
-                                  4,
-                                  commandBuffer,
-                                  pipelineStage,
-                                  queryPool,
-                                  query);
+	                               (GLADapiproc)glad_vkCmdWriteTimestamp,
+	                               4,
+	                               commandBuffer,
+	                               pipelineStage,
+	                               queryPool,
+	                               query);
         glad_vkCmdWriteTimestamp(commandBuffer, pipelineStage, queryPool, query);
         _post_call_vulkan_callback(NULL,
-                                   "vkCmdWriteTimestamp",
-                                   (GLADapiproc)glad_vkCmdWriteTimestamp,
-                                   4,
-                                   commandBuffer,
-                                   pipelineStage,
-                                   queryPool,
-                                   query);
+	                                "vkCmdWriteTimestamp",
+	                                (GLADapiproc)glad_vkCmdWriteTimestamp,
+	                                4,
+	                                commandBuffer,
+	                                pipelineStage,
+	                                queryPool,
+	                                query);
 }
 PFN_vkCmdWriteTimestamp      glad_debug_vkCmdWriteTimestamp = glad_debug_impl_vkCmdWriteTimestamp;
 PFN_vkCompileDeferredNV      glad_vkCompileDeferredNV       = NULL;
@@ -17098,21 +17094,21 @@ static VkResult GLAD_API_PTR  glad_debug_impl_vkCreateAndroidSurfaceKHR(VkInstan
                                                                         VkSurfaceKHR                        *pSurface) {
         VkResult ret;
         _pre_call_vulkan_callback("vkCreateAndroidSurfaceKHR",
-                                  (GLADapiproc)glad_vkCreateAndroidSurfaceKHR,
-                                  4,
-                                  instance,
-                                  pCreateInfo,
-                                  pAllocator,
-                                  pSurface);
+	                           (GLADapiproc)glad_vkCreateAndroidSurfaceKHR,
+	                           4,
+	                           instance,
+	                           pCreateInfo,
+	                           pAllocator,
+	                           pSurface);
         ret = glad_vkCreateAndroidSurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkCreateAndroidSurfaceKHR",
-                                   (GLADapiproc)glad_vkCreateAndroidSurfaceKHR,
-                                   4,
-                                   instance,
-                                   pCreateInfo,
-                                   pAllocator,
-                                   pSurface);
+	                            "vkCreateAndroidSurfaceKHR",
+	                            (GLADapiproc)glad_vkCreateAndroidSurfaceKHR,
+	                            4,
+	                            instance,
+	                            pCreateInfo,
+	                            pAllocator,
+	                            pSurface);
         return ret;
 }
 PFN_vkCreateAndroidSurfaceKHR glad_debug_vkCreateAndroidSurfaceKHR = glad_debug_impl_vkCreateAndroidSurfaceKHR;
@@ -17289,19 +17285,19 @@ static VkResult GLAD_API_PTR     glad_debug_impl_vkCreateDeferredOperationKHR(Vk
                                                                               VkDeferredOperationKHR *pDeferredOperation) {
         VkResult ret;
         _pre_call_vulkan_callback("vkCreateDeferredOperationKHR",
-                                  (GLADapiproc)glad_vkCreateDeferredOperationKHR,
-                                  3,
-                                  device,
-                                  pAllocator,
-                                  pDeferredOperation);
+	                              (GLADapiproc)glad_vkCreateDeferredOperationKHR,
+	                              3,
+	                              device,
+	                              pAllocator,
+	                              pDeferredOperation);
         ret = glad_vkCreateDeferredOperationKHR(device, pAllocator, pDeferredOperation);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkCreateDeferredOperationKHR",
-                                   (GLADapiproc)glad_vkCreateDeferredOperationKHR,
-                                   3,
-                                   device,
-                                   pAllocator,
-                                   pDeferredOperation);
+	                               "vkCreateDeferredOperationKHR",
+	                               (GLADapiproc)glad_vkCreateDeferredOperationKHR,
+	                               3,
+	                               device,
+	                               pAllocator,
+	                               pDeferredOperation);
         return ret;
 }
 PFN_vkCreateDeferredOperationKHR glad_debug_vkCreateDeferredOperationKHR = glad_debug_impl_vkCreateDeferredOperationKHR;
@@ -17312,21 +17308,21 @@ static VkResult GLAD_API_PTR     glad_debug_impl_vkCreateDescriptorPool(VkDevice
                                                                         VkDescriptorPool                 *pDescriptorPool) {
         VkResult ret;
         _pre_call_vulkan_callback("vkCreateDescriptorPool",
-                                  (GLADapiproc)glad_vkCreateDescriptorPool,
-                                  4,
-                                  device,
-                                  pCreateInfo,
-                                  pAllocator,
-                                  pDescriptorPool);
+	                              (GLADapiproc)glad_vkCreateDescriptorPool,
+	                              4,
+	                              device,
+	                              pCreateInfo,
+	                              pAllocator,
+	                              pDescriptorPool);
         ret = glad_vkCreateDescriptorPool(device, pCreateInfo, pAllocator, pDescriptorPool);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkCreateDescriptorPool",
-                                   (GLADapiproc)glad_vkCreateDescriptorPool,
-                                   4,
-                                   device,
-                                   pCreateInfo,
-                                   pAllocator,
-                                   pDescriptorPool);
+	                               "vkCreateDescriptorPool",
+	                               (GLADapiproc)glad_vkCreateDescriptorPool,
+	                               4,
+	                               device,
+	                               pCreateInfo,
+	                               pAllocator,
+	                               pDescriptorPool);
         return ret;
 }
 PFN_vkCreateDescriptorPool      glad_debug_vkCreateDescriptorPool = glad_debug_impl_vkCreateDescriptorPool;
@@ -17603,30 +17599,30 @@ static VkResult GLAD_API_PTR  glad_debug_impl_vkCreateGraphicsPipelines(VkDevice
                                                                         VkPipeline                         *pPipelines) {
         VkResult ret;
         _pre_call_vulkan_callback("vkCreateGraphicsPipelines",
-                                  (GLADapiproc)glad_vkCreateGraphicsPipelines,
-                                  6,
-                                  device,
-                                  pipelineCache,
-                                  createInfoCount,
-                                  pCreateInfos,
-                                  pAllocator,
-                                  pPipelines);
+	                           (GLADapiproc)glad_vkCreateGraphicsPipelines,
+	                           6,
+	                           device,
+	                           pipelineCache,
+	                           createInfoCount,
+	                           pCreateInfos,
+	                           pAllocator,
+	                           pPipelines);
         ret = glad_vkCreateGraphicsPipelines(device,
-                                             pipelineCache,
-                                             createInfoCount,
-                                             pCreateInfos,
-                                             pAllocator,
-                                             pPipelines);
+	                                      pipelineCache,
+	                                      createInfoCount,
+	                                      pCreateInfos,
+	                                      pAllocator,
+	                                      pPipelines);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkCreateGraphicsPipelines",
-                                   (GLADapiproc)glad_vkCreateGraphicsPipelines,
-                                   6,
-                                   device,
-                                   pipelineCache,
-                                   createInfoCount,
-                                   pCreateInfos,
-                                   pAllocator,
-                                   pPipelines);
+	                            "vkCreateGraphicsPipelines",
+	                            (GLADapiproc)glad_vkCreateGraphicsPipelines,
+	                            6,
+	                            device,
+	                            pipelineCache,
+	                            createInfoCount,
+	                            pCreateInfos,
+	                            pAllocator,
+	                            pPipelines);
         return ret;
 }
 PFN_vkCreateGraphicsPipelines  glad_debug_vkCreateGraphicsPipelines = glad_debug_impl_vkCreateGraphicsPipelines;
@@ -17926,21 +17922,21 @@ static VkResult GLAD_API_PTR   glad_debug_impl_vkCreatePrivateDataSlotEXT(VkDevi
                                                                           VkPrivateDataSlot *pPrivateDataSlot) {
         VkResult ret;
         _pre_call_vulkan_callback("vkCreatePrivateDataSlotEXT",
-                                  (GLADapiproc)glad_vkCreatePrivateDataSlotEXT,
-                                  4,
-                                  device,
-                                  pCreateInfo,
-                                  pAllocator,
-                                  pPrivateDataSlot);
+	                            (GLADapiproc)glad_vkCreatePrivateDataSlotEXT,
+	                            4,
+	                            device,
+	                            pCreateInfo,
+	                            pAllocator,
+	                            pPrivateDataSlot);
         ret = glad_vkCreatePrivateDataSlotEXT(device, pCreateInfo, pAllocator, pPrivateDataSlot);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkCreatePrivateDataSlotEXT",
-                                   (GLADapiproc)glad_vkCreatePrivateDataSlotEXT,
-                                   4,
-                                   device,
-                                   pCreateInfo,
-                                   pAllocator,
-                                   pPrivateDataSlot);
+	                             "vkCreatePrivateDataSlotEXT",
+	                             (GLADapiproc)glad_vkCreatePrivateDataSlotEXT,
+	                             4,
+	                             device,
+	                             pCreateInfo,
+	                             pAllocator,
+	                             pPrivateDataSlot);
         return ret;
 }
 PFN_vkCreatePrivateDataSlotEXT glad_debug_vkCreatePrivateDataSlotEXT = glad_debug_impl_vkCreatePrivateDataSlotEXT;
@@ -17951,21 +17947,21 @@ static VkResult GLAD_API_PTR   glad_debug_impl_vkCreateQueryPool(VkDevice       
                                                                  VkQueryPool                 *pQueryPool) {
         VkResult ret;
         _pre_call_vulkan_callback("vkCreateQueryPool",
-                                  (GLADapiproc)glad_vkCreateQueryPool,
-                                  4,
-                                  device,
-                                  pCreateInfo,
-                                  pAllocator,
-                                  pQueryPool);
+	                            (GLADapiproc)glad_vkCreateQueryPool,
+	                            4,
+	                            device,
+	                            pCreateInfo,
+	                            pAllocator,
+	                            pQueryPool);
         ret = glad_vkCreateQueryPool(device, pCreateInfo, pAllocator, pQueryPool);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkCreateQueryPool",
-                                   (GLADapiproc)glad_vkCreateQueryPool,
-                                   4,
-                                   device,
-                                   pCreateInfo,
-                                   pAllocator,
-                                   pQueryPool);
+	                             "vkCreateQueryPool",
+	                             (GLADapiproc)glad_vkCreateQueryPool,
+	                             4,
+	                             device,
+	                             pCreateInfo,
+	                             pAllocator,
+	                             pQueryPool);
         return ret;
 }
 PFN_vkCreateQueryPool             glad_debug_vkCreateQueryPool       = glad_debug_impl_vkCreateQueryPool;
@@ -18247,23 +18243,23 @@ static VkResult GLAD_API_PTR    glad_debug_impl_vkCreateSharedSwapchainsKHR(VkDe
                                                                             VkSwapchainKHR                 *pSwapchains) {
         VkResult ret;
         _pre_call_vulkan_callback("vkCreateSharedSwapchainsKHR",
-                                  (GLADapiproc)glad_vkCreateSharedSwapchainsKHR,
-                                  5,
-                                  device,
-                                  swapchainCount,
-                                  pCreateInfos,
-                                  pAllocator,
-                                  pSwapchains);
+	                             (GLADapiproc)glad_vkCreateSharedSwapchainsKHR,
+	                             5,
+	                             device,
+	                             swapchainCount,
+	                             pCreateInfos,
+	                             pAllocator,
+	                             pSwapchains);
         ret = glad_vkCreateSharedSwapchainsKHR(device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkCreateSharedSwapchainsKHR",
-                                   (GLADapiproc)glad_vkCreateSharedSwapchainsKHR,
-                                   5,
-                                   device,
-                                   swapchainCount,
-                                   pCreateInfos,
-                                   pAllocator,
-                                   pSwapchains);
+	                              "vkCreateSharedSwapchainsKHR",
+	                              (GLADapiproc)glad_vkCreateSharedSwapchainsKHR,
+	                              5,
+	                              device,
+	                              swapchainCount,
+	                              pCreateInfos,
+	                              pAllocator,
+	                              pSwapchains);
         return ret;
 }
 PFN_vkCreateSharedSwapchainsKHR glad_debug_vkCreateSharedSwapchainsKHR = glad_debug_impl_vkCreateSharedSwapchainsKHR;
@@ -18384,21 +18380,21 @@ static VkResult GLAD_API_PTR  glad_debug_impl_vkCreateWaylandSurfaceKHR(VkInstan
                                                                         VkSurfaceKHR                        *pSurface) {
         VkResult ret;
         _pre_call_vulkan_callback("vkCreateWaylandSurfaceKHR",
-                                  (GLADapiproc)glad_vkCreateWaylandSurfaceKHR,
-                                  4,
-                                  instance,
-                                  pCreateInfo,
-                                  pAllocator,
-                                  pSurface);
+	                           (GLADapiproc)glad_vkCreateWaylandSurfaceKHR,
+	                           4,
+	                           instance,
+	                           pCreateInfo,
+	                           pAllocator,
+	                           pSurface);
         ret = glad_vkCreateWaylandSurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkCreateWaylandSurfaceKHR",
-                                   (GLADapiproc)glad_vkCreateWaylandSurfaceKHR,
-                                   4,
-                                   instance,
-                                   pCreateInfo,
-                                   pAllocator,
-                                   pSurface);
+	                            "vkCreateWaylandSurfaceKHR",
+	                            (GLADapiproc)glad_vkCreateWaylandSurfaceKHR,
+	                            4,
+	                            instance,
+	                            pCreateInfo,
+	                            pAllocator,
+	                            pSurface);
         return ret;
 }
 PFN_vkCreateWaylandSurfaceKHR glad_debug_vkCreateWaylandSurfaceKHR = glad_debug_impl_vkCreateWaylandSurfaceKHR;
@@ -18537,36 +18533,36 @@ static void GLAD_API_PTR         glad_debug_impl_vkDebugReportMessageEXT(VkInsta
                                                                          const char                *pLayerPrefix,
                                                                          const char                *pMessage) {
         _pre_call_vulkan_callback("vkDebugReportMessageEXT",
-                                  (GLADapiproc)glad_vkDebugReportMessageEXT,
-                                  8,
-                                  instance,
-                                  flags,
-                                  objectType,
-                                  object,
-                                  location,
-                                  messageCode,
-                                  pLayerPrefix,
-                                  pMessage);
+	                                  (GLADapiproc)glad_vkDebugReportMessageEXT,
+	                                  8,
+	                                  instance,
+	                                  flags,
+	                                  objectType,
+	                                  object,
+	                                  location,
+	                                  messageCode,
+	                                  pLayerPrefix,
+	                                  pMessage);
         glad_vkDebugReportMessageEXT(instance,
-                                     flags,
-                                     objectType,
-                                     object,
-                                     location,
-                                     messageCode,
-                                     pLayerPrefix,
-                                     pMessage);
+	                                     flags,
+	                                     objectType,
+	                                     object,
+	                                     location,
+	                                     messageCode,
+	                                     pLayerPrefix,
+	                                     pMessage);
         _post_call_vulkan_callback(NULL,
-                                   "vkDebugReportMessageEXT",
-                                   (GLADapiproc)glad_vkDebugReportMessageEXT,
-                                   8,
-                                   instance,
-                                   flags,
-                                   objectType,
-                                   object,
-                                   location,
-                                   messageCode,
-                                   pLayerPrefix,
-                                   pMessage);
+	                                   "vkDebugReportMessageEXT",
+	                                   (GLADapiproc)glad_vkDebugReportMessageEXT,
+	                                   8,
+	                                   instance,
+	                                   flags,
+	                                   objectType,
+	                                   object,
+	                                   location,
+	                                   messageCode,
+	                                   pLayerPrefix,
+	                                   pMessage);
 }
 PFN_vkDebugReportMessageEXT    glad_debug_vkDebugReportMessageEXT = glad_debug_impl_vkDebugReportMessageEXT;
 PFN_vkDeferredOperationJoinKHR glad_vkDeferredOperationJoinKHR    = NULL;
@@ -18574,17 +18570,17 @@ static VkResult GLAD_API_PTR   glad_debug_impl_vkDeferredOperationJoinKHR(VkDevi
                                                                           VkDeferredOperationKHR operation) {
         VkResult ret;
         _pre_call_vulkan_callback("vkDeferredOperationJoinKHR",
-                                  (GLADapiproc)glad_vkDeferredOperationJoinKHR,
-                                  2,
-                                  device,
-                                  operation);
+	                            (GLADapiproc)glad_vkDeferredOperationJoinKHR,
+	                            2,
+	                            device,
+	                            operation);
         ret = glad_vkDeferredOperationJoinKHR(device, operation);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkDeferredOperationJoinKHR",
-                                   (GLADapiproc)glad_vkDeferredOperationJoinKHR,
-                                   2,
-                                   device,
-                                   operation);
+	                             "vkDeferredOperationJoinKHR",
+	                             (GLADapiproc)glad_vkDeferredOperationJoinKHR,
+	                             2,
+	                             device,
+	                             operation);
         return ret;
 }
 PFN_vkDeferredOperationJoinKHR       glad_debug_vkDeferredOperationJoinKHR = glad_debug_impl_vkDeferredOperationJoinKHR;
@@ -18670,19 +18666,19 @@ static void GLAD_API_PTR            glad_debug_impl_vkDestroyDebugReportCallback
                                                                                     VkDebugReportCallbackEXT     callback,
                                                                                     const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyDebugReportCallbackEXT",
-                                  (GLADapiproc)glad_vkDestroyDebugReportCallbackEXT,
-                                  3,
-                                  instance,
-                                  callback,
-                                  pAllocator);
+	                                     (GLADapiproc)glad_vkDestroyDebugReportCallbackEXT,
+	                                     3,
+	                                     instance,
+	                                     callback,
+	                                     pAllocator);
         glad_vkDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyDebugReportCallbackEXT",
-                                   (GLADapiproc)glad_vkDestroyDebugReportCallbackEXT,
-                                   3,
-                                   instance,
-                                   callback,
-                                   pAllocator);
+	                                      "vkDestroyDebugReportCallbackEXT",
+	                                      (GLADapiproc)glad_vkDestroyDebugReportCallbackEXT,
+	                                      3,
+	                                      instance,
+	                                      callback,
+	                                      pAllocator);
 }
 PFN_vkDestroyDebugReportCallbackEXT glad_debug_vkDestroyDebugReportCallbackEXT =
 	glad_debug_impl_vkDestroyDebugReportCallbackEXT;
@@ -18691,19 +18687,19 @@ static void GLAD_API_PTR            glad_debug_impl_vkDestroyDebugUtilsMessenger
                                                                                     VkDebugUtilsMessengerEXT     messenger,
                                                                                     const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyDebugUtilsMessengerEXT",
-                                  (GLADapiproc)glad_vkDestroyDebugUtilsMessengerEXT,
-                                  3,
-                                  instance,
-                                  messenger,
-                                  pAllocator);
+	                                     (GLADapiproc)glad_vkDestroyDebugUtilsMessengerEXT,
+	                                     3,
+	                                     instance,
+	                                     messenger,
+	                                     pAllocator);
         glad_vkDestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyDebugUtilsMessengerEXT",
-                                   (GLADapiproc)glad_vkDestroyDebugUtilsMessengerEXT,
-                                   3,
-                                   instance,
-                                   messenger,
-                                   pAllocator);
+	                                      "vkDestroyDebugUtilsMessengerEXT",
+	                                      (GLADapiproc)glad_vkDestroyDebugUtilsMessengerEXT,
+	                                      3,
+	                                      instance,
+	                                      messenger,
+	                                      pAllocator);
 }
 PFN_vkDestroyDebugUtilsMessengerEXT glad_debug_vkDestroyDebugUtilsMessengerEXT =
 	glad_debug_impl_vkDestroyDebugUtilsMessengerEXT;
@@ -18712,19 +18708,19 @@ static void GLAD_API_PTR          glad_debug_impl_vkDestroyDeferredOperationKHR(
                                                                                 VkDeferredOperationKHR       operation,
                                                                                 const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyDeferredOperationKHR",
-                                  (GLADapiproc)glad_vkDestroyDeferredOperationKHR,
-                                  3,
-                                  device,
-                                  operation,
-                                  pAllocator);
+	                                   (GLADapiproc)glad_vkDestroyDeferredOperationKHR,
+	                                   3,
+	                                   device,
+	                                   operation,
+	                                   pAllocator);
         glad_vkDestroyDeferredOperationKHR(device, operation, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyDeferredOperationKHR",
-                                   (GLADapiproc)glad_vkDestroyDeferredOperationKHR,
-                                   3,
-                                   device,
-                                   operation,
-                                   pAllocator);
+	                                    "vkDestroyDeferredOperationKHR",
+	                                    (GLADapiproc)glad_vkDestroyDeferredOperationKHR,
+	                                    3,
+	                                    device,
+	                                    operation,
+	                                    pAllocator);
 }
 PFN_vkDestroyDeferredOperationKHR glad_debug_vkDestroyDeferredOperationKHR =
 	glad_debug_impl_vkDestroyDeferredOperationKHR;
@@ -18733,19 +18729,19 @@ static void GLAD_API_PTR    glad_debug_impl_vkDestroyDescriptorPool(VkDevice    
                                                                     VkDescriptorPool             descriptorPool,
                                                                     const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyDescriptorPool",
-                                  (GLADapiproc)glad_vkDestroyDescriptorPool,
-                                  3,
-                                  device,
-                                  descriptorPool,
-                                  pAllocator);
+	                             (GLADapiproc)glad_vkDestroyDescriptorPool,
+	                             3,
+	                             device,
+	                             descriptorPool,
+	                             pAllocator);
         glad_vkDestroyDescriptorPool(device, descriptorPool, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyDescriptorPool",
-                                   (GLADapiproc)glad_vkDestroyDescriptorPool,
-                                   3,
-                                   device,
-                                   descriptorPool,
-                                   pAllocator);
+	                              "vkDestroyDescriptorPool",
+	                              (GLADapiproc)glad_vkDestroyDescriptorPool,
+	                              3,
+	                              device,
+	                              descriptorPool,
+	                              pAllocator);
 }
 PFN_vkDestroyDescriptorPool      glad_debug_vkDestroyDescriptorPool = glad_debug_impl_vkDestroyDescriptorPool;
 PFN_vkDestroyDescriptorSetLayout glad_vkDestroyDescriptorSetLayout  = NULL;
@@ -18753,19 +18749,19 @@ static void GLAD_API_PTR         glad_debug_impl_vkDestroyDescriptorSetLayout(Vk
                                                                               VkDescriptorSetLayout        descriptorSetLayout,
                                                                               const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyDescriptorSetLayout",
-                                  (GLADapiproc)glad_vkDestroyDescriptorSetLayout,
-                                  3,
-                                  device,
-                                  descriptorSetLayout,
-                                  pAllocator);
+	                                  (GLADapiproc)glad_vkDestroyDescriptorSetLayout,
+	                                  3,
+	                                  device,
+	                                  descriptorSetLayout,
+	                                  pAllocator);
         glad_vkDestroyDescriptorSetLayout(device, descriptorSetLayout, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyDescriptorSetLayout",
-                                   (GLADapiproc)glad_vkDestroyDescriptorSetLayout,
-                                   3,
-                                   device,
-                                   descriptorSetLayout,
-                                   pAllocator);
+	                                   "vkDestroyDescriptorSetLayout",
+	                                   (GLADapiproc)glad_vkDestroyDescriptorSetLayout,
+	                                   3,
+	                                   device,
+	                                   descriptorSetLayout,
+	                                   pAllocator);
 }
 PFN_vkDestroyDescriptorSetLayout glad_debug_vkDestroyDescriptorSetLayout = glad_debug_impl_vkDestroyDescriptorSetLayout;
 PFN_vkDestroyDescriptorUpdateTemplate glad_vkDestroyDescriptorUpdateTemplate = NULL;
@@ -18964,19 +18960,19 @@ static void GLAD_API_PTR   glad_debug_impl_vkDestroyPipelineCache(VkDevice      
                                                                   VkPipelineCache              pipelineCache,
                                                                   const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyPipelineCache",
-                                  (GLADapiproc)glad_vkDestroyPipelineCache,
-                                  3,
-                                  device,
-                                  pipelineCache,
-                                  pAllocator);
+	                            (GLADapiproc)glad_vkDestroyPipelineCache,
+	                            3,
+	                            device,
+	                            pipelineCache,
+	                            pAllocator);
         glad_vkDestroyPipelineCache(device, pipelineCache, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyPipelineCache",
-                                   (GLADapiproc)glad_vkDestroyPipelineCache,
-                                   3,
-                                   device,
-                                   pipelineCache,
-                                   pAllocator);
+	                             "vkDestroyPipelineCache",
+	                             (GLADapiproc)glad_vkDestroyPipelineCache,
+	                             3,
+	                             device,
+	                             pipelineCache,
+	                             pAllocator);
 }
 PFN_vkDestroyPipelineCache  glad_debug_vkDestroyPipelineCache = glad_debug_impl_vkDestroyPipelineCache;
 PFN_vkDestroyPipelineLayout glad_vkDestroyPipelineLayout      = NULL;
@@ -18984,19 +18980,19 @@ static void GLAD_API_PTR    glad_debug_impl_vkDestroyPipelineLayout(VkDevice    
                                                                     VkPipelineLayout             pipelineLayout,
                                                                     const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyPipelineLayout",
-                                  (GLADapiproc)glad_vkDestroyPipelineLayout,
-                                  3,
-                                  device,
-                                  pipelineLayout,
-                                  pAllocator);
+	                             (GLADapiproc)glad_vkDestroyPipelineLayout,
+	                             3,
+	                             device,
+	                             pipelineLayout,
+	                             pAllocator);
         glad_vkDestroyPipelineLayout(device, pipelineLayout, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyPipelineLayout",
-                                   (GLADapiproc)glad_vkDestroyPipelineLayout,
-                                   3,
-                                   device,
-                                   pipelineLayout,
-                                   pAllocator);
+	                              "vkDestroyPipelineLayout",
+	                              (GLADapiproc)glad_vkDestroyPipelineLayout,
+	                              3,
+	                              device,
+	                              pipelineLayout,
+	                              pAllocator);
 }
 PFN_vkDestroyPipelineLayout     glad_debug_vkDestroyPipelineLayout = glad_debug_impl_vkDestroyPipelineLayout;
 PFN_vkDestroyPrivateDataSlotEXT glad_vkDestroyPrivateDataSlotEXT   = NULL;
@@ -19004,19 +19000,19 @@ static void GLAD_API_PTR        glad_debug_impl_vkDestroyPrivateDataSlotEXT(VkDe
                                                                             VkPrivateDataSlot            privateDataSlot,
                                                                             const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyPrivateDataSlotEXT",
-                                  (GLADapiproc)glad_vkDestroyPrivateDataSlotEXT,
-                                  3,
-                                  device,
-                                  privateDataSlot,
-                                  pAllocator);
+	                                 (GLADapiproc)glad_vkDestroyPrivateDataSlotEXT,
+	                                 3,
+	                                 device,
+	                                 privateDataSlot,
+	                                 pAllocator);
         glad_vkDestroyPrivateDataSlotEXT(device, privateDataSlot, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyPrivateDataSlotEXT",
-                                   (GLADapiproc)glad_vkDestroyPrivateDataSlotEXT,
-                                   3,
-                                   device,
-                                   privateDataSlot,
-                                   pAllocator);
+	                                  "vkDestroyPrivateDataSlotEXT",
+	                                  (GLADapiproc)glad_vkDestroyPrivateDataSlotEXT,
+	                                  3,
+	                                  device,
+	                                  privateDataSlot,
+	                                  pAllocator);
 }
 PFN_vkDestroyPrivateDataSlotEXT glad_debug_vkDestroyPrivateDataSlotEXT = glad_debug_impl_vkDestroyPrivateDataSlotEXT;
 PFN_vkDestroyQueryPool          glad_vkDestroyQueryPool                = NULL;
@@ -19024,19 +19020,19 @@ static void GLAD_API_PTR        glad_debug_impl_vkDestroyQueryPool(VkDevice     
                                                                    VkQueryPool                  queryPool,
                                                                    const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyQueryPool",
-                                  (GLADapiproc)glad_vkDestroyQueryPool,
-                                  3,
-                                  device,
-                                  queryPool,
-                                  pAllocator);
+	                                 (GLADapiproc)glad_vkDestroyQueryPool,
+	                                 3,
+	                                 device,
+	                                 queryPool,
+	                                 pAllocator);
         glad_vkDestroyQueryPool(device, queryPool, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyQueryPool",
-                                   (GLADapiproc)glad_vkDestroyQueryPool,
-                                   3,
-                                   device,
-                                   queryPool,
-                                   pAllocator);
+	                                  "vkDestroyQueryPool",
+	                                  (GLADapiproc)glad_vkDestroyQueryPool,
+	                                  3,
+	                                  device,
+	                                  queryPool,
+	                                  pAllocator);
 }
 PFN_vkDestroyQueryPool   glad_debug_vkDestroyQueryPool = glad_debug_impl_vkDestroyQueryPool;
 PFN_vkDestroyRenderPass  glad_vkDestroyRenderPass      = NULL;
@@ -19084,19 +19080,19 @@ static void GLAD_API_PTR            glad_debug_impl_vkDestroySamplerYcbcrConvers
                                                                                     VkSamplerYcbcrConversion     ycbcrConversion,
                                                                                     const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroySamplerYcbcrConversion",
-                                  (GLADapiproc)glad_vkDestroySamplerYcbcrConversion,
-                                  3,
-                                  device,
-                                  ycbcrConversion,
-                                  pAllocator);
+	                                     (GLADapiproc)glad_vkDestroySamplerYcbcrConversion,
+	                                     3,
+	                                     device,
+	                                     ycbcrConversion,
+	                                     pAllocator);
         glad_vkDestroySamplerYcbcrConversion(device, ycbcrConversion, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroySamplerYcbcrConversion",
-                                   (GLADapiproc)glad_vkDestroySamplerYcbcrConversion,
-                                   3,
-                                   device,
-                                   ycbcrConversion,
-                                   pAllocator);
+	                                      "vkDestroySamplerYcbcrConversion",
+	                                      (GLADapiproc)glad_vkDestroySamplerYcbcrConversion,
+	                                      3,
+	                                      device,
+	                                      ycbcrConversion,
+	                                      pAllocator);
 }
 PFN_vkDestroySamplerYcbcrConversion glad_debug_vkDestroySamplerYcbcrConversion =
 	glad_debug_impl_vkDestroySamplerYcbcrConversion;
@@ -19105,19 +19101,19 @@ static void GLAD_API_PTR               glad_debug_impl_vkDestroySamplerYcbcrConv
                                                                                           VkSamplerYcbcrConversion ycbcrConversion,
                                                                                           const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroySamplerYcbcrConversionKHR",
-                                  (GLADapiproc)glad_vkDestroySamplerYcbcrConversionKHR,
-                                  3,
-                                  device,
-                                  ycbcrConversion,
-                                  pAllocator);
+	                                        (GLADapiproc)glad_vkDestroySamplerYcbcrConversionKHR,
+	                                        3,
+	                                        device,
+	                                        ycbcrConversion,
+	                                        pAllocator);
         glad_vkDestroySamplerYcbcrConversionKHR(device, ycbcrConversion, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroySamplerYcbcrConversionKHR",
-                                   (GLADapiproc)glad_vkDestroySamplerYcbcrConversionKHR,
-                                   3,
-                                   device,
-                                   ycbcrConversion,
-                                   pAllocator);
+	                                         "vkDestroySamplerYcbcrConversionKHR",
+	                                         (GLADapiproc)glad_vkDestroySamplerYcbcrConversionKHR,
+	                                         3,
+	                                         device,
+	                                         ycbcrConversion,
+	                                         pAllocator);
 }
 PFN_vkDestroySamplerYcbcrConversionKHR glad_debug_vkDestroySamplerYcbcrConversionKHR =
 	glad_debug_impl_vkDestroySamplerYcbcrConversionKHR;
@@ -19166,19 +19162,19 @@ static void GLAD_API_PTR  glad_debug_impl_vkDestroyShaderModule(VkDevice        
                                                                 VkShaderModule               shaderModule,
                                                                 const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyShaderModule",
-                                  (GLADapiproc)glad_vkDestroyShaderModule,
-                                  3,
-                                  device,
-                                  shaderModule,
-                                  pAllocator);
+	                           (GLADapiproc)glad_vkDestroyShaderModule,
+	                           3,
+	                           device,
+	                           shaderModule,
+	                           pAllocator);
         glad_vkDestroyShaderModule(device, shaderModule, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyShaderModule",
-                                   (GLADapiproc)glad_vkDestroyShaderModule,
-                                   3,
-                                   device,
-                                   shaderModule,
-                                   pAllocator);
+	                            "vkDestroyShaderModule",
+	                            (GLADapiproc)glad_vkDestroyShaderModule,
+	                            3,
+	                            device,
+	                            shaderModule,
+	                            pAllocator);
 }
 PFN_vkDestroyShaderModule glad_debug_vkDestroyShaderModule = glad_debug_impl_vkDestroyShaderModule;
 PFN_vkDestroySurfaceKHR   glad_vkDestroySurfaceKHR         = NULL;
@@ -19186,19 +19182,19 @@ static void GLAD_API_PTR  glad_debug_impl_vkDestroySurfaceKHR(VkInstance        
                                                               VkSurfaceKHR                 surface,
                                                               const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroySurfaceKHR",
-                                  (GLADapiproc)glad_vkDestroySurfaceKHR,
-                                  3,
-                                  instance,
-                                  surface,
-                                  pAllocator);
+	                           (GLADapiproc)glad_vkDestroySurfaceKHR,
+	                           3,
+	                           instance,
+	                           surface,
+	                           pAllocator);
         glad_vkDestroySurfaceKHR(instance, surface, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroySurfaceKHR",
-                                   (GLADapiproc)glad_vkDestroySurfaceKHR,
-                                   3,
-                                   instance,
-                                   surface,
-                                   pAllocator);
+	                            "vkDestroySurfaceKHR",
+	                            (GLADapiproc)glad_vkDestroySurfaceKHR,
+	                            3,
+	                            instance,
+	                            surface,
+	                            pAllocator);
 }
 PFN_vkDestroySurfaceKHR   glad_debug_vkDestroySurfaceKHR = glad_debug_impl_vkDestroySurfaceKHR;
 PFN_vkDestroySwapchainKHR glad_vkDestroySwapchainKHR     = NULL;
@@ -19206,19 +19202,19 @@ static void GLAD_API_PTR  glad_debug_impl_vkDestroySwapchainKHR(VkDevice        
                                                                 VkSwapchainKHR               swapchain,
                                                                 const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroySwapchainKHR",
-                                  (GLADapiproc)glad_vkDestroySwapchainKHR,
-                                  3,
-                                  device,
-                                  swapchain,
-                                  pAllocator);
+	                           (GLADapiproc)glad_vkDestroySwapchainKHR,
+	                           3,
+	                           device,
+	                           swapchain,
+	                           pAllocator);
         glad_vkDestroySwapchainKHR(device, swapchain, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroySwapchainKHR",
-                                   (GLADapiproc)glad_vkDestroySwapchainKHR,
-                                   3,
-                                   device,
-                                   swapchain,
-                                   pAllocator);
+	                            "vkDestroySwapchainKHR",
+	                            (GLADapiproc)glad_vkDestroySwapchainKHR,
+	                            3,
+	                            device,
+	                            swapchain,
+	                            pAllocator);
 }
 PFN_vkDestroySwapchainKHR       glad_debug_vkDestroySwapchainKHR = glad_debug_impl_vkDestroySwapchainKHR;
 PFN_vkDestroyValidationCacheEXT glad_vkDestroyValidationCacheEXT = NULL;
@@ -19226,19 +19222,19 @@ static void GLAD_API_PTR        glad_debug_impl_vkDestroyValidationCacheEXT(VkDe
                                                                             VkValidationCacheEXT         validationCache,
                                                                             const VkAllocationCallbacks *pAllocator) {
         _pre_call_vulkan_callback("vkDestroyValidationCacheEXT",
-                                  (GLADapiproc)glad_vkDestroyValidationCacheEXT,
-                                  3,
-                                  device,
-                                  validationCache,
-                                  pAllocator);
+	                                 (GLADapiproc)glad_vkDestroyValidationCacheEXT,
+	                                 3,
+	                                 device,
+	                                 validationCache,
+	                                 pAllocator);
         glad_vkDestroyValidationCacheEXT(device, validationCache, pAllocator);
         _post_call_vulkan_callback(NULL,
-                                   "vkDestroyValidationCacheEXT",
-                                   (GLADapiproc)glad_vkDestroyValidationCacheEXT,
-                                   3,
-                                   device,
-                                   validationCache,
-                                   pAllocator);
+	                                  "vkDestroyValidationCacheEXT",
+	                                  (GLADapiproc)glad_vkDestroyValidationCacheEXT,
+	                                  3,
+	                                  device,
+	                                  validationCache,
+	                                  pAllocator);
 }
 PFN_vkDestroyValidationCacheEXT glad_debug_vkDestroyValidationCacheEXT = glad_debug_impl_vkDestroyValidationCacheEXT;
 PFN_vkDeviceWaitIdle            glad_vkDeviceWaitIdle                  = NULL;
@@ -19317,19 +19313,19 @@ static VkResult GLAD_API_PTR         glad_debug_impl_vkEnumerateDeviceLayerPrope
                                                                                       VkLayerProperties *pProperties) {
         VkResult ret;
         _pre_call_vulkan_callback("vkEnumerateDeviceLayerProperties",
-                                  (GLADapiproc)glad_vkEnumerateDeviceLayerProperties,
-                                  3,
-                                  physicalDevice,
-                                  pPropertyCount,
-                                  pProperties);
+	                                  (GLADapiproc)glad_vkEnumerateDeviceLayerProperties,
+	                                  3,
+	                                  physicalDevice,
+	                                  pPropertyCount,
+	                                  pProperties);
         ret = glad_vkEnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkEnumerateDeviceLayerProperties",
-                                   (GLADapiproc)glad_vkEnumerateDeviceLayerProperties,
-                                   3,
-                                   physicalDevice,
-                                   pPropertyCount,
-                                   pProperties);
+	                                   "vkEnumerateDeviceLayerProperties",
+	                                   (GLADapiproc)glad_vkEnumerateDeviceLayerProperties,
+	                                   3,
+	                                   physicalDevice,
+	                                   pPropertyCount,
+	                                   pProperties);
         return ret;
 }
 PFN_vkEnumerateDeviceLayerProperties glad_debug_vkEnumerateDeviceLayerProperties =
@@ -19363,17 +19359,17 @@ static VkResult GLAD_API_PTR           glad_debug_impl_vkEnumerateInstanceLayerP
                                                                                           VkLayerProperties *pProperties) {
         VkResult ret;
         _pre_call_vulkan_callback("vkEnumerateInstanceLayerProperties",
-                                  (GLADapiproc)glad_vkEnumerateInstanceLayerProperties,
-                                  2,
-                                  pPropertyCount,
-                                  pProperties);
+	                                    (GLADapiproc)glad_vkEnumerateInstanceLayerProperties,
+	                                    2,
+	                                    pPropertyCount,
+	                                    pProperties);
         ret = glad_vkEnumerateInstanceLayerProperties(pPropertyCount, pProperties);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkEnumerateInstanceLayerProperties",
-                                   (GLADapiproc)glad_vkEnumerateInstanceLayerProperties,
-                                   2,
-                                   pPropertyCount,
-                                   pProperties);
+	                                     "vkEnumerateInstanceLayerProperties",
+	                                     (GLADapiproc)glad_vkEnumerateInstanceLayerProperties,
+	                                     2,
+	                                     pPropertyCount,
+	                                     pProperties);
         return ret;
 }
 PFN_vkEnumerateInstanceLayerProperties glad_debug_vkEnumerateInstanceLayerProperties =
@@ -19382,15 +19378,15 @@ PFN_vkEnumerateInstanceVersion glad_vkEnumerateInstanceVersion = NULL;
 static VkResult GLAD_API_PTR   glad_debug_impl_vkEnumerateInstanceVersion(uint32_t *pApiVersion) {
         VkResult ret;
         _pre_call_vulkan_callback("vkEnumerateInstanceVersion",
-                                  (GLADapiproc)glad_vkEnumerateInstanceVersion,
-                                  1,
-                                  pApiVersion);
+	                            (GLADapiproc)glad_vkEnumerateInstanceVersion,
+	                            1,
+	                            pApiVersion);
         ret = glad_vkEnumerateInstanceVersion(pApiVersion);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkEnumerateInstanceVersion",
-                                   (GLADapiproc)glad_vkEnumerateInstanceVersion,
-                                   1,
-                                   pApiVersion);
+	                             "vkEnumerateInstanceVersion",
+	                             (GLADapiproc)glad_vkEnumerateInstanceVersion,
+	                             1,
+	                             pApiVersion);
         return ret;
 }
 PFN_vkEnumerateInstanceVersion      glad_debug_vkEnumerateInstanceVersion = glad_debug_impl_vkEnumerateInstanceVersion;
@@ -19487,19 +19483,19 @@ static VkResult GLAD_API_PTR   glad_debug_impl_vkEnumeratePhysicalDevices(VkInst
                                                                           VkPhysicalDevice *pPhysicalDevices) {
         VkResult ret;
         _pre_call_vulkan_callback("vkEnumeratePhysicalDevices",
-                                  (GLADapiproc)glad_vkEnumeratePhysicalDevices,
-                                  3,
-                                  instance,
-                                  pPhysicalDeviceCount,
-                                  pPhysicalDevices);
+	                            (GLADapiproc)glad_vkEnumeratePhysicalDevices,
+	                            3,
+	                            instance,
+	                            pPhysicalDeviceCount,
+	                            pPhysicalDevices);
         ret = glad_vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkEnumeratePhysicalDevices",
-                                   (GLADapiproc)glad_vkEnumeratePhysicalDevices,
-                                   3,
-                                   instance,
-                                   pPhysicalDeviceCount,
-                                   pPhysicalDevices);
+	                             "vkEnumeratePhysicalDevices",
+	                             (GLADapiproc)glad_vkEnumeratePhysicalDevices,
+	                             3,
+	                             instance,
+	                             pPhysicalDeviceCount,
+	                             pPhysicalDevices);
         return ret;
 }
 PFN_vkEnumeratePhysicalDevices glad_debug_vkEnumeratePhysicalDevices = glad_debug_impl_vkEnumeratePhysicalDevices;
@@ -19509,19 +19505,19 @@ static VkResult GLAD_API_PTR   glad_debug_impl_vkFlushMappedMemoryRanges(VkDevic
                                                                          const VkMappedMemoryRange *pMemoryRanges) {
         VkResult ret;
         _pre_call_vulkan_callback("vkFlushMappedMemoryRanges",
-                                  (GLADapiproc)glad_vkFlushMappedMemoryRanges,
-                                  3,
-                                  device,
-                                  memoryRangeCount,
-                                  pMemoryRanges);
+	                            (GLADapiproc)glad_vkFlushMappedMemoryRanges,
+	                            3,
+	                            device,
+	                            memoryRangeCount,
+	                            pMemoryRanges);
         ret = glad_vkFlushMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkFlushMappedMemoryRanges",
-                                   (GLADapiproc)glad_vkFlushMappedMemoryRanges,
-                                   3,
-                                   device,
-                                   memoryRangeCount,
-                                   pMemoryRanges);
+	                             "vkFlushMappedMemoryRanges",
+	                             (GLADapiproc)glad_vkFlushMappedMemoryRanges,
+	                             3,
+	                             device,
+	                             memoryRangeCount,
+	                             pMemoryRanges);
         return ret;
 }
 PFN_vkFlushMappedMemoryRanges glad_debug_vkFlushMappedMemoryRanges = glad_debug_impl_vkFlushMappedMemoryRanges;
@@ -19531,21 +19527,21 @@ static void GLAD_API_PTR      glad_debug_impl_vkFreeCommandBuffers(VkDevice     
                                                                    uint32_t               commandBufferCount,
                                                                    const VkCommandBuffer *pCommandBuffers) {
         _pre_call_vulkan_callback("vkFreeCommandBuffers",
-                                  (GLADapiproc)glad_vkFreeCommandBuffers,
-                                  4,
-                                  device,
-                                  commandPool,
-                                  commandBufferCount,
-                                  pCommandBuffers);
+	                               (GLADapiproc)glad_vkFreeCommandBuffers,
+	                               4,
+	                               device,
+	                               commandPool,
+	                               commandBufferCount,
+	                               pCommandBuffers);
         glad_vkFreeCommandBuffers(device, commandPool, commandBufferCount, pCommandBuffers);
         _post_call_vulkan_callback(NULL,
-                                   "vkFreeCommandBuffers",
-                                   (GLADapiproc)glad_vkFreeCommandBuffers,
-                                   4,
-                                   device,
-                                   commandPool,
-                                   commandBufferCount,
-                                   pCommandBuffers);
+	                                "vkFreeCommandBuffers",
+	                                (GLADapiproc)glad_vkFreeCommandBuffers,
+	                                4,
+	                                device,
+	                                commandPool,
+	                                commandBufferCount,
+	                                pCommandBuffers);
 }
 PFN_vkFreeCommandBuffers     glad_debug_vkFreeCommandBuffers = glad_debug_impl_vkFreeCommandBuffers;
 PFN_vkFreeDescriptorSets     glad_vkFreeDescriptorSets       = NULL;
@@ -19721,19 +19717,19 @@ static void GLAD_API_PTR          glad_debug_impl_vkGetBufferMemoryRequirements(
                                                                                 VkBuffer              buffer,
                                                                                 VkMemoryRequirements *pMemoryRequirements) {
         _pre_call_vulkan_callback("vkGetBufferMemoryRequirements",
-                                  (GLADapiproc)glad_vkGetBufferMemoryRequirements,
-                                  3,
-                                  device,
-                                  buffer,
-                                  pMemoryRequirements);
+	                                   (GLADapiproc)glad_vkGetBufferMemoryRequirements,
+	                                   3,
+	                                   device,
+	                                   buffer,
+	                                   pMemoryRequirements);
         glad_vkGetBufferMemoryRequirements(device, buffer, pMemoryRequirements);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetBufferMemoryRequirements",
-                                   (GLADapiproc)glad_vkGetBufferMemoryRequirements,
-                                   3,
-                                   device,
-                                   buffer,
-                                   pMemoryRequirements);
+	                                    "vkGetBufferMemoryRequirements",
+	                                    (GLADapiproc)glad_vkGetBufferMemoryRequirements,
+	                                    3,
+	                                    device,
+	                                    buffer,
+	                                    pMemoryRequirements);
 }
 PFN_vkGetBufferMemoryRequirements glad_debug_vkGetBufferMemoryRequirements =
 	glad_debug_impl_vkGetBufferMemoryRequirements;
@@ -19742,19 +19738,19 @@ static void GLAD_API_PTR           glad_debug_impl_vkGetBufferMemoryRequirements
                                                                                   const VkBufferMemoryRequirementsInfo2 *pInfo,
                                                                                   VkMemoryRequirements2 *pMemoryRequirements) {
         _pre_call_vulkan_callback("vkGetBufferMemoryRequirements2",
-                                  (GLADapiproc)glad_vkGetBufferMemoryRequirements2,
-                                  3,
-                                  device,
-                                  pInfo,
-                                  pMemoryRequirements);
+	                                    (GLADapiproc)glad_vkGetBufferMemoryRequirements2,
+	                                    3,
+	                                    device,
+	                                    pInfo,
+	                                    pMemoryRequirements);
         glad_vkGetBufferMemoryRequirements2(device, pInfo, pMemoryRequirements);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetBufferMemoryRequirements2",
-                                   (GLADapiproc)glad_vkGetBufferMemoryRequirements2,
-                                   3,
-                                   device,
-                                   pInfo,
-                                   pMemoryRequirements);
+	                                     "vkGetBufferMemoryRequirements2",
+	                                     (GLADapiproc)glad_vkGetBufferMemoryRequirements2,
+	                                     3,
+	                                     device,
+	                                     pInfo,
+	                                     pMemoryRequirements);
 }
 PFN_vkGetBufferMemoryRequirements2 glad_debug_vkGetBufferMemoryRequirements2 =
 	glad_debug_impl_vkGetBufferMemoryRequirements2;
@@ -19763,19 +19759,19 @@ static void GLAD_API_PTR              glad_debug_impl_vkGetBufferMemoryRequireme
                                                                                         const VkBufferMemoryRequirementsInfo2 *pInfo,
                                                                                         VkMemoryRequirements2 *pMemoryRequirements) {
         _pre_call_vulkan_callback("vkGetBufferMemoryRequirements2KHR",
-                                  (GLADapiproc)glad_vkGetBufferMemoryRequirements2KHR,
-                                  3,
-                                  device,
-                                  pInfo,
-                                  pMemoryRequirements);
+	                                       (GLADapiproc)glad_vkGetBufferMemoryRequirements2KHR,
+	                                       3,
+	                                       device,
+	                                       pInfo,
+	                                       pMemoryRequirements);
         glad_vkGetBufferMemoryRequirements2KHR(device, pInfo, pMemoryRequirements);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetBufferMemoryRequirements2KHR",
-                                   (GLADapiproc)glad_vkGetBufferMemoryRequirements2KHR,
-                                   3,
-                                   device,
-                                   pInfo,
-                                   pMemoryRequirements);
+	                                        "vkGetBufferMemoryRequirements2KHR",
+	                                        (GLADapiproc)glad_vkGetBufferMemoryRequirements2KHR,
+	                                        3,
+	                                        device,
+	                                        pInfo,
+	                                        pMemoryRequirements);
 }
 PFN_vkGetBufferMemoryRequirements2KHR glad_debug_vkGetBufferMemoryRequirements2KHR =
 	glad_debug_impl_vkGetBufferMemoryRequirements2KHR;
@@ -19784,17 +19780,17 @@ static uint64_t GLAD_API_PTR        glad_debug_impl_vkGetBufferOpaqueCaptureAddr
                                                                                     const VkBufferDeviceAddressInfo *pInfo) {
         uint64_t ret;
         _pre_call_vulkan_callback("vkGetBufferOpaqueCaptureAddress",
-                                  (GLADapiproc)glad_vkGetBufferOpaqueCaptureAddress,
-                                  2,
-                                  device,
-                                  pInfo);
+	                                 (GLADapiproc)glad_vkGetBufferOpaqueCaptureAddress,
+	                                 2,
+	                                 device,
+	                                 pInfo);
         ret = glad_vkGetBufferOpaqueCaptureAddress(device, pInfo);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetBufferOpaqueCaptureAddress",
-                                   (GLADapiproc)glad_vkGetBufferOpaqueCaptureAddress,
-                                   2,
-                                   device,
-                                   pInfo);
+	                                  "vkGetBufferOpaqueCaptureAddress",
+	                                  (GLADapiproc)glad_vkGetBufferOpaqueCaptureAddress,
+	                                  2,
+	                                  device,
+	                                  pInfo);
         return ret;
 }
 PFN_vkGetBufferOpaqueCaptureAddress glad_debug_vkGetBufferOpaqueCaptureAddress =
@@ -19853,17 +19849,17 @@ static uint32_t GLAD_API_PTR                glad_debug_impl_vkGetDeferredOperati
                                                                                                     VkDeferredOperationKHR operation) {
         uint32_t ret;
         _pre_call_vulkan_callback("vkGetDeferredOperationMaxConcurrencyKHR",
-                                  (GLADapiproc)glad_vkGetDeferredOperationMaxConcurrencyKHR,
-                                  2,
-                                  device,
-                                  operation);
+	                                         (GLADapiproc)glad_vkGetDeferredOperationMaxConcurrencyKHR,
+	                                         2,
+	                                         device,
+	                                         operation);
         ret = glad_vkGetDeferredOperationMaxConcurrencyKHR(device, operation);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetDeferredOperationMaxConcurrencyKHR",
-                                   (GLADapiproc)glad_vkGetDeferredOperationMaxConcurrencyKHR,
-                                   2,
-                                   device,
-                                   operation);
+	                                          "vkGetDeferredOperationMaxConcurrencyKHR",
+	                                          (GLADapiproc)glad_vkGetDeferredOperationMaxConcurrencyKHR,
+	                                          2,
+	                                          device,
+	                                          operation);
         return ret;
 }
 PFN_vkGetDeferredOperationMaxConcurrencyKHR glad_debug_vkGetDeferredOperationMaxConcurrencyKHR =
@@ -19873,17 +19869,17 @@ static VkResult GLAD_API_PTR        glad_debug_impl_vkGetDeferredOperationResult
                                                                                     VkDeferredOperationKHR operation) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetDeferredOperationResultKHR",
-                                  (GLADapiproc)glad_vkGetDeferredOperationResultKHR,
-                                  2,
-                                  device,
-                                  operation);
+	                                 (GLADapiproc)glad_vkGetDeferredOperationResultKHR,
+	                                 2,
+	                                 device,
+	                                 operation);
         ret = glad_vkGetDeferredOperationResultKHR(device, operation);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetDeferredOperationResultKHR",
-                                   (GLADapiproc)glad_vkGetDeferredOperationResultKHR,
-                                   2,
-                                   device,
-                                   operation);
+	                                  "vkGetDeferredOperationResultKHR",
+	                                  (GLADapiproc)glad_vkGetDeferredOperationResultKHR,
+	                                  2,
+	                                  device,
+	                                  operation);
         return ret;
 }
 PFN_vkGetDeferredOperationResultKHR glad_debug_vkGetDeferredOperationResultKHR =
@@ -20074,19 +20070,19 @@ static void GLAD_API_PTR        glad_debug_impl_vkGetDeviceMemoryCommitment(VkDe
                                                                             VkDeviceMemory memory,
                                                                             VkDeviceSize  *pCommittedMemoryInBytes) {
         _pre_call_vulkan_callback("vkGetDeviceMemoryCommitment",
-                                  (GLADapiproc)glad_vkGetDeviceMemoryCommitment,
-                                  3,
-                                  device,
-                                  memory,
-                                  pCommittedMemoryInBytes);
+	                                 (GLADapiproc)glad_vkGetDeviceMemoryCommitment,
+	                                 3,
+	                                 device,
+	                                 memory,
+	                                 pCommittedMemoryInBytes);
         glad_vkGetDeviceMemoryCommitment(device, memory, pCommittedMemoryInBytes);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetDeviceMemoryCommitment",
-                                   (GLADapiproc)glad_vkGetDeviceMemoryCommitment,
-                                   3,
-                                   device,
-                                   memory,
-                                   pCommittedMemoryInBytes);
+	                                  "vkGetDeviceMemoryCommitment",
+	                                  (GLADapiproc)glad_vkGetDeviceMemoryCommitment,
+	                                  3,
+	                                  device,
+	                                  memory,
+	                                  pCommittedMemoryInBytes);
 }
 PFN_vkGetDeviceMemoryCommitment glad_debug_vkGetDeviceMemoryCommitment = glad_debug_impl_vkGetDeviceMemoryCommitment;
 PFN_vkGetDeviceMemoryOpaqueCaptureAddress glad_vkGetDeviceMemoryOpaqueCaptureAddress = NULL;
@@ -20195,21 +20191,21 @@ static VkResult GLAD_API_PTR       glad_debug_impl_vkGetDisplayModeProperties2KH
                                                                                   VkDisplayModeProperties2KHR *pProperties) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetDisplayModeProperties2KHR",
-                                  (GLADapiproc)glad_vkGetDisplayModeProperties2KHR,
-                                  4,
-                                  physicalDevice,
-                                  display,
-                                  pPropertyCount,
-                                  pProperties);
+	                                (GLADapiproc)glad_vkGetDisplayModeProperties2KHR,
+	                                4,
+	                                physicalDevice,
+	                                display,
+	                                pPropertyCount,
+	                                pProperties);
         ret = glad_vkGetDisplayModeProperties2KHR(physicalDevice, display, pPropertyCount, pProperties);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetDisplayModeProperties2KHR",
-                                   (GLADapiproc)glad_vkGetDisplayModeProperties2KHR,
-                                   4,
-                                   physicalDevice,
-                                   display,
-                                   pPropertyCount,
-                                   pProperties);
+	                                 "vkGetDisplayModeProperties2KHR",
+	                                 (GLADapiproc)glad_vkGetDisplayModeProperties2KHR,
+	                                 4,
+	                                 physicalDevice,
+	                                 display,
+	                                 pPropertyCount,
+	                                 pProperties);
         return ret;
 }
 PFN_vkGetDisplayModeProperties2KHR glad_debug_vkGetDisplayModeProperties2KHR =
@@ -20221,21 +20217,21 @@ static VkResult GLAD_API_PTR      glad_debug_impl_vkGetDisplayModePropertiesKHR(
                                                                                 VkDisplayModePropertiesKHR *pProperties) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetDisplayModePropertiesKHR",
-                                  (GLADapiproc)glad_vkGetDisplayModePropertiesKHR,
-                                  4,
-                                  physicalDevice,
-                                  display,
-                                  pPropertyCount,
-                                  pProperties);
+	                               (GLADapiproc)glad_vkGetDisplayModePropertiesKHR,
+	                               4,
+	                               physicalDevice,
+	                               display,
+	                               pPropertyCount,
+	                               pProperties);
         ret = glad_vkGetDisplayModePropertiesKHR(physicalDevice, display, pPropertyCount, pProperties);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetDisplayModePropertiesKHR",
-                                   (GLADapiproc)glad_vkGetDisplayModePropertiesKHR,
-                                   4,
-                                   physicalDevice,
-                                   display,
-                                   pPropertyCount,
-                                   pProperties);
+	                                "vkGetDisplayModePropertiesKHR",
+	                                (GLADapiproc)glad_vkGetDisplayModePropertiesKHR,
+	                                4,
+	                                physicalDevice,
+	                                display,
+	                                pPropertyCount,
+	                                pProperties);
         return ret;
 }
 PFN_vkGetDisplayModePropertiesKHR glad_debug_vkGetDisplayModePropertiesKHR =
@@ -20439,19 +20435,19 @@ static void GLAD_API_PTR         glad_debug_impl_vkGetImageMemoryRequirements(Vk
                                                                               VkImage               image,
                                                                               VkMemoryRequirements *pMemoryRequirements) {
         _pre_call_vulkan_callback("vkGetImageMemoryRequirements",
-                                  (GLADapiproc)glad_vkGetImageMemoryRequirements,
-                                  3,
-                                  device,
-                                  image,
-                                  pMemoryRequirements);
+	                                  (GLADapiproc)glad_vkGetImageMemoryRequirements,
+	                                  3,
+	                                  device,
+	                                  image,
+	                                  pMemoryRequirements);
         glad_vkGetImageMemoryRequirements(device, image, pMemoryRequirements);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetImageMemoryRequirements",
-                                   (GLADapiproc)glad_vkGetImageMemoryRequirements,
-                                   3,
-                                   device,
-                                   image,
-                                   pMemoryRequirements);
+	                                   "vkGetImageMemoryRequirements",
+	                                   (GLADapiproc)glad_vkGetImageMemoryRequirements,
+	                                   3,
+	                                   device,
+	                                   image,
+	                                   pMemoryRequirements);
 }
 PFN_vkGetImageMemoryRequirements glad_debug_vkGetImageMemoryRequirements = glad_debug_impl_vkGetImageMemoryRequirements;
 PFN_vkGetImageMemoryRequirements2 glad_vkGetImageMemoryRequirements2     = NULL;
@@ -20459,19 +20455,19 @@ static void GLAD_API_PTR          glad_debug_impl_vkGetImageMemoryRequirements2(
                                                                                 const VkImageMemoryRequirementsInfo2 *pInfo,
                                                                                 VkMemoryRequirements2 *pMemoryRequirements) {
         _pre_call_vulkan_callback("vkGetImageMemoryRequirements2",
-                                  (GLADapiproc)glad_vkGetImageMemoryRequirements2,
-                                  3,
-                                  device,
-                                  pInfo,
-                                  pMemoryRequirements);
+	                                   (GLADapiproc)glad_vkGetImageMemoryRequirements2,
+	                                   3,
+	                                   device,
+	                                   pInfo,
+	                                   pMemoryRequirements);
         glad_vkGetImageMemoryRequirements2(device, pInfo, pMemoryRequirements);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetImageMemoryRequirements2",
-                                   (GLADapiproc)glad_vkGetImageMemoryRequirements2,
-                                   3,
-                                   device,
-                                   pInfo,
-                                   pMemoryRequirements);
+	                                    "vkGetImageMemoryRequirements2",
+	                                    (GLADapiproc)glad_vkGetImageMemoryRequirements2,
+	                                    3,
+	                                    device,
+	                                    pInfo,
+	                                    pMemoryRequirements);
 }
 PFN_vkGetImageMemoryRequirements2 glad_debug_vkGetImageMemoryRequirements2 =
 	glad_debug_impl_vkGetImageMemoryRequirements2;
@@ -20480,19 +20476,19 @@ static void GLAD_API_PTR             glad_debug_impl_vkGetImageMemoryRequirement
                                                                                       const VkImageMemoryRequirementsInfo2 *pInfo,
                                                                                       VkMemoryRequirements2 *pMemoryRequirements) {
         _pre_call_vulkan_callback("vkGetImageMemoryRequirements2KHR",
-                                  (GLADapiproc)glad_vkGetImageMemoryRequirements2KHR,
-                                  3,
-                                  device,
-                                  pInfo,
-                                  pMemoryRequirements);
+	                                      (GLADapiproc)glad_vkGetImageMemoryRequirements2KHR,
+	                                      3,
+	                                      device,
+	                                      pInfo,
+	                                      pMemoryRequirements);
         glad_vkGetImageMemoryRequirements2KHR(device, pInfo, pMemoryRequirements);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetImageMemoryRequirements2KHR",
-                                   (GLADapiproc)glad_vkGetImageMemoryRequirements2KHR,
-                                   3,
-                                   device,
-                                   pInfo,
-                                   pMemoryRequirements);
+	                                       "vkGetImageMemoryRequirements2KHR",
+	                                       (GLADapiproc)glad_vkGetImageMemoryRequirements2KHR,
+	                                       3,
+	                                       device,
+	                                       pInfo,
+	                                       pMemoryRequirements);
 }
 PFN_vkGetImageMemoryRequirements2KHR glad_debug_vkGetImageMemoryRequirements2KHR =
 	glad_debug_impl_vkGetImageMemoryRequirements2KHR;
@@ -20586,21 +20582,21 @@ static void GLAD_API_PTR        glad_debug_impl_vkGetImageSubresourceLayout(VkDe
                                                                             const VkImageSubresource *pSubresource,
                                                                             VkSubresourceLayout      *pLayout) {
         _pre_call_vulkan_callback("vkGetImageSubresourceLayout",
-                                  (GLADapiproc)glad_vkGetImageSubresourceLayout,
-                                  4,
-                                  device,
-                                  image,
-                                  pSubresource,
-                                  pLayout);
+	                                 (GLADapiproc)glad_vkGetImageSubresourceLayout,
+	                                 4,
+	                                 device,
+	                                 image,
+	                                 pSubresource,
+	                                 pLayout);
         glad_vkGetImageSubresourceLayout(device, image, pSubresource, pLayout);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetImageSubresourceLayout",
-                                   (GLADapiproc)glad_vkGetImageSubresourceLayout,
-                                   4,
-                                   device,
-                                   image,
-                                   pSubresource,
-                                   pLayout);
+	                                  "vkGetImageSubresourceLayout",
+	                                  (GLADapiproc)glad_vkGetImageSubresourceLayout,
+	                                  4,
+	                                  device,
+	                                  image,
+	                                  pSubresource,
+	                                  pLayout);
 }
 PFN_vkGetImageSubresourceLayout glad_debug_vkGetImageSubresourceLayout = glad_debug_impl_vkGetImageSubresourceLayout;
 PFN_vkGetImageViewAddressNVX    glad_vkGetImageViewAddressNVX          = NULL;
@@ -20609,19 +20605,19 @@ static VkResult GLAD_API_PTR    glad_debug_impl_vkGetImageViewAddressNVX(VkDevic
                                                                          VkImageViewAddressPropertiesNVX *pProperties) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetImageViewAddressNVX",
-                                  (GLADapiproc)glad_vkGetImageViewAddressNVX,
-                                  3,
-                                  device,
-                                  imageView,
-                                  pProperties);
+	                             (GLADapiproc)glad_vkGetImageViewAddressNVX,
+	                             3,
+	                             device,
+	                             imageView,
+	                             pProperties);
         ret = glad_vkGetImageViewAddressNVX(device, imageView, pProperties);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetImageViewAddressNVX",
-                                   (GLADapiproc)glad_vkGetImageViewAddressNVX,
-                                   3,
-                                   device,
-                                   imageView,
-                                   pProperties);
+	                              "vkGetImageViewAddressNVX",
+	                              (GLADapiproc)glad_vkGetImageViewAddressNVX,
+	                              3,
+	                              device,
+	                              imageView,
+	                              pProperties);
         return ret;
 }
 PFN_vkGetImageViewAddressNVX glad_debug_vkGetImageViewAddressNVX = glad_debug_impl_vkGetImageViewAddressNVX;
@@ -20709,21 +20705,21 @@ static VkResult GLAD_API_PTR   glad_debug_impl_vkGetMemoryFdPropertiesKHR(VkDevi
                                                                           VkMemoryFdPropertiesKHR *pMemoryFdProperties) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetMemoryFdPropertiesKHR",
-                                  (GLADapiproc)glad_vkGetMemoryFdPropertiesKHR,
-                                  4,
-                                  device,
-                                  handleType,
-                                  fd,
-                                  pMemoryFdProperties);
+	                            (GLADapiproc)glad_vkGetMemoryFdPropertiesKHR,
+	                            4,
+	                            device,
+	                            handleType,
+	                            fd,
+	                            pMemoryFdProperties);
         ret = glad_vkGetMemoryFdPropertiesKHR(device, handleType, fd, pMemoryFdProperties);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetMemoryFdPropertiesKHR",
-                                   (GLADapiproc)glad_vkGetMemoryFdPropertiesKHR,
-                                   4,
-                                   device,
-                                   handleType,
-                                   fd,
-                                   pMemoryFdProperties);
+	                             "vkGetMemoryFdPropertiesKHR",
+	                             (GLADapiproc)glad_vkGetMemoryFdPropertiesKHR,
+	                             4,
+	                             device,
+	                             handleType,
+	                             fd,
+	                             pMemoryFdProperties);
         return ret;
 }
 PFN_vkGetMemoryFdPropertiesKHR glad_debug_vkGetMemoryFdPropertiesKHR = glad_debug_impl_vkGetMemoryFdPropertiesKHR;
@@ -20871,19 +20867,19 @@ static VkResult GLAD_API_PTR       glad_debug_impl_vkGetPerformanceParameterINTE
                                                                                   VkPerformanceValueINTEL        *pValue) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetPerformanceParameterINTEL",
-                                  (GLADapiproc)glad_vkGetPerformanceParameterINTEL,
-                                  3,
-                                  device,
-                                  parameter,
-                                  pValue);
+	                                (GLADapiproc)glad_vkGetPerformanceParameterINTEL,
+	                                3,
+	                                device,
+	                                parameter,
+	                                pValue);
         ret = glad_vkGetPerformanceParameterINTEL(device, parameter, pValue);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetPerformanceParameterINTEL",
-                                   (GLADapiproc)glad_vkGetPerformanceParameterINTEL,
-                                   3,
-                                   device,
-                                   parameter,
-                                   pValue);
+	                                 "vkGetPerformanceParameterINTEL",
+	                                 (GLADapiproc)glad_vkGetPerformanceParameterINTEL,
+	                                 3,
+	                                 device,
+	                                 parameter,
+	                                 pValue);
         return ret;
 }
 PFN_vkGetPerformanceParameterINTEL glad_debug_vkGetPerformanceParameterINTEL =
@@ -21259,51 +21255,51 @@ PFN_vkGetPhysicalDeviceFeatures glad_vkGetPhysicalDeviceFeatures = NULL;
 static void GLAD_API_PTR        glad_debug_impl_vkGetPhysicalDeviceFeatures(VkPhysicalDevice          physicalDevice,
                                                                             VkPhysicalDeviceFeatures *pFeatures) {
         _pre_call_vulkan_callback("vkGetPhysicalDeviceFeatures",
-                                  (GLADapiproc)glad_vkGetPhysicalDeviceFeatures,
-                                  2,
-                                  physicalDevice,
-                                  pFeatures);
+	                                 (GLADapiproc)glad_vkGetPhysicalDeviceFeatures,
+	                                 2,
+	                                 physicalDevice,
+	                                 pFeatures);
         glad_vkGetPhysicalDeviceFeatures(physicalDevice, pFeatures);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetPhysicalDeviceFeatures",
-                                   (GLADapiproc)glad_vkGetPhysicalDeviceFeatures,
-                                   2,
-                                   physicalDevice,
-                                   pFeatures);
+	                                  "vkGetPhysicalDeviceFeatures",
+	                                  (GLADapiproc)glad_vkGetPhysicalDeviceFeatures,
+	                                  2,
+	                                  physicalDevice,
+	                                  pFeatures);
 }
 PFN_vkGetPhysicalDeviceFeatures  glad_debug_vkGetPhysicalDeviceFeatures = glad_debug_impl_vkGetPhysicalDeviceFeatures;
 PFN_vkGetPhysicalDeviceFeatures2 glad_vkGetPhysicalDeviceFeatures2      = NULL;
 static void GLAD_API_PTR         glad_debug_impl_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice           physicalDevice,
                                                                               VkPhysicalDeviceFeatures2 *pFeatures) {
         _pre_call_vulkan_callback("vkGetPhysicalDeviceFeatures2",
-                                  (GLADapiproc)glad_vkGetPhysicalDeviceFeatures2,
-                                  2,
-                                  physicalDevice,
-                                  pFeatures);
+	                                  (GLADapiproc)glad_vkGetPhysicalDeviceFeatures2,
+	                                  2,
+	                                  physicalDevice,
+	                                  pFeatures);
         glad_vkGetPhysicalDeviceFeatures2(physicalDevice, pFeatures);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetPhysicalDeviceFeatures2",
-                                   (GLADapiproc)glad_vkGetPhysicalDeviceFeatures2,
-                                   2,
-                                   physicalDevice,
-                                   pFeatures);
+	                                   "vkGetPhysicalDeviceFeatures2",
+	                                   (GLADapiproc)glad_vkGetPhysicalDeviceFeatures2,
+	                                   2,
+	                                   physicalDevice,
+	                                   pFeatures);
 }
 PFN_vkGetPhysicalDeviceFeatures2 glad_debug_vkGetPhysicalDeviceFeatures2 = glad_debug_impl_vkGetPhysicalDeviceFeatures2;
 PFN_vkGetPhysicalDeviceFeatures2KHR glad_vkGetPhysicalDeviceFeatures2KHR = NULL;
 static void GLAD_API_PTR            glad_debug_impl_vkGetPhysicalDeviceFeatures2KHR(VkPhysicalDevice           physicalDevice,
                                                                                     VkPhysicalDeviceFeatures2 *pFeatures) {
         _pre_call_vulkan_callback("vkGetPhysicalDeviceFeatures2KHR",
-                                  (GLADapiproc)glad_vkGetPhysicalDeviceFeatures2KHR,
-                                  2,
-                                  physicalDevice,
-                                  pFeatures);
+	                                     (GLADapiproc)glad_vkGetPhysicalDeviceFeatures2KHR,
+	                                     2,
+	                                     physicalDevice,
+	                                     pFeatures);
         glad_vkGetPhysicalDeviceFeatures2KHR(physicalDevice, pFeatures);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetPhysicalDeviceFeatures2KHR",
-                                   (GLADapiproc)glad_vkGetPhysicalDeviceFeatures2KHR,
-                                   2,
-                                   physicalDevice,
-                                   pFeatures);
+	                                      "vkGetPhysicalDeviceFeatures2KHR",
+	                                      (GLADapiproc)glad_vkGetPhysicalDeviceFeatures2KHR,
+	                                      2,
+	                                      physicalDevice,
+	                                      pFeatures);
 }
 PFN_vkGetPhysicalDeviceFeatures2KHR glad_debug_vkGetPhysicalDeviceFeatures2KHR =
 	glad_debug_impl_vkGetPhysicalDeviceFeatures2KHR;
@@ -21572,17 +21568,17 @@ PFN_vkGetPhysicalDeviceProperties glad_vkGetPhysicalDeviceProperties = NULL;
 static void GLAD_API_PTR          glad_debug_impl_vkGetPhysicalDeviceProperties(VkPhysicalDevice            physicalDevice,
                                                                                 VkPhysicalDeviceProperties *pProperties) {
         _pre_call_vulkan_callback("vkGetPhysicalDeviceProperties",
-                                  (GLADapiproc)glad_vkGetPhysicalDeviceProperties,
-                                  2,
-                                  physicalDevice,
-                                  pProperties);
+	                                   (GLADapiproc)glad_vkGetPhysicalDeviceProperties,
+	                                   2,
+	                                   physicalDevice,
+	                                   pProperties);
         glad_vkGetPhysicalDeviceProperties(physicalDevice, pProperties);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetPhysicalDeviceProperties",
-                                   (GLADapiproc)glad_vkGetPhysicalDeviceProperties,
-                                   2,
-                                   physicalDevice,
-                                   pProperties);
+	                                    "vkGetPhysicalDeviceProperties",
+	                                    (GLADapiproc)glad_vkGetPhysicalDeviceProperties,
+	                                    2,
+	                                    physicalDevice,
+	                                    pProperties);
 }
 PFN_vkGetPhysicalDeviceProperties glad_debug_vkGetPhysicalDeviceProperties =
 	glad_debug_impl_vkGetPhysicalDeviceProperties;
@@ -21590,17 +21586,17 @@ PFN_vkGetPhysicalDeviceProperties2 glad_vkGetPhysicalDeviceProperties2 = NULL;
 static void GLAD_API_PTR           glad_debug_impl_vkGetPhysicalDeviceProperties2(VkPhysicalDevice             physicalDevice,
                                                                                   VkPhysicalDeviceProperties2 *pProperties) {
         _pre_call_vulkan_callback("vkGetPhysicalDeviceProperties2",
-                                  (GLADapiproc)glad_vkGetPhysicalDeviceProperties2,
-                                  2,
-                                  physicalDevice,
-                                  pProperties);
+	                                    (GLADapiproc)glad_vkGetPhysicalDeviceProperties2,
+	                                    2,
+	                                    physicalDevice,
+	                                    pProperties);
         glad_vkGetPhysicalDeviceProperties2(physicalDevice, pProperties);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetPhysicalDeviceProperties2",
-                                   (GLADapiproc)glad_vkGetPhysicalDeviceProperties2,
-                                   2,
-                                   physicalDevice,
-                                   pProperties);
+	                                     "vkGetPhysicalDeviceProperties2",
+	                                     (GLADapiproc)glad_vkGetPhysicalDeviceProperties2,
+	                                     2,
+	                                     physicalDevice,
+	                                     pProperties);
 }
 PFN_vkGetPhysicalDeviceProperties2 glad_debug_vkGetPhysicalDeviceProperties2 =
 	glad_debug_impl_vkGetPhysicalDeviceProperties2;
@@ -21608,17 +21604,17 @@ PFN_vkGetPhysicalDeviceProperties2KHR glad_vkGetPhysicalDeviceProperties2KHR = N
 static void GLAD_API_PTR              glad_debug_impl_vkGetPhysicalDeviceProperties2KHR(VkPhysicalDevice             physicalDevice,
                                                                                         VkPhysicalDeviceProperties2 *pProperties) {
         _pre_call_vulkan_callback("vkGetPhysicalDeviceProperties2KHR",
-                                  (GLADapiproc)glad_vkGetPhysicalDeviceProperties2KHR,
-                                  2,
-                                  physicalDevice,
-                                  pProperties);
+	                                       (GLADapiproc)glad_vkGetPhysicalDeviceProperties2KHR,
+	                                       2,
+	                                       physicalDevice,
+	                                       pProperties);
         glad_vkGetPhysicalDeviceProperties2KHR(physicalDevice, pProperties);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetPhysicalDeviceProperties2KHR",
-                                   (GLADapiproc)glad_vkGetPhysicalDeviceProperties2KHR,
-                                   2,
-                                   physicalDevice,
-                                   pProperties);
+	                                        "vkGetPhysicalDeviceProperties2KHR",
+	                                        (GLADapiproc)glad_vkGetPhysicalDeviceProperties2KHR,
+	                                        2,
+	                                        physicalDevice,
+	                                        pProperties);
 }
 PFN_vkGetPhysicalDeviceProperties2KHR glad_debug_vkGetPhysicalDeviceProperties2KHR =
 	glad_debug_impl_vkGetPhysicalDeviceProperties2KHR;
@@ -22379,19 +22375,19 @@ static void GLAD_API_PTR       glad_debug_impl_vkGetQueueCheckpointDataNV(VkQueu
                                                                           uint32_t           *pCheckpointDataCount,
                                                                           VkCheckpointDataNV *pCheckpointData) {
         _pre_call_vulkan_callback("vkGetQueueCheckpointDataNV",
-                                  (GLADapiproc)glad_vkGetQueueCheckpointDataNV,
-                                  3,
-                                  queue,
-                                  pCheckpointDataCount,
-                                  pCheckpointData);
+	                                (GLADapiproc)glad_vkGetQueueCheckpointDataNV,
+	                                3,
+	                                queue,
+	                                pCheckpointDataCount,
+	                                pCheckpointData);
         glad_vkGetQueueCheckpointDataNV(queue, pCheckpointDataCount, pCheckpointData);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetQueueCheckpointDataNV",
-                                   (GLADapiproc)glad_vkGetQueueCheckpointDataNV,
-                                   3,
-                                   queue,
-                                   pCheckpointDataCount,
-                                   pCheckpointData);
+	                                 "vkGetQueueCheckpointDataNV",
+	                                 (GLADapiproc)glad_vkGetQueueCheckpointDataNV,
+	                                 3,
+	                                 queue,
+	                                 pCheckpointDataCount,
+	                                 pCheckpointData);
 }
 PFN_vkGetQueueCheckpointDataNV glad_debug_vkGetQueueCheckpointDataNV = glad_debug_impl_vkGetQueueCheckpointDataNV;
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
@@ -22402,21 +22398,21 @@ static VkResult GLAD_API_PTR   glad_debug_impl_vkGetRandROutputDisplayEXT(VkPhys
                                                                           VkDisplayKHR    *pDisplay) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetRandROutputDisplayEXT",
-                                  (GLADapiproc)glad_vkGetRandROutputDisplayEXT,
-                                  4,
-                                  physicalDevice,
-                                  dpy,
-                                  rrOutput,
-                                  pDisplay);
+	                            (GLADapiproc)glad_vkGetRandROutputDisplayEXT,
+	                            4,
+	                            physicalDevice,
+	                            dpy,
+	                            rrOutput,
+	                            pDisplay);
         ret = glad_vkGetRandROutputDisplayEXT(physicalDevice, dpy, rrOutput, pDisplay);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetRandROutputDisplayEXT",
-                                   (GLADapiproc)glad_vkGetRandROutputDisplayEXT,
-                                   4,
-                                   physicalDevice,
-                                   dpy,
-                                   rrOutput,
-                                   pDisplay);
+	                             "vkGetRandROutputDisplayEXT",
+	                             (GLADapiproc)glad_vkGetRandROutputDisplayEXT,
+	                             4,
+	                             physicalDevice,
+	                             dpy,
+	                             rrOutput,
+	                             pDisplay);
         return ret;
 }
 PFN_vkGetRandROutputDisplayEXT glad_debug_vkGetRandROutputDisplayEXT = glad_debug_impl_vkGetRandROutputDisplayEXT;
@@ -22431,25 +22427,25 @@ static VkResult GLAD_API_PTR            glad_debug_impl_vkGetRayTracingShaderGro
                                                                                             void      *pData) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetRayTracingShaderGroupHandlesNV",
-                                  (GLADapiproc)glad_vkGetRayTracingShaderGroupHandlesNV,
-                                  6,
-                                  device,
-                                  pipeline,
-                                  firstGroup,
-                                  groupCount,
-                                  dataSize,
-                                  pData);
+	                                     (GLADapiproc)glad_vkGetRayTracingShaderGroupHandlesNV,
+	                                     6,
+	                                     device,
+	                                     pipeline,
+	                                     firstGroup,
+	                                     groupCount,
+	                                     dataSize,
+	                                     pData);
         ret = glad_vkGetRayTracingShaderGroupHandlesNV(device, pipeline, firstGroup, groupCount, dataSize, pData);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetRayTracingShaderGroupHandlesNV",
-                                   (GLADapiproc)glad_vkGetRayTracingShaderGroupHandlesNV,
-                                   6,
-                                   device,
-                                   pipeline,
-                                   firstGroup,
-                                   groupCount,
-                                   dataSize,
-                                   pData);
+	                                      "vkGetRayTracingShaderGroupHandlesNV",
+	                                      (GLADapiproc)glad_vkGetRayTracingShaderGroupHandlesNV,
+	                                      6,
+	                                      device,
+	                                      pipeline,
+	                                      firstGroup,
+	                                      groupCount,
+	                                      dataSize,
+	                                      pData);
         return ret;
 }
 PFN_vkGetRayTracingShaderGroupHandlesNV glad_debug_vkGetRayTracingShaderGroupHandlesNV =
@@ -22483,19 +22479,19 @@ static void GLAD_API_PTR       glad_debug_impl_vkGetRenderAreaGranularity(VkDevi
                                                                           VkRenderPass renderPass,
                                                                           VkExtent2D  *pGranularity) {
         _pre_call_vulkan_callback("vkGetRenderAreaGranularity",
-                                  (GLADapiproc)glad_vkGetRenderAreaGranularity,
-                                  3,
-                                  device,
-                                  renderPass,
-                                  pGranularity);
+	                                (GLADapiproc)glad_vkGetRenderAreaGranularity,
+	                                3,
+	                                device,
+	                                renderPass,
+	                                pGranularity);
         glad_vkGetRenderAreaGranularity(device, renderPass, pGranularity);
         _post_call_vulkan_callback(NULL,
-                                   "vkGetRenderAreaGranularity",
-                                   (GLADapiproc)glad_vkGetRenderAreaGranularity,
-                                   3,
-                                   device,
-                                   renderPass,
-                                   pGranularity);
+	                                 "vkGetRenderAreaGranularity",
+	                                 (GLADapiproc)glad_vkGetRenderAreaGranularity,
+	                                 3,
+	                                 device,
+	                                 renderPass,
+	                                 pGranularity);
 }
 PFN_vkGetRenderAreaGranularity glad_debug_vkGetRenderAreaGranularity = glad_debug_impl_vkGetRenderAreaGranularity;
 PFN_vkGetSemaphoreCounterValue glad_vkGetSemaphoreCounterValue       = NULL;
@@ -22504,19 +22500,19 @@ static VkResult GLAD_API_PTR   glad_debug_impl_vkGetSemaphoreCounterValue(VkDevi
                                                                           uint64_t   *pValue) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetSemaphoreCounterValue",
-                                  (GLADapiproc)glad_vkGetSemaphoreCounterValue,
-                                  3,
-                                  device,
-                                  semaphore,
-                                  pValue);
+	                            (GLADapiproc)glad_vkGetSemaphoreCounterValue,
+	                            3,
+	                            device,
+	                            semaphore,
+	                            pValue);
         ret = glad_vkGetSemaphoreCounterValue(device, semaphore, pValue);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetSemaphoreCounterValue",
-                                   (GLADapiproc)glad_vkGetSemaphoreCounterValue,
-                                   3,
-                                   device,
-                                   semaphore,
-                                   pValue);
+	                             "vkGetSemaphoreCounterValue",
+	                             (GLADapiproc)glad_vkGetSemaphoreCounterValue,
+	                             3,
+	                             device,
+	                             semaphore,
+	                             pValue);
         return ret;
 }
 PFN_vkGetSemaphoreCounterValue    glad_debug_vkGetSemaphoreCounterValue = glad_debug_impl_vkGetSemaphoreCounterValue;
@@ -22526,19 +22522,19 @@ static VkResult GLAD_API_PTR      glad_debug_impl_vkGetSemaphoreCounterValueKHR(
                                                                                 uint64_t   *pValue) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetSemaphoreCounterValueKHR",
-                                  (GLADapiproc)glad_vkGetSemaphoreCounterValueKHR,
-                                  3,
-                                  device,
-                                  semaphore,
-                                  pValue);
+	                               (GLADapiproc)glad_vkGetSemaphoreCounterValueKHR,
+	                               3,
+	                               device,
+	                               semaphore,
+	                               pValue);
         ret = glad_vkGetSemaphoreCounterValueKHR(device, semaphore, pValue);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetSemaphoreCounterValueKHR",
-                                   (GLADapiproc)glad_vkGetSemaphoreCounterValueKHR,
-                                   3,
-                                   device,
-                                   semaphore,
-                                   pValue);
+	                                "vkGetSemaphoreCounterValueKHR",
+	                                (GLADapiproc)glad_vkGetSemaphoreCounterValueKHR,
+	                                3,
+	                                device,
+	                                semaphore,
+	                                pValue);
         return ret;
 }
 PFN_vkGetSemaphoreCounterValueKHR glad_debug_vkGetSemaphoreCounterValueKHR =
@@ -22722,21 +22718,21 @@ static VkResult GLAD_API_PTR    glad_debug_impl_vkGetValidationCacheDataEXT(VkDe
                                                                             void                *pData) {
         VkResult ret;
         _pre_call_vulkan_callback("vkGetValidationCacheDataEXT",
-                                  (GLADapiproc)glad_vkGetValidationCacheDataEXT,
-                                  4,
-                                  device,
-                                  validationCache,
-                                  pDataSize,
-                                  pData);
+	                             (GLADapiproc)glad_vkGetValidationCacheDataEXT,
+	                             4,
+	                             device,
+	                             validationCache,
+	                             pDataSize,
+	                             pData);
         ret = glad_vkGetValidationCacheDataEXT(device, validationCache, pDataSize, pData);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkGetValidationCacheDataEXT",
-                                   (GLADapiproc)glad_vkGetValidationCacheDataEXT,
-                                   4,
-                                   device,
-                                   validationCache,
-                                   pDataSize,
-                                   pData);
+	                              "vkGetValidationCacheDataEXT",
+	                              (GLADapiproc)glad_vkGetValidationCacheDataEXT,
+	                              4,
+	                              device,
+	                              validationCache,
+	                              pDataSize,
+	                              pData);
         return ret;
 }
 PFN_vkGetValidationCacheDataEXT glad_debug_vkGetValidationCacheDataEXT = glad_debug_impl_vkGetValidationCacheDataEXT;
@@ -22745,17 +22741,17 @@ static VkResult GLAD_API_PTR    glad_debug_impl_vkImportFenceFdKHR(VkDevice     
                                                                    const VkImportFenceFdInfoKHR *pImportFenceFdInfo) {
         VkResult ret;
         _pre_call_vulkan_callback("vkImportFenceFdKHR",
-                                  (GLADapiproc)glad_vkImportFenceFdKHR,
-                                  2,
-                                  device,
-                                  pImportFenceFdInfo);
+	                             (GLADapiproc)glad_vkImportFenceFdKHR,
+	                             2,
+	                             device,
+	                             pImportFenceFdInfo);
         ret = glad_vkImportFenceFdKHR(device, pImportFenceFdInfo);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkImportFenceFdKHR",
-                                   (GLADapiproc)glad_vkImportFenceFdKHR,
-                                   2,
-                                   device,
-                                   pImportFenceFdInfo);
+	                              "vkImportFenceFdKHR",
+	                              (GLADapiproc)glad_vkImportFenceFdKHR,
+	                              2,
+	                              device,
+	                              pImportFenceFdInfo);
         return ret;
 }
 PFN_vkImportFenceFdKHR glad_debug_vkImportFenceFdKHR = glad_debug_impl_vkImportFenceFdKHR;
@@ -22808,17 +22804,17 @@ static VkResult GLAD_API_PTR        glad_debug_impl_vkImportSemaphoreWin32Handle
                                                                                             *pImportSemaphoreWin32HandleInfo) {
         VkResult ret;
         _pre_call_vulkan_callback("vkImportSemaphoreWin32HandleKHR",
-                                  (GLADapiproc)glad_vkImportSemaphoreWin32HandleKHR,
-                                  2,
-                                  device,
-                                  pImportSemaphoreWin32HandleInfo);
+	                                 (GLADapiproc)glad_vkImportSemaphoreWin32HandleKHR,
+	                                 2,
+	                                 device,
+	                                 pImportSemaphoreWin32HandleInfo);
         ret = glad_vkImportSemaphoreWin32HandleKHR(device, pImportSemaphoreWin32HandleInfo);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkImportSemaphoreWin32HandleKHR",
-                                   (GLADapiproc)glad_vkImportSemaphoreWin32HandleKHR,
-                                   2,
-                                   device,
-                                   pImportSemaphoreWin32HandleInfo);
+	                                  "vkImportSemaphoreWin32HandleKHR",
+	                                  (GLADapiproc)glad_vkImportSemaphoreWin32HandleKHR,
+	                                  2,
+	                                  device,
+	                                  pImportSemaphoreWin32HandleInfo);
         return ret;
 }
 PFN_vkImportSemaphoreWin32HandleKHR glad_debug_vkImportSemaphoreWin32HandleKHR =
@@ -22852,19 +22848,19 @@ static VkResult GLAD_API_PTR       glad_debug_impl_vkInvalidateMappedMemoryRange
                                                                                   const VkMappedMemoryRange *pMemoryRanges) {
         VkResult ret;
         _pre_call_vulkan_callback("vkInvalidateMappedMemoryRanges",
-                                  (GLADapiproc)glad_vkInvalidateMappedMemoryRanges,
-                                  3,
-                                  device,
-                                  memoryRangeCount,
-                                  pMemoryRanges);
+	                                (GLADapiproc)glad_vkInvalidateMappedMemoryRanges,
+	                                3,
+	                                device,
+	                                memoryRangeCount,
+	                                pMemoryRanges);
         ret = glad_vkInvalidateMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkInvalidateMappedMemoryRanges",
-                                   (GLADapiproc)glad_vkInvalidateMappedMemoryRanges,
-                                   3,
-                                   device,
-                                   memoryRangeCount,
-                                   pMemoryRanges);
+	                                 "vkInvalidateMappedMemoryRanges",
+	                                 (GLADapiproc)glad_vkInvalidateMappedMemoryRanges,
+	                                 3,
+	                                 device,
+	                                 memoryRangeCount,
+	                                 pMemoryRanges);
         return ret;
 }
 PFN_vkInvalidateMappedMemoryRanges glad_debug_vkInvalidateMappedMemoryRanges =
@@ -22932,21 +22928,21 @@ static VkResult GLAD_API_PTR   glad_debug_impl_vkMergeValidationCachesEXT(VkDevi
                                                                           const VkValidationCacheEXT *pSrcCaches) {
         VkResult ret;
         _pre_call_vulkan_callback("vkMergeValidationCachesEXT",
-                                  (GLADapiproc)glad_vkMergeValidationCachesEXT,
-                                  4,
-                                  device,
-                                  dstCache,
-                                  srcCacheCount,
-                                  pSrcCaches);
+	                            (GLADapiproc)glad_vkMergeValidationCachesEXT,
+	                            4,
+	                            device,
+	                            dstCache,
+	                            srcCacheCount,
+	                            pSrcCaches);
         ret = glad_vkMergeValidationCachesEXT(device, dstCache, srcCacheCount, pSrcCaches);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkMergeValidationCachesEXT",
-                                   (GLADapiproc)glad_vkMergeValidationCachesEXT,
-                                   4,
-                                   device,
-                                   dstCache,
-                                   srcCacheCount,
-                                   pSrcCaches);
+	                             "vkMergeValidationCachesEXT",
+	                             (GLADapiproc)glad_vkMergeValidationCachesEXT,
+	                             4,
+	                             device,
+	                             dstCache,
+	                             srcCacheCount,
+	                             pSrcCaches);
         return ret;
 }
 PFN_vkMergeValidationCachesEXT     glad_debug_vkMergeValidationCachesEXT = glad_debug_impl_vkMergeValidationCachesEXT;
@@ -22954,17 +22950,17 @@ PFN_vkQueueBeginDebugUtilsLabelEXT glad_vkQueueBeginDebugUtilsLabelEXT   = NULL;
 static void GLAD_API_PTR           glad_debug_impl_vkQueueBeginDebugUtilsLabelEXT(VkQueue                     queue,
                                                                                   const VkDebugUtilsLabelEXT *pLabelInfo) {
         _pre_call_vulkan_callback("vkQueueBeginDebugUtilsLabelEXT",
-                                  (GLADapiproc)glad_vkQueueBeginDebugUtilsLabelEXT,
-                                  2,
-                                  queue,
-                                  pLabelInfo);
+	                                    (GLADapiproc)glad_vkQueueBeginDebugUtilsLabelEXT,
+	                                    2,
+	                                    queue,
+	                                    pLabelInfo);
         glad_vkQueueBeginDebugUtilsLabelEXT(queue, pLabelInfo);
         _post_call_vulkan_callback(NULL,
-                                   "vkQueueBeginDebugUtilsLabelEXT",
-                                   (GLADapiproc)glad_vkQueueBeginDebugUtilsLabelEXT,
-                                   2,
-                                   queue,
-                                   pLabelInfo);
+	                                     "vkQueueBeginDebugUtilsLabelEXT",
+	                                     (GLADapiproc)glad_vkQueueBeginDebugUtilsLabelEXT,
+	                                     2,
+	                                     queue,
+	                                     pLabelInfo);
 }
 PFN_vkQueueBeginDebugUtilsLabelEXT glad_debug_vkQueueBeginDebugUtilsLabelEXT =
 	glad_debug_impl_vkQueueBeginDebugUtilsLabelEXT;
@@ -22996,32 +22992,32 @@ PFN_vkQueueBindSparse            glad_debug_vkQueueBindSparse      = glad_debug_
 PFN_vkQueueEndDebugUtilsLabelEXT glad_vkQueueEndDebugUtilsLabelEXT = NULL;
 static void GLAD_API_PTR         glad_debug_impl_vkQueueEndDebugUtilsLabelEXT(VkQueue queue) {
         _pre_call_vulkan_callback("vkQueueEndDebugUtilsLabelEXT",
-                                  (GLADapiproc)glad_vkQueueEndDebugUtilsLabelEXT,
-                                  1,
-                                  queue);
+	                                  (GLADapiproc)glad_vkQueueEndDebugUtilsLabelEXT,
+	                                  1,
+	                                  queue);
         glad_vkQueueEndDebugUtilsLabelEXT(queue);
         _post_call_vulkan_callback(NULL,
-                                   "vkQueueEndDebugUtilsLabelEXT",
-                                   (GLADapiproc)glad_vkQueueEndDebugUtilsLabelEXT,
-                                   1,
-                                   queue);
+	                                   "vkQueueEndDebugUtilsLabelEXT",
+	                                   (GLADapiproc)glad_vkQueueEndDebugUtilsLabelEXT,
+	                                   1,
+	                                   queue);
 }
 PFN_vkQueueEndDebugUtilsLabelEXT glad_debug_vkQueueEndDebugUtilsLabelEXT = glad_debug_impl_vkQueueEndDebugUtilsLabelEXT;
 PFN_vkQueueInsertDebugUtilsLabelEXT glad_vkQueueInsertDebugUtilsLabelEXT = NULL;
 static void GLAD_API_PTR            glad_debug_impl_vkQueueInsertDebugUtilsLabelEXT(VkQueue                     queue,
                                                                                     const VkDebugUtilsLabelEXT *pLabelInfo) {
         _pre_call_vulkan_callback("vkQueueInsertDebugUtilsLabelEXT",
-                                  (GLADapiproc)glad_vkQueueInsertDebugUtilsLabelEXT,
-                                  2,
-                                  queue,
-                                  pLabelInfo);
+	                                     (GLADapiproc)glad_vkQueueInsertDebugUtilsLabelEXT,
+	                                     2,
+	                                     queue,
+	                                     pLabelInfo);
         glad_vkQueueInsertDebugUtilsLabelEXT(queue, pLabelInfo);
         _post_call_vulkan_callback(NULL,
-                                   "vkQueueInsertDebugUtilsLabelEXT",
-                                   (GLADapiproc)glad_vkQueueInsertDebugUtilsLabelEXT,
-                                   2,
-                                   queue,
-                                   pLabelInfo);
+	                                      "vkQueueInsertDebugUtilsLabelEXT",
+	                                      (GLADapiproc)glad_vkQueueInsertDebugUtilsLabelEXT,
+	                                      2,
+	                                      queue,
+	                                      pLabelInfo);
 }
 PFN_vkQueueInsertDebugUtilsLabelEXT glad_debug_vkQueueInsertDebugUtilsLabelEXT =
 	glad_debug_impl_vkQueueInsertDebugUtilsLabelEXT;
@@ -23126,23 +23122,23 @@ static VkResult GLAD_API_PTR  glad_debug_impl_vkRegisterDisplayEventEXT(VkDevice
                                                                         VkFence                     *pFence) {
         VkResult ret;
         _pre_call_vulkan_callback("vkRegisterDisplayEventEXT",
-                                  (GLADapiproc)glad_vkRegisterDisplayEventEXT,
-                                  5,
-                                  device,
-                                  display,
-                                  pDisplayEventInfo,
-                                  pAllocator,
-                                  pFence);
+	                           (GLADapiproc)glad_vkRegisterDisplayEventEXT,
+	                           5,
+	                           device,
+	                           display,
+	                           pDisplayEventInfo,
+	                           pAllocator,
+	                           pFence);
         ret = glad_vkRegisterDisplayEventEXT(device, display, pDisplayEventInfo, pAllocator, pFence);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkRegisterDisplayEventEXT",
-                                   (GLADapiproc)glad_vkRegisterDisplayEventEXT,
-                                   5,
-                                   device,
-                                   display,
-                                   pDisplayEventInfo,
-                                   pAllocator,
-                                   pFence);
+	                            "vkRegisterDisplayEventEXT",
+	                            (GLADapiproc)glad_vkRegisterDisplayEventEXT,
+	                            5,
+	                            device,
+	                            display,
+	                            pDisplayEventInfo,
+	                            pAllocator,
+	                            pFence);
         return ret;
 }
 PFN_vkRegisterDisplayEventEXT glad_debug_vkRegisterDisplayEventEXT = glad_debug_impl_vkRegisterDisplayEventEXT;
@@ -23151,17 +23147,17 @@ static VkResult GLAD_API_PTR  glad_debug_impl_vkReleaseDisplayEXT(VkPhysicalDevi
                                                                   VkDisplayKHR     display) {
         VkResult ret;
         _pre_call_vulkan_callback("vkReleaseDisplayEXT",
-                                  (GLADapiproc)glad_vkReleaseDisplayEXT,
-                                  2,
-                                  physicalDevice,
-                                  display);
+	                           (GLADapiproc)glad_vkReleaseDisplayEXT,
+	                           2,
+	                           physicalDevice,
+	                           display);
         ret = glad_vkReleaseDisplayEXT(physicalDevice, display);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkReleaseDisplayEXT",
-                                   (GLADapiproc)glad_vkReleaseDisplayEXT,
-                                   2,
-                                   physicalDevice,
-                                   display);
+	                            "vkReleaseDisplayEXT",
+	                            (GLADapiproc)glad_vkReleaseDisplayEXT,
+	                            2,
+	                            physicalDevice,
+	                            display);
         return ret;
 }
 PFN_vkReleaseDisplayEXT glad_debug_vkReleaseDisplayEXT = glad_debug_impl_vkReleaseDisplayEXT;
@@ -23171,17 +23167,17 @@ static VkResult GLAD_API_PTR            glad_debug_impl_vkReleaseFullScreenExclu
                                                                                             VkSwapchainKHR swapchain) {
         VkResult ret;
         _pre_call_vulkan_callback("vkReleaseFullScreenExclusiveModeEXT",
-                                  (GLADapiproc)glad_vkReleaseFullScreenExclusiveModeEXT,
-                                  2,
-                                  device,
-                                  swapchain);
+	                                     (GLADapiproc)glad_vkReleaseFullScreenExclusiveModeEXT,
+	                                     2,
+	                                     device,
+	                                     swapchain);
         ret = glad_vkReleaseFullScreenExclusiveModeEXT(device, swapchain);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkReleaseFullScreenExclusiveModeEXT",
-                                   (GLADapiproc)glad_vkReleaseFullScreenExclusiveModeEXT,
-                                   2,
-                                   device,
-                                   swapchain);
+	                                      "vkReleaseFullScreenExclusiveModeEXT",
+	                                      (GLADapiproc)glad_vkReleaseFullScreenExclusiveModeEXT,
+	                                      2,
+	                                      device,
+	                                      swapchain);
         return ret;
 }
 PFN_vkReleaseFullScreenExclusiveModeEXT glad_debug_vkReleaseFullScreenExclusiveModeEXT =
@@ -23213,10 +23209,10 @@ static void GLAD_API_PTR      glad_debug_impl_vkReleaseProfilingLockKHR(VkDevice
         _pre_call_vulkan_callback("vkReleaseProfilingLockKHR", (GLADapiproc)glad_vkReleaseProfilingLockKHR, 1, device);
         glad_vkReleaseProfilingLockKHR(device);
         _post_call_vulkan_callback(NULL,
-                                   "vkReleaseProfilingLockKHR",
-                                   (GLADapiproc)glad_vkReleaseProfilingLockKHR,
-                                   1,
-                                   device);
+	                                "vkReleaseProfilingLockKHR",
+	                                (GLADapiproc)glad_vkReleaseProfilingLockKHR,
+	                                1,
+	                                device);
 }
 PFN_vkReleaseProfilingLockKHR glad_debug_vkReleaseProfilingLockKHR = glad_debug_impl_vkReleaseProfilingLockKHR;
 PFN_vkResetCommandBuffer      glad_vkResetCommandBuffer            = NULL;
@@ -23224,17 +23220,17 @@ static VkResult GLAD_API_PTR  glad_debug_impl_vkResetCommandBuffer(VkCommandBuff
                                                                    VkCommandBufferResetFlags flags) {
         VkResult ret;
         _pre_call_vulkan_callback("vkResetCommandBuffer",
-                                  (GLADapiproc)glad_vkResetCommandBuffer,
-                                  2,
-                                  commandBuffer,
-                                  flags);
+	                           (GLADapiproc)glad_vkResetCommandBuffer,
+	                           2,
+	                           commandBuffer,
+	                           flags);
         ret = glad_vkResetCommandBuffer(commandBuffer, flags);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkResetCommandBuffer",
-                                   (GLADapiproc)glad_vkResetCommandBuffer,
-                                   2,
-                                   commandBuffer,
-                                   flags);
+	                            "vkResetCommandBuffer",
+	                            (GLADapiproc)glad_vkResetCommandBuffer,
+	                            2,
+	                            commandBuffer,
+	                            flags);
         return ret;
 }
 PFN_vkResetCommandBuffer     glad_debug_vkResetCommandBuffer = glad_debug_impl_vkResetCommandBuffer;
@@ -23378,17 +23374,17 @@ static VkResult GLAD_API_PTR     glad_debug_impl_vkSetDebugUtilsObjectTagEXT(VkD
                                                                              const VkDebugUtilsObjectTagInfoEXT *pTagInfo) {
         VkResult ret;
         _pre_call_vulkan_callback("vkSetDebugUtilsObjectTagEXT",
-                                  (GLADapiproc)glad_vkSetDebugUtilsObjectTagEXT,
-                                  2,
-                                  device,
-                                  pTagInfo);
+	                              (GLADapiproc)glad_vkSetDebugUtilsObjectTagEXT,
+	                              2,
+	                              device,
+	                              pTagInfo);
         ret = glad_vkSetDebugUtilsObjectTagEXT(device, pTagInfo);
         _post_call_vulkan_callback((void *)&ret,
-                                   "vkSetDebugUtilsObjectTagEXT",
-                                   (GLADapiproc)glad_vkSetDebugUtilsObjectTagEXT,
-                                   2,
-                                   device,
-                                   pTagInfo);
+	                               "vkSetDebugUtilsObjectTagEXT",
+	                               (GLADapiproc)glad_vkSetDebugUtilsObjectTagEXT,
+	                               2,
+	                               device,
+	                               pTagInfo);
         return ret;
 }
 PFN_vkSetDebugUtilsObjectTagEXT glad_debug_vkSetDebugUtilsObjectTagEXT = glad_debug_impl_vkSetDebugUtilsObjectTagEXT;
@@ -23535,19 +23531,19 @@ static void GLAD_API_PTR         glad_debug_impl_vkTrimCommandPool(VkDevice     
                                                                    VkCommandPool          commandPool,
                                                                    VkCommandPoolTrimFlags flags) {
         _pre_call_vulkan_callback("vkTrimCommandPool",
-                                  (GLADapiproc)glad_vkTrimCommandPool,
-                                  3,
-                                  device,
-                                  commandPool,
-                                  flags);
+	                                  (GLADapiproc)glad_vkTrimCommandPool,
+	                                  3,
+	                                  device,
+	                                  commandPool,
+	                                  flags);
         glad_vkTrimCommandPool(device, commandPool, flags);
         _post_call_vulkan_callback(NULL,
-                                   "vkTrimCommandPool",
-                                   (GLADapiproc)glad_vkTrimCommandPool,
-                                   3,
-                                   device,
-                                   commandPool,
-                                   flags);
+	                                   "vkTrimCommandPool",
+	                                   (GLADapiproc)glad_vkTrimCommandPool,
+	                                   3,
+	                                   device,
+	                                   commandPool,
+	                                   flags);
 }
 PFN_vkTrimCommandPool    glad_debug_vkTrimCommandPool = glad_debug_impl_vkTrimCommandPool;
 PFN_vkTrimCommandPoolKHR glad_vkTrimCommandPoolKHR    = NULL;
@@ -23573,15 +23569,15 @@ PFN_vkTrimCommandPoolKHR              glad_debug_vkTrimCommandPoolKHR        = g
 PFN_vkUninitializePerformanceApiINTEL glad_vkUninitializePerformanceApiINTEL = NULL;
 static void GLAD_API_PTR              glad_debug_impl_vkUninitializePerformanceApiINTEL(VkDevice device) {
         _pre_call_vulkan_callback("vkUninitializePerformanceApiINTEL",
-                                  (GLADapiproc)glad_vkUninitializePerformanceApiINTEL,
-                                  1,
-                                  device);
+	                                       (GLADapiproc)glad_vkUninitializePerformanceApiINTEL,
+	                                       1,
+	                                       device);
         glad_vkUninitializePerformanceApiINTEL(device);
         _post_call_vulkan_callback(NULL,
-                                   "vkUninitializePerformanceApiINTEL",
-                                   (GLADapiproc)glad_vkUninitializePerformanceApiINTEL,
-                                   1,
-                                   device);
+	                                        "vkUninitializePerformanceApiINTEL",
+	                                        (GLADapiproc)glad_vkUninitializePerformanceApiINTEL,
+	                                        1,
+	                                        device);
 }
 PFN_vkUninitializePerformanceApiINTEL glad_debug_vkUninitializePerformanceApiINTEL =
 	glad_debug_impl_vkUninitializePerformanceApiINTEL;
@@ -23649,27 +23645,27 @@ static void GLAD_API_PTR   glad_debug_impl_vkUpdateDescriptorSets(VkDevice      
                                                                   uint32_t                    descriptorCopyCount,
                                                                   const VkCopyDescriptorSet  *pDescriptorCopies) {
         _pre_call_vulkan_callback("vkUpdateDescriptorSets",
-                                  (GLADapiproc)glad_vkUpdateDescriptorSets,
-                                  5,
-                                  device,
-                                  descriptorWriteCount,
-                                  pDescriptorWrites,
-                                  descriptorCopyCount,
-                                  pDescriptorCopies);
+	                            (GLADapiproc)glad_vkUpdateDescriptorSets,
+	                            5,
+	                            device,
+	                            descriptorWriteCount,
+	                            pDescriptorWrites,
+	                            descriptorCopyCount,
+	                            pDescriptorCopies);
         glad_vkUpdateDescriptorSets(device,
-                                    descriptorWriteCount,
-                                    pDescriptorWrites,
-                                    descriptorCopyCount,
-                                    pDescriptorCopies);
+	                              descriptorWriteCount,
+	                              pDescriptorWrites,
+	                              descriptorCopyCount,
+	                              pDescriptorCopies);
         _post_call_vulkan_callback(NULL,
-                                   "vkUpdateDescriptorSets",
-                                   (GLADapiproc)glad_vkUpdateDescriptorSets,
-                                   5,
-                                   device,
-                                   descriptorWriteCount,
-                                   pDescriptorWrites,
-                                   descriptorCopyCount,
-                                   pDescriptorCopies);
+	                             "vkUpdateDescriptorSets",
+	                             (GLADapiproc)glad_vkUpdateDescriptorSets,
+	                             5,
+	                             device,
+	                             descriptorWriteCount,
+	                             pDescriptorWrites,
+	                             descriptorCopyCount,
+	                             pDescriptorCopies);
 }
 PFN_vkUpdateDescriptorSets   glad_debug_vkUpdateDescriptorSets = glad_debug_impl_vkUpdateDescriptorSets;
 PFN_vkWaitForFences          glad_vkWaitForFences              = NULL;
@@ -27174,17 +27170,17 @@ void gladUninstallVulkanDebug(void) {
 
 #ifdef GLAD_VULKAN
 
-#	ifndef GLAD_LOADER_LIBRARY_C_
-#		define GLAD_LOADER_LIBRARY_C_
+#ifndef GLAD_LOADER_LIBRARY_C_
+#define GLAD_LOADER_LIBRARY_C_
 
-#		include <stddef.h>
-#		include <stdlib.h>
+#include <stddef.h>
+#include <stdlib.h>
 
-#		if GLAD_PLATFORM_WIN32
-#			include <windows.h>
-#		else
-#			include <dlfcn.h>
-#		endif
+#if GLAD_PLATFORM_WIN32
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
 
 
 static void *glad_get_dlopen_handle(const char *lib_names[], int length) {
@@ -27192,8 +27188,8 @@ static void *glad_get_dlopen_handle(const char *lib_names[], int length) {
 	int   i;
 
 	for (i = 0; i < length; ++i) {
-#		if GLAD_PLATFORM_WIN32
-#			if GLAD_PLATFORM_UWP
+#if GLAD_PLATFORM_WIN32
+#if GLAD_PLATFORM_UWP
 		size_t buffer_size = (strlen(lib_names[i]) + 1) * sizeof(WCHAR);
 		LPWSTR buffer      = (LPWSTR)malloc(buffer_size);
 		if (buffer != NULL) {
@@ -27203,12 +27199,12 @@ static void *glad_get_dlopen_handle(const char *lib_names[], int length) {
 			}
 			free((void *)buffer);
 		}
-#			else
+#else
 		handle = (void *)LoadLibraryA(lib_names[i]);
-#			endif
-#		else
+#endif
+#else
 		handle = dlopen(lib_names[i], RTLD_LAZY | RTLD_LOCAL);
-#		endif
+#endif
 		if (handle != NULL) {
 			return handle;
 		}
@@ -27219,11 +27215,11 @@ static void *glad_get_dlopen_handle(const char *lib_names[], int length) {
 
 static void glad_close_dlopen_handle(void *handle) {
 	if (handle != NULL) {
-#		if GLAD_PLATFORM_WIN32
+#if GLAD_PLATFORM_WIN32
 		FreeLibrary((HMODULE)handle);
-#		else
+#else
 		dlclose(handle);
-#		endif
+#endif
 	}
 }
 
@@ -27232,14 +27228,14 @@ static GLADapiproc glad_dlsym_handle(void *handle, const char *name) {
 		return NULL;
 	}
 
-#		if GLAD_PLATFORM_WIN32
+#if GLAD_PLATFORM_WIN32
 	return (GLADapiproc)GetProcAddress((HMODULE)handle, name);
-#		else
+#else
 	return GLAD_GNUC_EXTENSION(GLADapiproc) dlsym(handle, name);
-#		endif
+#endif
 }
 
-#	endif /* GLAD_LOADER_LIBRARY_C_ */
+#endif /* GLAD_LOADER_LIBRARY_C_ */
 
 
 static const char *DEVICE_FUNCTIONS[] = {
@@ -27656,15 +27652,15 @@ static void *_glad_Vulkan_loader_handle = NULL;
 
 static void *glad_vulkan_dlopen_handle(void) {
 	static const char *NAMES[] = {
-#	if GLAD_PLATFORM_APPLE
+#if GLAD_PLATFORM_APPLE
 		"libvulkan.1.dylib",
-#	elif GLAD_PLATFORM_WIN32
+#elif GLAD_PLATFORM_WIN32
 		"vulkan-1.dll",
 		"vulkan.dll",
-#	else
+#else
 		"libvulkan.so.1",
 		"libvulkan.so",
-#	endif
+#endif
 	};
 
 	if (_glad_Vulkan_loader_handle == NULL) {

@@ -30,12 +30,12 @@
 #define GLAD_VULKAN_H_
 
 #ifdef VULKAN_H_
-#	error header already included (API: vulkan), remove previous include!
+#error header already included (API: vulkan), remove previous include!
 #endif
 #define VULKAN_H_ 1
 
 #ifdef VULKAN_CORE_H_
-#	error header already included (API: vulkan), remove previous include!
+#error header already included (API: vulkan), remove previous include!
 #endif
 #define VULKAN_CORE_H_ 1
 
@@ -50,111 +50,110 @@ extern "C" {
 #endif
 
 #ifndef GLAD_PLATFORM_H_
-#	define GLAD_PLATFORM_H_
+#define GLAD_PLATFORM_H_
 
-#	ifndef GLAD_PLATFORM_WIN32
-#		if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__)
-#			define GLAD_PLATFORM_WIN32 1
-#		else
-#			define GLAD_PLATFORM_WIN32 0
-#		endif
-#	endif
+#ifndef GLAD_PLATFORM_WIN32
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__)
+#define GLAD_PLATFORM_WIN32 1
+#else
+#define GLAD_PLATFORM_WIN32 0
+#endif
+#endif
 
-#	ifndef GLAD_PLATFORM_APPLE
-#		ifdef __APPLE__
-#			define GLAD_PLATFORM_APPLE 1
-#		else
-#			define GLAD_PLATFORM_APPLE 0
-#		endif
-#	endif
+#ifndef GLAD_PLATFORM_APPLE
+#ifdef __APPLE__
+#define GLAD_PLATFORM_APPLE 1
+#else
+#define GLAD_PLATFORM_APPLE 0
+#endif
+#endif
 
-#	ifndef GLAD_PLATFORM_EMSCRIPTEN
-#		ifdef __EMSCRIPTEN__
-#			define GLAD_PLATFORM_EMSCRIPTEN 1
-#		else
-#			define GLAD_PLATFORM_EMSCRIPTEN 0
-#		endif
-#	endif
+#ifndef GLAD_PLATFORM_EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
+#define GLAD_PLATFORM_EMSCRIPTEN 1
+#else
+#define GLAD_PLATFORM_EMSCRIPTEN 0
+#endif
+#endif
 
-#	ifndef GLAD_PLATFORM_UWP
-#		if defined(_MSC_VER) && !defined(GLAD_INTERNAL_HAVE_WINAPIFAMILY)
-#			ifdef __has_include
-#				if __has_include(<winapifamily.h>)
-#					define GLAD_INTERNAL_HAVE_WINAPIFAMILY 1
-#				endif
-#			elif _MSC_VER >= 1700 && !_USING_V110_SDK71_
-#				define GLAD_INTERNAL_HAVE_WINAPIFAMILY 1
-#			endif
-#		endif
+#ifndef GLAD_PLATFORM_UWP
+#if defined(_MSC_VER) && !defined(GLAD_INTERNAL_HAVE_WINAPIFAMILY)
+#ifdef __has_include
+#if __has_include(<winapifamily.h>)
+#define GLAD_INTERNAL_HAVE_WINAPIFAMILY 1
+#endif
+#elif _MSC_VER >= 1700 && !_USING_V110_SDK71_
+#define GLAD_INTERNAL_HAVE_WINAPIFAMILY 1
+#endif
+#endif
 
-#		ifdef GLAD_INTERNAL_HAVE_WINAPIFAMILY
-#			include <winapifamily.h>
-#			if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) \
-				&& WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-#				define GLAD_PLATFORM_UWP 1
-#			endif
-#		endif
+#ifdef GLAD_INTERNAL_HAVE_WINAPIFAMILY
+#include <winapifamily.h>
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#define GLAD_PLATFORM_UWP 1
+#endif
+#endif
 
-#		ifndef GLAD_PLATFORM_UWP
-#			define GLAD_PLATFORM_UWP 0
-#		endif
-#	endif
+#ifndef GLAD_PLATFORM_UWP
+#define GLAD_PLATFORM_UWP 0
+#endif
+#endif
 
-#	ifdef __GNUC__
-#		define GLAD_GNUC_EXTENSION __extension__
-#	else
-#		define GLAD_GNUC_EXTENSION
-#	endif
+#ifdef __GNUC__
+#define GLAD_GNUC_EXTENSION __extension__
+#else
+#define GLAD_GNUC_EXTENSION
+#endif
 
-#	define GLAD_UNUSED(x) (void)(x)
+#define GLAD_UNUSED(x) (void)(x)
 
-#	ifndef GLAD_API_CALL
-#		if defined(GLAD_API_CALL_EXPORT)
-#			if GLAD_PLATFORM_WIN32 || defined(__CYGWIN__)
-#				if defined(GLAD_API_CALL_EXPORT_BUILD)
-#					if defined(__GNUC__)
-#						define GLAD_API_CALL __attribute__((dllexport)) extern
-#					else
-#						define GLAD_API_CALL __declspec(dllexport) extern
-#					endif
-#				else
-#					if defined(__GNUC__)
-#						define GLAD_API_CALL __attribute__((dllimport)) extern
-#					else
-#						define GLAD_API_CALL __declspec(dllimport) extern
-#					endif
-#				endif
-#			elif defined(__GNUC__) && defined(GLAD_API_CALL_EXPORT_BUILD)
-#				define GLAD_API_CALL __attribute__((visibility("default"))) extern
-#			else
-#				define GLAD_API_CALL extern
-#			endif
-#		else
-#			define GLAD_API_CALL extern
-#		endif
-#	endif
+#ifndef GLAD_API_CALL
+#if defined(GLAD_API_CALL_EXPORT)
+#if GLAD_PLATFORM_WIN32 || defined(__CYGWIN__)
+#if defined(GLAD_API_CALL_EXPORT_BUILD)
+#if defined(__GNUC__)
+#define GLAD_API_CALL __attribute__((dllexport)) extern
+#else
+#define GLAD_API_CALL __declspec(dllexport) extern
+#endif
+#else
+#if defined(__GNUC__)
+#define GLAD_API_CALL __attribute__((dllimport)) extern
+#else
+#define GLAD_API_CALL __declspec(dllimport) extern
+#endif
+#endif
+#elif defined(__GNUC__) && defined(GLAD_API_CALL_EXPORT_BUILD)
+#define GLAD_API_CALL __attribute__((visibility("default"))) extern
+#else
+#define GLAD_API_CALL extern
+#endif
+#else
+#define GLAD_API_CALL extern
+#endif
+#endif
 
-#	ifdef APIENTRY
-#		define GLAD_API_PTR APIENTRY
-#	elif GLAD_PLATFORM_WIN32
-#		define GLAD_API_PTR __stdcall
-#	else
-#		define GLAD_API_PTR
-#	endif
+#ifdef APIENTRY
+#define GLAD_API_PTR APIENTRY
+#elif GLAD_PLATFORM_WIN32
+#define GLAD_API_PTR __stdcall
+#else
+#define GLAD_API_PTR
+#endif
 
-#	ifndef GLAPI
-#		define GLAPI GLAD_API_CALL
-#	endif
+#ifndef GLAPI
+#define GLAPI GLAD_API_CALL
+#endif
 
-#	ifndef GLAPIENTRY
-#		define GLAPIENTRY GLAD_API_PTR
-#	endif
+#ifndef GLAPIENTRY
+#define GLAPIENTRY GLAD_API_PTR
+#endif
 
-#	define GLAD_MAKE_VERSION(major, minor) (major * 10000 + minor)
-#	define GLAD_VERSION_MAJOR(version)     (version / 10000)
-#	define GLAD_VERSION_MINOR(version)     (version % 10000)
+#define GLAD_MAKE_VERSION(major, minor) (major * 10000 + minor)
+#define GLAD_VERSION_MAJOR(version)     (version / 10000)
+#define GLAD_VERSION_MINOR(version)     (version % 10000)
 
-#	define GLAD_GENERATOR_VERSION "2.0.4"
+#define GLAD_GENERATOR_VERSION "2.0.4"
 
 typedef void (*GLADapiproc)(void);
 
@@ -209,23 +208,23 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_AMD_TEXTURE_GATHER_BIAS_LOD_EXTENSION_NAME          "VK_AMD_texture_gather_bias_lod"
 #define VK_AMD_TEXTURE_GATHER_BIAS_LOD_SPEC_VERSION            1
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME \
-		"VK_ANDROID_external_memory_android_hardware_buffer"
+#define VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME \
+	"VK_ANDROID_external_memory_android_hardware_buffer"
 
 #endif
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_SPEC_VERSION 5
+#define VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_SPEC_VERSION 5
 
 #endif
 #define VK_ATTACHMENT_UNUSED               (~0U)
 #define VK_EXT_4444_FORMATS_EXTENSION_NAME "VK_EXT_4444_formats"
 #define VK_EXT_4444_FORMATS_SPEC_VERSION   1
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-#	define VK_EXT_ACQUIRE_XLIB_DISPLAY_EXTENSION_NAME "VK_EXT_acquire_xlib_display"
+#define VK_EXT_ACQUIRE_XLIB_DISPLAY_EXTENSION_NAME "VK_EXT_acquire_xlib_display"
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-#	define VK_EXT_ACQUIRE_XLIB_DISPLAY_SPEC_VERSION 1
+#define VK_EXT_ACQUIRE_XLIB_DISPLAY_SPEC_VERSION 1
 
 #endif
 #define VK_EXT_ASTC_DECODE_MODE_EXTENSION_NAME           "VK_EXT_astc_decode_mode"
@@ -255,11 +254,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME        "VK_EXT_descriptor_indexing"
 #define VK_EXT_DESCRIPTOR_INDEXING_SPEC_VERSION          2
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-#	define VK_EXT_DIRECTFB_SURFACE_EXTENSION_NAME "VK_EXT_directfb_surface"
+#define VK_EXT_DIRECTFB_SURFACE_EXTENSION_NAME "VK_EXT_directfb_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-#	define VK_EXT_DIRECTFB_SURFACE_SPEC_VERSION 1
+#define VK_EXT_DIRECTFB_SURFACE_SPEC_VERSION 1
 
 #endif
 #define VK_EXT_DIRECT_MODE_DISPLAY_EXTENSION_NAME       "VK_EXT_direct_mode_display"
@@ -285,11 +284,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME "VK_EXT_fragment_shader_interlock"
 #define VK_EXT_FRAGMENT_SHADER_INTERLOCK_SPEC_VERSION   1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME "VK_EXT_full_screen_exclusive"
+#define VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME "VK_EXT_full_screen_exclusive"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_EXT_FULL_SCREEN_EXCLUSIVE_SPEC_VERSION 4
+#define VK_EXT_FULL_SCREEN_EXCLUSIVE_SPEC_VERSION 4
 
 #endif
 #define VK_EXT_GLOBAL_PRIORITY_EXTENSION_NAME           "VK_EXT_global_priority"
@@ -315,11 +314,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME           "VK_EXT_memory_priority"
 #define VK_EXT_MEMORY_PRIORITY_SPEC_VERSION             1
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-#	define VK_EXT_METAL_SURFACE_EXTENSION_NAME "VK_EXT_metal_surface"
+#define VK_EXT_METAL_SURFACE_EXTENSION_NAME "VK_EXT_metal_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-#	define VK_EXT_METAL_SURFACE_SPEC_VERSION 1
+#define VK_EXT_METAL_SURFACE_SPEC_VERSION 1
 
 #endif
 #define VK_EXT_PCI_BUS_INFO_EXTENSION_NAME                       "VK_EXT_pci_bus_info"
@@ -382,27 +381,27 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_EXT_YCBCR_IMAGE_ARRAYS_SPEC_VERSION                   1
 #define VK_FALSE                                                 0
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-#	define VK_FUCHSIA_IMAGEPIPE_SURFACE_EXTENSION_NAME "VK_FUCHSIA_imagepipe_surface"
+#define VK_FUCHSIA_IMAGEPIPE_SURFACE_EXTENSION_NAME "VK_FUCHSIA_imagepipe_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-#	define VK_FUCHSIA_IMAGEPIPE_SURFACE_SPEC_VERSION 1
+#define VK_FUCHSIA_IMAGEPIPE_SURFACE_SPEC_VERSION 1
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_FRAME_TOKEN_EXTENSION_NAME "VK_GGP_frame_token"
+#define VK_GGP_FRAME_TOKEN_EXTENSION_NAME "VK_GGP_frame_token"
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_FRAME_TOKEN_SPEC_VERSION 1
+#define VK_GGP_FRAME_TOKEN_SPEC_VERSION 1
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_STREAM_DESCRIPTOR_SURFACE_EXTENSION_NAME "VK_GGP_stream_descriptor_surface"
+#define VK_GGP_STREAM_DESCRIPTOR_SURFACE_EXTENSION_NAME "VK_GGP_stream_descriptor_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_STREAM_DESCRIPTOR_SURFACE_SPEC_VERSION 1
+#define VK_GGP_STREAM_DESCRIPTOR_SURFACE_SPEC_VERSION 1
 
 #endif
 #define VK_GOOGLE_DECORATE_STRING_EXTENSION_NAME           "VK_GOOGLE_decorate_string"
@@ -428,11 +427,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_KHR_8BIT_STORAGE_EXTENSION_NAME                 "VK_KHR_8bit_storage"
 #define VK_KHR_8BIT_STORAGE_SPEC_VERSION                   1
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
+#define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_KHR_ANDROID_SURFACE_SPEC_VERSION 6
+#define VK_KHR_ANDROID_SURFACE_SPEC_VERSION 6
 
 #endif
 #define VK_KHR_BIND_MEMORY_2_EXTENSION_NAME               "VK_KHR_bind_memory2"
@@ -468,11 +467,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_KHR_EXTERNAL_FENCE_FD_SPEC_VERSION             1
 #define VK_KHR_EXTERNAL_FENCE_SPEC_VERSION                1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME "VK_KHR_external_fence_win32"
+#define VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME "VK_KHR_external_fence_win32"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_FENCE_WIN32_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_FENCE_WIN32_SPEC_VERSION 1
 
 #endif
 #define VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME "VK_KHR_external_memory_capabilities"
@@ -482,11 +481,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_KHR_EXTERNAL_MEMORY_FD_SPEC_VERSION             1
 #define VK_KHR_EXTERNAL_MEMORY_SPEC_VERSION                1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_KHR_external_memory_win32"
+#define VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_KHR_external_memory_win32"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
 
 #endif
 #define VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME "VK_KHR_external_semaphore_capabilities"
@@ -496,11 +495,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_KHR_EXTERNAL_SEMAPHORE_FD_SPEC_VERSION             1
 #define VK_KHR_EXTERNAL_SEMAPHORE_SPEC_VERSION                1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME "VK_KHR_external_semaphore_win32"
+#define VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME "VK_KHR_external_semaphore_win32"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_EXTERNAL_SEMAPHORE_WIN32_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_SEMAPHORE_WIN32_SPEC_VERSION 1
 
 #endif
 #define VK_KHR_GET_DISPLAY_PROPERTIES_2_EXTENSION_NAME         "VK_KHR_get_display_properties2"
@@ -584,43 +583,43 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_KHR_VULKAN_MEMORY_MODEL_EXTENSION_NAME              "VK_KHR_vulkan_memory_model"
 #define VK_KHR_VULKAN_MEMORY_MODEL_SPEC_VERSION                3
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-#	define VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME "VK_KHR_wayland_surface"
+#define VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME "VK_KHR_wayland_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-#	define VK_KHR_WAYLAND_SURFACE_SPEC_VERSION 6
+#define VK_KHR_WAYLAND_SURFACE_SPEC_VERSION 6
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_KHR_win32_keyed_mutex"
+#define VK_KHR_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_KHR_win32_keyed_mutex"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_WIN32_KEYED_MUTEX_SPEC_VERSION 1
+#define VK_KHR_WIN32_KEYED_MUTEX_SPEC_VERSION 1
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_WIN32_SURFACE_EXTENSION_NAME "VK_KHR_win32_surface"
+#define VK_KHR_WIN32_SURFACE_EXTENSION_NAME "VK_KHR_win32_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_WIN32_SURFACE_SPEC_VERSION 6
+#define VK_KHR_WIN32_SURFACE_SPEC_VERSION 6
 
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-#	define VK_KHR_XCB_SURFACE_EXTENSION_NAME "VK_KHR_xcb_surface"
+#define VK_KHR_XCB_SURFACE_EXTENSION_NAME "VK_KHR_xcb_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-#	define VK_KHR_XCB_SURFACE_SPEC_VERSION 6
+#define VK_KHR_XCB_SURFACE_SPEC_VERSION 6
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-#	define VK_KHR_XLIB_SURFACE_EXTENSION_NAME "VK_KHR_xlib_surface"
+#define VK_KHR_XLIB_SURFACE_EXTENSION_NAME "VK_KHR_xlib_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-#	define VK_KHR_XLIB_SURFACE_SPEC_VERSION 6
+#define VK_KHR_XLIB_SURFACE_SPEC_VERSION 6
 
 #endif
 #define VK_LOD_CLAMP_NONE                1000.0F
@@ -638,27 +637,27 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_MAX_MEMORY_TYPES              32
 #define VK_MAX_PHYSICAL_DEVICE_NAME_SIZE 256
 #if defined(VK_USE_PLATFORM_IOS_MVK)
-#	define VK_MVK_IOS_SURFACE_EXTENSION_NAME "VK_MVK_ios_surface"
+#define VK_MVK_IOS_SURFACE_EXTENSION_NAME "VK_MVK_ios_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_IOS_MVK)
-#	define VK_MVK_IOS_SURFACE_SPEC_VERSION 3
+#define VK_MVK_IOS_SURFACE_SPEC_VERSION 3
 
 #endif
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
-#	define VK_MVK_MACOS_SURFACE_EXTENSION_NAME "VK_MVK_macos_surface"
+#define VK_MVK_MACOS_SURFACE_EXTENSION_NAME "VK_MVK_macos_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
-#	define VK_MVK_MACOS_SURFACE_SPEC_VERSION 3
+#define VK_MVK_MACOS_SURFACE_SPEC_VERSION 3
 
 #endif
 #if defined(VK_USE_PLATFORM_VI_NN)
-#	define VK_NN_VI_SURFACE_EXTENSION_NAME "VK_NN_vi_surface"
+#define VK_NN_VI_SURFACE_EXTENSION_NAME "VK_NN_vi_surface"
 
 #endif
 #if defined(VK_USE_PLATFORM_VI_NN)
-#	define VK_NN_VI_SURFACE_SPEC_VERSION 1
+#define VK_NN_VI_SURFACE_SPEC_VERSION 1
 
 #endif
 #define VK_NVX_IMAGE_VIEW_HANDLE_EXTENSION_NAME                  "VK_NVX_image_view_handle"
@@ -690,11 +689,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_NV_EXTERNAL_MEMORY_EXTENSION_NAME                     "VK_NV_external_memory"
 #define VK_NV_EXTERNAL_MEMORY_SPEC_VERSION                       1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_NV_external_memory_win32"
+#define VK_NV_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_NV_external_memory_win32"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
+#define VK_NV_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
 
 #endif
 #define VK_NV_FILL_RECTANGLE_EXTENSION_NAME                "VK_NV_fill_rectangle"
@@ -734,11 +733,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define VK_NV_VIEWPORT_SWIZZLE_EXTENSION_NAME              "VK_NV_viewport_swizzle"
 #define VK_NV_VIEWPORT_SWIZZLE_SPEC_VERSION                1
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_NV_win32_keyed_mutex"
+#define VK_NV_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_NV_win32_keyed_mutex"
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_WIN32_KEYED_MUTEX_SPEC_VERSION 2
+#define VK_NV_WIN32_KEYED_MUTEX_SPEC_VERSION 2
 
 #endif
 #define VK_QCOM_RENDER_PASS_SHADER_RESOLVE_EXTENSION_NAME "VK_QCOM_render_pass_shader_resolve"
@@ -772,11 +771,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 
 
 #ifndef VK_PLATFORM_H_
-#	define VK_PLATFORM_H_
+#define VK_PLATFORM_H_
 
-#	ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#	endif /* __cplusplus */
+#endif /* __cplusplus */
 
 /*
 ***************************************************************************************************
@@ -798,34 +797,34 @@ extern "C" {
  * Function declaration:  VKAPI_ATTR void VKAPI_CALL vkCommand(void);
  * Function pointer type: typedef void (VKAPI_PTR *PFN_vkCommand)(void);
  */
-#	if defined(_WIN32)
+#if defined(_WIN32)
 /* On Windows, Vulkan commands use the stdcall convention */
-#		define VKAPI_ATTR
-#		define VKAPI_CALL __stdcall
-#		define VKAPI_PTR  VKAPI_CALL
-#	elif defined(__ANDROID__) && defined(__ARM_ARCH) && __ARM_ARCH < 7
-#		error "Vulkan is not supported for the 'armeabi' NDK ABI"
-#	elif defined(__ANDROID__) && defined(__ARM_ARCH) && __ARM_ARCH >= 7 && defined(__ARM_32BIT_STATE)
+#define VKAPI_ATTR
+#define VKAPI_CALL __stdcall
+#define VKAPI_PTR  VKAPI_CALL
+#elif defined(__ANDROID__) && defined(__ARM_ARCH) && __ARM_ARCH < 7
+#error "Vulkan is not supported for the 'armeabi' NDK ABI"
+#elif defined(__ANDROID__) && defined(__ARM_ARCH) && __ARM_ARCH >= 7 && defined(__ARM_32BIT_STATE)
 /* On Android 32-bit ARM targets, Vulkan functions use the "hardfloat" */
 /* calling convention, i.e. float parameters are passed in registers. This */
 /* is true even if the rest of the application passes floats on the stack, */
 /* as it does by default when compiling for the armeabi-v7a NDK ABI. */
-#		define VKAPI_ATTR __attribute__((pcs("aapcs-vfp")))
-#		define VKAPI_CALL
-#		define VKAPI_PTR VKAPI_ATTR
-#	else
+#define VKAPI_ATTR __attribute__((pcs("aapcs-vfp")))
+#define VKAPI_CALL
+#define VKAPI_PTR VKAPI_ATTR
+#else
 /* On other platforms, use the default calling convention */
-#		define VKAPI_ATTR
-#		define VKAPI_CALL
-#		define VKAPI_PTR
-#	endif
+#define VKAPI_ATTR
+#define VKAPI_CALL
+#define VKAPI_PTR
+#endif
 
-#	if !defined(VK_NO_STDDEF_H)
-#		include <stddef.h>
-#	endif /* !defined(VK_NO_STDDEF_H) */
+#if !defined(VK_NO_STDDEF_H)
+#include <stddef.h>
+#endif /* !defined(VK_NO_STDDEF_H) */
 
-#	if !defined(VK_NO_STDINT_H)
-#		if defined(_MSC_VER) && (_MSC_VER < 1600)
+#if !defined(VK_NO_STDINT_H)
+#if defined(_MSC_VER) && (_MSC_VER < 1600)
 typedef signed __int8    int8_t;
 typedef unsigned __int8  uint8_t;
 typedef signed __int16   int16_t;
@@ -834,48 +833,48 @@ typedef signed __int32   int32_t;
 typedef unsigned __int32 uint32_t;
 typedef signed __int64   int64_t;
 typedef unsigned __int64 uint64_t;
-#		else
-#			include <stdint.h>
-#		endif
-#	endif /* !defined(VK_NO_STDINT_H) */
+#else
+#include <stdint.h>
+#endif
+#endif /* !defined(VK_NO_STDINT_H) */
 
-#	ifdef __cplusplus
-}              /* extern "C" */
-#	endif /* __cplusplus */
+#ifdef __cplusplus
+}      /* extern "C" */
+#endif /* __cplusplus */
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT) || defined(VK_USE_PLATFORM_XLIB_KHR)
-#	include <X11/Xlib.h>
+#include <X11/Xlib.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-#	include <X11/extensions/Xrandr.h>
+#include <X11/extensions/Xrandr.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-#	include <wayland-client.h>
+#include <wayland-client.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR) || defined(VK_USE_PLATFORM_WIN32_KHR) || defined(VK_USE_PLATFORM_WIN32_KHR) \
 	|| defined(VK_USE_PLATFORM_WIN32_KHR) || defined(VK_USE_PLATFORM_WIN32_KHR)                                \
 	|| defined(VK_USE_PLATFORM_WIN32_KHR)
-#	include <windows.h>
+#include <windows.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-#	include <xcb/xcb.h>
+#include <xcb/xcb.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-#	include <directfb.h>
+#include <directfb.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-#	include <zircon/types.h>
+#include <zircon/types.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_GGP) || defined(VK_USE_PLATFORM_GGP)
-#	include <ggp_c/vulkan_types.h>
+#include <ggp_c/vulkan_types.h>
 #endif
 
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT) || defined(VK_USE_PLATFORM_XLIB_KHR)
@@ -993,34 +992,33 @@ typedef unsigned __int64 uint64_t;
 #define VK_HEADER_VERSION        262
 #define VK_DEFINE_HANDLE(object) typedef struct object##_T *object;
 #ifndef VK_USE_64_BIT_PTR_DEFINES
-#	if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__)) || defined(_M_X64) \
-		|| defined(__ia64) || defined(_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
-#		define VK_USE_64_BIT_PTR_DEFINES 1
-#	else
-#		define VK_USE_64_BIT_PTR_DEFINES 0
-#	endif
+#if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__)) || defined(_M_X64) \
+	|| defined(__ia64) || defined(_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+#define VK_USE_64_BIT_PTR_DEFINES 1
+#else
+#define VK_USE_64_BIT_PTR_DEFINES 0
+#endif
 #endif
 #ifndef VK_DEFINE_NON_DISPATCHABLE_HANDLE
-#	if (VK_USE_64_BIT_PTR_DEFINES == 1)
-#		if (defined(__cplusplus) && (__cplusplus >= 201103L)) \
-			|| (defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L))
-#			define VK_NULL_HANDLE nullptr
-#		else
-#			define VK_NULL_HANDLE ((void *)0)
-#		endif
-#	else
-#		define VK_NULL_HANDLE 0ULL
-#	endif
+#if (VK_USE_64_BIT_PTR_DEFINES == 1)
+#if (defined(__cplusplus) && (__cplusplus >= 201103L)) || (defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L))
+#define VK_NULL_HANDLE nullptr
+#else
+#define VK_NULL_HANDLE ((void *)0)
+#endif
+#else
+#define VK_NULL_HANDLE 0ULL
+#endif
 #endif
 #ifndef VK_NULL_HANDLE
-#	define VK_NULL_HANDLE 0
+#define VK_NULL_HANDLE 0
 #endif
 #ifndef VK_DEFINE_NON_DISPATCHABLE_HANDLE
-#	if (VK_USE_64_BIT_PTR_DEFINES == 1)
-#		define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
-#	else
-#		define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef uint64_t object;
-#	endif
+#if (VK_USE_64_BIT_PTR_DEFINES == 1)
+#define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
+#else
+#define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef uint64_t object;
+#endif
 #endif
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 struct ANativeWindow;
@@ -1031,11 +1029,11 @@ struct AHardwareBuffer;
 #endif
 
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-#	ifdef __OBJC__
+#ifdef __OBJC__
 @class CAMetalLayer;
-#	else
+#else
 typedef void CAMetalLayer;
-#	endif
+#endif
 #endif
 
 
@@ -9003,14 +9001,14 @@ GLAD_API_CALL int GLAD_VK_AMD_shader_trinary_minmax;
 #define VK_AMD_texture_gather_bias_lod 1
 GLAD_API_CALL int GLAD_VK_AMD_texture_gather_bias_lod;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_ANDROID_external_memory_android_hardware_buffer 1
+#define VK_ANDROID_external_memory_android_hardware_buffer 1
 GLAD_API_CALL int GLAD_VK_ANDROID_external_memory_android_hardware_buffer;
 
 #endif
 #define VK_EXT_4444_formats 1
 GLAD_API_CALL int GLAD_VK_EXT_4444_formats;
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-#	define VK_EXT_acquire_xlib_display 1
+#define VK_EXT_acquire_xlib_display 1
 GLAD_API_CALL int GLAD_VK_EXT_acquire_xlib_display;
 
 #endif
@@ -9043,7 +9041,7 @@ GLAD_API_CALL int GLAD_VK_EXT_descriptor_indexing;
 #define VK_EXT_direct_mode_display 1
 GLAD_API_CALL int GLAD_VK_EXT_direct_mode_display;
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-#	define VK_EXT_directfb_surface 1
+#define VK_EXT_directfb_surface 1
 GLAD_API_CALL int GLAD_VK_EXT_directfb_surface;
 
 #endif
@@ -9068,7 +9066,7 @@ GLAD_API_CALL int GLAD_VK_EXT_fragment_density_map2;
 #define VK_EXT_fragment_shader_interlock 1
 GLAD_API_CALL int GLAD_VK_EXT_fragment_shader_interlock;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_EXT_full_screen_exclusive 1
+#define VK_EXT_full_screen_exclusive 1
 GLAD_API_CALL int GLAD_VK_EXT_full_screen_exclusive;
 
 #endif
@@ -9095,7 +9093,7 @@ GLAD_API_CALL int GLAD_VK_EXT_memory_budget;
 #define VK_EXT_memory_priority 1
 GLAD_API_CALL int GLAD_VK_EXT_memory_priority;
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-#	define VK_EXT_metal_surface 1
+#define VK_EXT_metal_surface 1
 GLAD_API_CALL int GLAD_VK_EXT_metal_surface;
 
 #endif
@@ -9158,17 +9156,17 @@ GLAD_API_CALL int GLAD_VK_EXT_vertex_attribute_divisor;
 #define VK_EXT_ycbcr_image_arrays 1
 GLAD_API_CALL int GLAD_VK_EXT_ycbcr_image_arrays;
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-#	define VK_FUCHSIA_imagepipe_surface 1
+#define VK_FUCHSIA_imagepipe_surface 1
 GLAD_API_CALL int GLAD_VK_FUCHSIA_imagepipe_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_frame_token 1
+#define VK_GGP_frame_token 1
 GLAD_API_CALL int GLAD_VK_GGP_frame_token;
 
 #endif
 #if defined(VK_USE_PLATFORM_GGP)
-#	define VK_GGP_stream_descriptor_surface 1
+#define VK_GGP_stream_descriptor_surface 1
 GLAD_API_CALL int GLAD_VK_GGP_stream_descriptor_surface;
 
 #endif
@@ -9193,7 +9191,7 @@ GLAD_API_CALL int GLAD_VK_KHR_16bit_storage;
 #define VK_KHR_8bit_storage 1
 GLAD_API_CALL int GLAD_VK_KHR_8bit_storage;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#	define VK_KHR_android_surface 1
+#define VK_KHR_android_surface 1
 GLAD_API_CALL int GLAD_VK_KHR_android_surface;
 
 #endif
@@ -9230,7 +9228,7 @@ GLAD_API_CALL int GLAD_VK_KHR_external_fence_capabilities;
 #define VK_KHR_external_fence_fd 1
 GLAD_API_CALL int GLAD_VK_KHR_external_fence_fd;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_external_fence_win32 1
+#define VK_KHR_external_fence_win32 1
 GLAD_API_CALL int GLAD_VK_KHR_external_fence_win32;
 
 #endif
@@ -9241,7 +9239,7 @@ GLAD_API_CALL int GLAD_VK_KHR_external_memory_capabilities;
 #define VK_KHR_external_memory_fd 1
 GLAD_API_CALL int GLAD_VK_KHR_external_memory_fd;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_external_memory_win32 1
+#define VK_KHR_external_memory_win32 1
 GLAD_API_CALL int GLAD_VK_KHR_external_memory_win32;
 
 #endif
@@ -9252,7 +9250,7 @@ GLAD_API_CALL int GLAD_VK_KHR_external_semaphore_capabilities;
 #define VK_KHR_external_semaphore_fd 1
 GLAD_API_CALL int GLAD_VK_KHR_external_semaphore_fd;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_external_semaphore_win32 1
+#define VK_KHR_external_semaphore_win32 1
 GLAD_API_CALL int GLAD_VK_KHR_external_semaphore_win32;
 
 #endif
@@ -9331,42 +9329,42 @@ GLAD_API_CALL int GLAD_VK_KHR_variable_pointers;
 #define VK_KHR_vulkan_memory_model 1
 GLAD_API_CALL int GLAD_VK_KHR_vulkan_memory_model;
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-#	define VK_KHR_wayland_surface 1
+#define VK_KHR_wayland_surface 1
 GLAD_API_CALL int GLAD_VK_KHR_wayland_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_win32_keyed_mutex 1
+#define VK_KHR_win32_keyed_mutex 1
 GLAD_API_CALL int GLAD_VK_KHR_win32_keyed_mutex;
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_KHR_win32_surface 1
+#define VK_KHR_win32_surface 1
 GLAD_API_CALL int GLAD_VK_KHR_win32_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-#	define VK_KHR_xcb_surface 1
+#define VK_KHR_xcb_surface 1
 GLAD_API_CALL int GLAD_VK_KHR_xcb_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-#	define VK_KHR_xlib_surface 1
+#define VK_KHR_xlib_surface 1
 GLAD_API_CALL int GLAD_VK_KHR_xlib_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_IOS_MVK)
-#	define VK_MVK_ios_surface 1
+#define VK_MVK_ios_surface 1
 GLAD_API_CALL int GLAD_VK_MVK_ios_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
-#	define VK_MVK_macos_surface 1
+#define VK_MVK_macos_surface 1
 GLAD_API_CALL int GLAD_VK_MVK_macos_surface;
 
 #endif
 #if defined(VK_USE_PLATFORM_VI_NN)
-#	define VK_NN_vi_surface 1
+#define VK_NN_vi_surface 1
 GLAD_API_CALL int GLAD_VK_NN_vi_surface;
 
 #endif
@@ -9399,7 +9397,7 @@ GLAD_API_CALL int GLAD_VK_NV_external_memory;
 #define VK_NV_external_memory_capabilities 1
 GLAD_API_CALL int GLAD_VK_NV_external_memory_capabilities;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_external_memory_win32 1
+#define VK_NV_external_memory_win32 1
 GLAD_API_CALL int GLAD_VK_NV_external_memory_win32;
 
 #endif
@@ -9438,7 +9436,7 @@ GLAD_API_CALL int GLAD_VK_NV_viewport_array2;
 #define VK_NV_viewport_swizzle 1
 GLAD_API_CALL int GLAD_VK_NV_viewport_swizzle;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#	define VK_NV_win32_keyed_mutex 1
+#define VK_NV_win32_keyed_mutex 1
 GLAD_API_CALL int GLAD_VK_NV_win32_keyed_mutex;
 
 #endif
@@ -11182,7 +11180,7 @@ typedef VkResult(GLAD_API_PTR *PFN_vkWaitSemaphoresKHR)(VkDevice                
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkAcquireFullScreenExclusiveModeEXT glad_vkAcquireFullScreenExclusiveModeEXT;
-#	define vkAcquireFullScreenExclusiveModeEXT glad_vkAcquireFullScreenExclusiveModeEXT
+#define vkAcquireFullScreenExclusiveModeEXT glad_vkAcquireFullScreenExclusiveModeEXT
 
 #endif
 GLAD_API_CALL PFN_vkAcquireNextImage2KHR glad_vkAcquireNextImage2KHR;
@@ -11195,7 +11193,7 @@ GLAD_API_CALL PFN_vkAcquireProfilingLockKHR glad_vkAcquireProfilingLockKHR;
 #define vkAcquireProfilingLockKHR glad_vkAcquireProfilingLockKHR
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
 GLAD_API_CALL PFN_vkAcquireXlibDisplayEXT glad_vkAcquireXlibDisplayEXT;
-#	define vkAcquireXlibDisplayEXT glad_vkAcquireXlibDisplayEXT
+#define vkAcquireXlibDisplayEXT glad_vkAcquireXlibDisplayEXT
 
 #endif
 GLAD_API_CALL PFN_vkAllocateCommandBuffers glad_vkAllocateCommandBuffers;
@@ -11530,7 +11528,7 @@ GLAD_API_CALL PFN_vkCreateAccelerationStructureNV glad_vkCreateAccelerationStruc
 #define vkCreateAccelerationStructureNV glad_vkCreateAccelerationStructureNV
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 GLAD_API_CALL PFN_vkCreateAndroidSurfaceKHR glad_vkCreateAndroidSurfaceKHR;
-#	define vkCreateAndroidSurfaceKHR glad_vkCreateAndroidSurfaceKHR
+#define vkCreateAndroidSurfaceKHR glad_vkCreateAndroidSurfaceKHR
 
 #endif
 GLAD_API_CALL PFN_vkCreateBuffer glad_vkCreateBuffer;
@@ -11559,7 +11557,7 @@ GLAD_API_CALL PFN_vkCreateDevice glad_vkCreateDevice;
 #define vkCreateDevice glad_vkCreateDevice
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
 GLAD_API_CALL PFN_vkCreateDirectFBSurfaceEXT glad_vkCreateDirectFBSurfaceEXT;
-#	define vkCreateDirectFBSurfaceEXT glad_vkCreateDirectFBSurfaceEXT
+#define vkCreateDirectFBSurfaceEXT glad_vkCreateDirectFBSurfaceEXT
 
 #endif
 GLAD_API_CALL PFN_vkCreateDisplayModeKHR glad_vkCreateDisplayModeKHR;
@@ -11578,14 +11576,14 @@ GLAD_API_CALL PFN_vkCreateHeadlessSurfaceEXT glad_vkCreateHeadlessSurfaceEXT;
 #define vkCreateHeadlessSurfaceEXT glad_vkCreateHeadlessSurfaceEXT
 #if defined(VK_USE_PLATFORM_IOS_MVK)
 GLAD_API_CALL PFN_vkCreateIOSSurfaceMVK glad_vkCreateIOSSurfaceMVK;
-#	define vkCreateIOSSurfaceMVK glad_vkCreateIOSSurfaceMVK
+#define vkCreateIOSSurfaceMVK glad_vkCreateIOSSurfaceMVK
 
 #endif
 GLAD_API_CALL PFN_vkCreateImage glad_vkCreateImage;
 #define vkCreateImage glad_vkCreateImage
 #if defined(VK_USE_PLATFORM_FUCHSIA)
 GLAD_API_CALL PFN_vkCreateImagePipeSurfaceFUCHSIA glad_vkCreateImagePipeSurfaceFUCHSIA;
-#	define vkCreateImagePipeSurfaceFUCHSIA glad_vkCreateImagePipeSurfaceFUCHSIA
+#define vkCreateImagePipeSurfaceFUCHSIA glad_vkCreateImagePipeSurfaceFUCHSIA
 
 #endif
 GLAD_API_CALL PFN_vkCreateImageView glad_vkCreateImageView;
@@ -11596,12 +11594,12 @@ GLAD_API_CALL PFN_vkCreateInstance glad_vkCreateInstance;
 #define vkCreateInstance glad_vkCreateInstance
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
 GLAD_API_CALL PFN_vkCreateMacOSSurfaceMVK glad_vkCreateMacOSSurfaceMVK;
-#	define vkCreateMacOSSurfaceMVK glad_vkCreateMacOSSurfaceMVK
+#define vkCreateMacOSSurfaceMVK glad_vkCreateMacOSSurfaceMVK
 
 #endif
 #if defined(VK_USE_PLATFORM_METAL_EXT)
 GLAD_API_CALL PFN_vkCreateMetalSurfaceEXT glad_vkCreateMetalSurfaceEXT;
-#	define vkCreateMetalSurfaceEXT glad_vkCreateMetalSurfaceEXT
+#define vkCreateMetalSurfaceEXT glad_vkCreateMetalSurfaceEXT
 
 #endif
 GLAD_API_CALL PFN_vkCreatePipelineCache glad_vkCreatePipelineCache;
@@ -11636,7 +11634,7 @@ GLAD_API_CALL PFN_vkCreateSharedSwapchainsKHR glad_vkCreateSharedSwapchainsKHR;
 #define vkCreateSharedSwapchainsKHR glad_vkCreateSharedSwapchainsKHR
 #if defined(VK_USE_PLATFORM_GGP)
 GLAD_API_CALL PFN_vkCreateStreamDescriptorSurfaceGGP glad_vkCreateStreamDescriptorSurfaceGGP;
-#	define vkCreateStreamDescriptorSurfaceGGP glad_vkCreateStreamDescriptorSurfaceGGP
+#define vkCreateStreamDescriptorSurfaceGGP glad_vkCreateStreamDescriptorSurfaceGGP
 
 #endif
 GLAD_API_CALL PFN_vkCreateSwapchainKHR glad_vkCreateSwapchainKHR;
@@ -11645,27 +11643,27 @@ GLAD_API_CALL PFN_vkCreateValidationCacheEXT glad_vkCreateValidationCacheEXT;
 #define vkCreateValidationCacheEXT glad_vkCreateValidationCacheEXT
 #if defined(VK_USE_PLATFORM_VI_NN)
 GLAD_API_CALL PFN_vkCreateViSurfaceNN glad_vkCreateViSurfaceNN;
-#	define vkCreateViSurfaceNN glad_vkCreateViSurfaceNN
+#define vkCreateViSurfaceNN glad_vkCreateViSurfaceNN
 
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
 GLAD_API_CALL PFN_vkCreateWaylandSurfaceKHR glad_vkCreateWaylandSurfaceKHR;
-#	define vkCreateWaylandSurfaceKHR glad_vkCreateWaylandSurfaceKHR
+#define vkCreateWaylandSurfaceKHR glad_vkCreateWaylandSurfaceKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkCreateWin32SurfaceKHR glad_vkCreateWin32SurfaceKHR;
-#	define vkCreateWin32SurfaceKHR glad_vkCreateWin32SurfaceKHR
+#define vkCreateWin32SurfaceKHR glad_vkCreateWin32SurfaceKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
 GLAD_API_CALL PFN_vkCreateXcbSurfaceKHR glad_vkCreateXcbSurfaceKHR;
-#	define vkCreateXcbSurfaceKHR glad_vkCreateXcbSurfaceKHR
+#define vkCreateXcbSurfaceKHR glad_vkCreateXcbSurfaceKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
 GLAD_API_CALL PFN_vkCreateXlibSurfaceKHR glad_vkCreateXlibSurfaceKHR;
-#	define vkCreateXlibSurfaceKHR glad_vkCreateXlibSurfaceKHR
+#define vkCreateXlibSurfaceKHR glad_vkCreateXlibSurfaceKHR
 
 #endif
 GLAD_API_CALL PFN_vkDebugMarkerSetObjectNameEXT glad_vkDebugMarkerSetObjectNameEXT;
@@ -11784,7 +11782,7 @@ GLAD_API_CALL PFN_vkGetAccelerationStructureMemoryRequirementsNV glad_vkGetAccel
 #define vkGetAccelerationStructureMemoryRequirementsNV glad_vkGetAccelerationStructureMemoryRequirementsNV
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 GLAD_API_CALL PFN_vkGetAndroidHardwareBufferPropertiesANDROID glad_vkGetAndroidHardwareBufferPropertiesANDROID;
-#	define vkGetAndroidHardwareBufferPropertiesANDROID glad_vkGetAndroidHardwareBufferPropertiesANDROID
+#define vkGetAndroidHardwareBufferPropertiesANDROID glad_vkGetAndroidHardwareBufferPropertiesANDROID
 
 #endif
 GLAD_API_CALL PFN_vkGetBufferDeviceAddress glad_vkGetBufferDeviceAddress;
@@ -11821,7 +11819,7 @@ GLAD_API_CALL PFN_vkGetDeviceGroupPresentCapabilitiesKHR glad_vkGetDeviceGroupPr
 #define vkGetDeviceGroupPresentCapabilitiesKHR glad_vkGetDeviceGroupPresentCapabilitiesKHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetDeviceGroupSurfacePresentModes2EXT glad_vkGetDeviceGroupSurfacePresentModes2EXT;
-#	define vkGetDeviceGroupSurfacePresentModes2EXT glad_vkGetDeviceGroupSurfacePresentModes2EXT
+#define vkGetDeviceGroupSurfacePresentModes2EXT glad_vkGetDeviceGroupSurfacePresentModes2EXT
 
 #endif
 GLAD_API_CALL PFN_vkGetDeviceGroupSurfacePresentModesKHR glad_vkGetDeviceGroupSurfacePresentModesKHR;
@@ -11856,7 +11854,7 @@ GLAD_API_CALL PFN_vkGetFenceStatus glad_vkGetFenceStatus;
 #define vkGetFenceStatus glad_vkGetFenceStatus
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetFenceWin32HandleKHR glad_vkGetFenceWin32HandleKHR;
-#	define vkGetFenceWin32HandleKHR glad_vkGetFenceWin32HandleKHR
+#define vkGetFenceWin32HandleKHR glad_vkGetFenceWin32HandleKHR
 
 #endif
 GLAD_API_CALL PFN_vkGetGeneratedCommandsMemoryRequirementsNV glad_vkGetGeneratedCommandsMemoryRequirementsNV;
@@ -11885,7 +11883,7 @@ GLAD_API_CALL PFN_vkGetInstanceProcAddr glad_vkGetInstanceProcAddr;
 #define vkGetInstanceProcAddr glad_vkGetInstanceProcAddr
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 GLAD_API_CALL PFN_vkGetMemoryAndroidHardwareBufferANDROID glad_vkGetMemoryAndroidHardwareBufferANDROID;
-#	define vkGetMemoryAndroidHardwareBufferANDROID glad_vkGetMemoryAndroidHardwareBufferANDROID
+#define vkGetMemoryAndroidHardwareBufferANDROID glad_vkGetMemoryAndroidHardwareBufferANDROID
 
 #endif
 GLAD_API_CALL PFN_vkGetMemoryFdKHR glad_vkGetMemoryFdKHR;
@@ -11896,17 +11894,17 @@ GLAD_API_CALL PFN_vkGetMemoryHostPointerPropertiesEXT glad_vkGetMemoryHostPointe
 #define vkGetMemoryHostPointerPropertiesEXT glad_vkGetMemoryHostPointerPropertiesEXT
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetMemoryWin32HandleKHR glad_vkGetMemoryWin32HandleKHR;
-#	define vkGetMemoryWin32HandleKHR glad_vkGetMemoryWin32HandleKHR
+#define vkGetMemoryWin32HandleKHR glad_vkGetMemoryWin32HandleKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetMemoryWin32HandleNV glad_vkGetMemoryWin32HandleNV;
-#	define vkGetMemoryWin32HandleNV glad_vkGetMemoryWin32HandleNV
+#define vkGetMemoryWin32HandleNV glad_vkGetMemoryWin32HandleNV
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetMemoryWin32HandlePropertiesKHR glad_vkGetMemoryWin32HandlePropertiesKHR;
-#	define vkGetMemoryWin32HandlePropertiesKHR glad_vkGetMemoryWin32HandlePropertiesKHR
+#define vkGetMemoryWin32HandlePropertiesKHR glad_vkGetMemoryWin32HandlePropertiesKHR
 
 #endif
 GLAD_API_CALL PFN_vkGetPastPresentationTimingGOOGLE glad_vkGetPastPresentationTimingGOOGLE;
@@ -11921,7 +11919,7 @@ GLAD_API_CALL PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
 GLAD_API_CALL PFN_vkGetPhysicalDeviceDirectFBPresentationSupportEXT
 	glad_vkGetPhysicalDeviceDirectFBPresentationSupportEXT;
-#	define vkGetPhysicalDeviceDirectFBPresentationSupportEXT glad_vkGetPhysicalDeviceDirectFBPresentationSupportEXT
+#define vkGetPhysicalDeviceDirectFBPresentationSupportEXT glad_vkGetPhysicalDeviceDirectFBPresentationSupportEXT
 
 #endif
 GLAD_API_CALL PFN_vkGetPhysicalDeviceDisplayPlaneProperties2KHR glad_vkGetPhysicalDeviceDisplayPlaneProperties2KHR;
@@ -12015,7 +12013,7 @@ GLAD_API_CALL PFN_vkGetPhysicalDeviceSurfaceFormatsKHR glad_vkGetPhysicalDeviceS
 #define vkGetPhysicalDeviceSurfaceFormatsKHR glad_vkGetPhysicalDeviceSurfaceFormatsKHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT glad_vkGetPhysicalDeviceSurfacePresentModes2EXT;
-#	define vkGetPhysicalDeviceSurfacePresentModes2EXT glad_vkGetPhysicalDeviceSurfacePresentModes2EXT
+#define vkGetPhysicalDeviceSurfacePresentModes2EXT glad_vkGetPhysicalDeviceSurfacePresentModes2EXT
 
 #endif
 GLAD_API_CALL PFN_vkGetPhysicalDeviceSurfacePresentModesKHR glad_vkGetPhysicalDeviceSurfacePresentModesKHR;
@@ -12027,22 +12025,22 @@ GLAD_API_CALL PFN_vkGetPhysicalDeviceToolPropertiesEXT glad_vkGetPhysicalDeviceT
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
 GLAD_API_CALL PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR
 	glad_vkGetPhysicalDeviceWaylandPresentationSupportKHR;
-#	define vkGetPhysicalDeviceWaylandPresentationSupportKHR glad_vkGetPhysicalDeviceWaylandPresentationSupportKHR
+#define vkGetPhysicalDeviceWaylandPresentationSupportKHR glad_vkGetPhysicalDeviceWaylandPresentationSupportKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR glad_vkGetPhysicalDeviceWin32PresentationSupportKHR;
-#	define vkGetPhysicalDeviceWin32PresentationSupportKHR glad_vkGetPhysicalDeviceWin32PresentationSupportKHR
+#define vkGetPhysicalDeviceWin32PresentationSupportKHR glad_vkGetPhysicalDeviceWin32PresentationSupportKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
 GLAD_API_CALL PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR glad_vkGetPhysicalDeviceXcbPresentationSupportKHR;
-#	define vkGetPhysicalDeviceXcbPresentationSupportKHR glad_vkGetPhysicalDeviceXcbPresentationSupportKHR
+#define vkGetPhysicalDeviceXcbPresentationSupportKHR glad_vkGetPhysicalDeviceXcbPresentationSupportKHR
 
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
 GLAD_API_CALL PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR glad_vkGetPhysicalDeviceXlibPresentationSupportKHR;
-#	define vkGetPhysicalDeviceXlibPresentationSupportKHR glad_vkGetPhysicalDeviceXlibPresentationSupportKHR
+#define vkGetPhysicalDeviceXlibPresentationSupportKHR glad_vkGetPhysicalDeviceXlibPresentationSupportKHR
 
 #endif
 GLAD_API_CALL PFN_vkGetPipelineCacheData glad_vkGetPipelineCacheData;
@@ -12062,7 +12060,7 @@ GLAD_API_CALL PFN_vkGetQueueCheckpointDataNV glad_vkGetQueueCheckpointDataNV;
 #define vkGetQueueCheckpointDataNV glad_vkGetQueueCheckpointDataNV
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
 GLAD_API_CALL PFN_vkGetRandROutputDisplayEXT glad_vkGetRandROutputDisplayEXT;
-#	define vkGetRandROutputDisplayEXT glad_vkGetRandROutputDisplayEXT
+#define vkGetRandROutputDisplayEXT glad_vkGetRandROutputDisplayEXT
 
 #endif
 GLAD_API_CALL PFN_vkGetRayTracingShaderGroupHandlesNV glad_vkGetRayTracingShaderGroupHandlesNV;
@@ -12079,7 +12077,7 @@ GLAD_API_CALL PFN_vkGetSemaphoreFdKHR glad_vkGetSemaphoreFdKHR;
 #define vkGetSemaphoreFdKHR glad_vkGetSemaphoreFdKHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkGetSemaphoreWin32HandleKHR glad_vkGetSemaphoreWin32HandleKHR;
-#	define vkGetSemaphoreWin32HandleKHR glad_vkGetSemaphoreWin32HandleKHR
+#define vkGetSemaphoreWin32HandleKHR glad_vkGetSemaphoreWin32HandleKHR
 
 #endif
 GLAD_API_CALL PFN_vkGetShaderBinaryDataEXT glad_vkGetShaderBinaryDataEXT;
@@ -12098,14 +12096,14 @@ GLAD_API_CALL PFN_vkImportFenceFdKHR glad_vkImportFenceFdKHR;
 #define vkImportFenceFdKHR glad_vkImportFenceFdKHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkImportFenceWin32HandleKHR glad_vkImportFenceWin32HandleKHR;
-#	define vkImportFenceWin32HandleKHR glad_vkImportFenceWin32HandleKHR
+#define vkImportFenceWin32HandleKHR glad_vkImportFenceWin32HandleKHR
 
 #endif
 GLAD_API_CALL PFN_vkImportSemaphoreFdKHR glad_vkImportSemaphoreFdKHR;
 #define vkImportSemaphoreFdKHR glad_vkImportSemaphoreFdKHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkImportSemaphoreWin32HandleKHR glad_vkImportSemaphoreWin32HandleKHR;
-#	define vkImportSemaphoreWin32HandleKHR glad_vkImportSemaphoreWin32HandleKHR
+#define vkImportSemaphoreWin32HandleKHR glad_vkImportSemaphoreWin32HandleKHR
 
 #endif
 GLAD_API_CALL PFN_vkInitializePerformanceApiINTEL glad_vkInitializePerformanceApiINTEL;
@@ -12142,7 +12140,7 @@ GLAD_API_CALL PFN_vkReleaseDisplayEXT glad_vkReleaseDisplayEXT;
 #define vkReleaseDisplayEXT glad_vkReleaseDisplayEXT
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 GLAD_API_CALL PFN_vkReleaseFullScreenExclusiveModeEXT glad_vkReleaseFullScreenExclusiveModeEXT;
-#	define vkReleaseFullScreenExclusiveModeEXT glad_vkReleaseFullScreenExclusiveModeEXT
+#define vkReleaseFullScreenExclusiveModeEXT glad_vkReleaseFullScreenExclusiveModeEXT
 
 #endif
 GLAD_API_CALL PFN_vkReleasePerformanceConfigurationINTEL glad_vkReleasePerformanceConfigurationINTEL;
@@ -12232,13 +12230,13 @@ GLAD_API_CALL void gladLoaderUnloadVulkan(void);
 #include <string.h>
 
 #ifndef GLAD_IMPL_UTIL_C_
-#	define GLAD_IMPL_UTIL_C_
+#define GLAD_IMPL_UTIL_C_
 
-#	ifdef _MSC_VER
-#		define GLAD_IMPL_UTIL_SSCANF sscanf_s
-#	else
-#		define GLAD_IMPL_UTIL_SSCANF sscanf
-#	endif
+#ifdef _MSC_VER
+#define GLAD_IMPL_UTIL_SSCANF sscanf_s
+#else
+#define GLAD_IMPL_UTIL_SSCANF sscanf
+#endif
 
 #endif /* GLAD_IMPL_UTIL_C_ */
 
@@ -15356,17 +15354,17 @@ int gladLoadVulkan(VkPhysicalDevice physical_device, GLADloadfunc load) {
 
 #ifdef GLAD_VULKAN
 
-#	ifndef GLAD_LOADER_LIBRARY_C_
-#		define GLAD_LOADER_LIBRARY_C_
+#ifndef GLAD_LOADER_LIBRARY_C_
+#define GLAD_LOADER_LIBRARY_C_
 
-#		include <stddef.h>
-#		include <stdlib.h>
+#include <stddef.h>
+#include <stdlib.h>
 
-#		if GLAD_PLATFORM_WIN32
-#			include <windows.h>
-#		else
-#			include <dlfcn.h>
-#		endif
+#if GLAD_PLATFORM_WIN32
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
 
 
 static void *glad_get_dlopen_handle(const char *lib_names[], int length) {
@@ -15374,8 +15372,8 @@ static void *glad_get_dlopen_handle(const char *lib_names[], int length) {
 	int   i;
 
 	for (i = 0; i < length; ++i) {
-#		if GLAD_PLATFORM_WIN32
-#			if GLAD_PLATFORM_UWP
+#if GLAD_PLATFORM_WIN32
+#if GLAD_PLATFORM_UWP
 		size_t buffer_size = (strlen(lib_names[i]) + 1) * sizeof(WCHAR);
 		LPWSTR buffer      = (LPWSTR)malloc(buffer_size);
 		if (buffer != NULL) {
@@ -15385,12 +15383,12 @@ static void *glad_get_dlopen_handle(const char *lib_names[], int length) {
 			}
 			free((void *)buffer);
 		}
-#			else
+#else
 		handle = (void *)LoadLibraryA(lib_names[i]);
-#			endif
-#		else
+#endif
+#else
 		handle = dlopen(lib_names[i], RTLD_LAZY | RTLD_LOCAL);
-#		endif
+#endif
 		if (handle != NULL) {
 			return handle;
 		}
@@ -15401,11 +15399,11 @@ static void *glad_get_dlopen_handle(const char *lib_names[], int length) {
 
 static void glad_close_dlopen_handle(void *handle) {
 	if (handle != NULL) {
-#		if GLAD_PLATFORM_WIN32
+#if GLAD_PLATFORM_WIN32
 		FreeLibrary((HMODULE)handle);
-#		else
+#else
 		dlclose(handle);
-#		endif
+#endif
 	}
 }
 
@@ -15414,14 +15412,14 @@ static GLADapiproc glad_dlsym_handle(void *handle, const char *name) {
 		return NULL;
 	}
 
-#		if GLAD_PLATFORM_WIN32
+#if GLAD_PLATFORM_WIN32
 	return (GLADapiproc)GetProcAddress((HMODULE)handle, name);
-#		else
+#else
 	return GLAD_GNUC_EXTENSION(GLADapiproc) dlsym(handle, name);
-#		endif
+#endif
 }
 
-#	endif /* GLAD_LOADER_LIBRARY_C_ */
+#endif /* GLAD_LOADER_LIBRARY_C_ */
 
 
 static const char *DEVICE_FUNCTIONS[] = {
@@ -15838,15 +15836,15 @@ static void *_glad_Vulkan_loader_handle = NULL;
 
 static void *glad_vulkan_dlopen_handle(void) {
 	static const char *NAMES[] = {
-#	if GLAD_PLATFORM_APPLE
+#if GLAD_PLATFORM_APPLE
 		"libvulkan.1.dylib",
-#	elif GLAD_PLATFORM_WIN32
+#elif GLAD_PLATFORM_WIN32
 		"vulkan-1.dll",
 		"vulkan.dll",
-#	else
+#else
 		"libvulkan.so.1",
 		"libvulkan.so",
-#	endif
+#endif
 	};
 
 	if (_glad_Vulkan_loader_handle == NULL) {

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#define CB_LOG_MODULE "kq"
+#define CB_LOG_MODULE "KQ"
 
 #define GLAD_VULKAN_IMPLEMENTATION
 #include "glad/vulkan.h"
@@ -14,7 +14,7 @@
 static kq_data kq = {0};
 
 int main(void) {
-	cb_log_init(CB_LOG_LEVEL_TRACE);
+	cb_log_init(CB_LOG_LEVEL_TRACE, false);
 	KQinit(&kq);
 
 	LOG_DEBUG("KQ initialized.");
