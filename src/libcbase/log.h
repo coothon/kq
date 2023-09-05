@@ -85,29 +85,29 @@ extern void cb_log_internal(uint features,
 #define LOG_ERROR(...) cb_log_internal(CB_LOG_FEATURE_TIME, CB_LOG_LEVEL_ERROR, 0, 0, 0, 0, 0, __VA_ARGS__)
 #define LOG_WARN(...) cb_log_internal(CB_LOG_FEATURE_TIME, CB_LOG_LEVEL_WARN, 0, 0, 0, 0, 0, __VA_ARGS__)
 #define LOG_INFO(...) cb_log_internal(CB_LOG_FEATURE_TIME, CB_LOG_LEVEL_INFO, 0, 0, 0, 0, 0, __VA_ARGS__)
-#define LOG_DEBUG(...) cb_log_internal(CB_LOG_FEATURE_TIME, CB_LOG_LEVEL_DEBUG, 0, 0, 0, 0, 0, __VA_ARGS__)
-#define LOG_TRACE(...) cb_log_internal(CB_LOG_FEATURE_TIME, CB_LOG_LEVEL_TRACE, 0, 0, 0, 0, 0, __VA_ARGS__)
+#define LOG_DEBUG(...)
+#define LOG_TRACE(...)
 
 #define LOGM_FATAL(...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE, CB_LOG_LEVEL_FATAL, 0, 0, 0, CB_LOG_MODULE, 0, __VA_ARGS__)
 #define LOGM_ERROR(...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE, CB_LOG_LEVEL_ERROR, 0, 0, 0, CB_LOG_MODULE, 0, __VA_ARGS__)
 #define LOGM_WARN(...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE, CB_LOG_LEVEL_WARN, 0, 0, 0, CB_LOG_MODULE, 0, __VA_ARGS__)
 #define LOGM_INFO(...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE, CB_LOG_LEVEL_INFO, 0, 0, 0, CB_LOG_MODULE, 0, __VA_ARGS__)
-#define LOGM_DEBUG(...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE, CB_LOG_LEVEL_DEBUG, 0, 0, 0, CB_LOG_MODULE, 0, __VA_ARGS__)
-#define LOGM_TRACE(...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE, CB_LOG_LEVEL_TRACE, 0, 0, 0, CB_LOG_MODULE, 0, __VA_ARGS__)
+#define LOGM_DEBUG(...)
+#define LOGM_TRACE(...)
 
 #define LOGE_FATAL(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_FATAL, 0, 0, 0, 0, (errnum), __VA_ARGS__)
 #define LOGE_ERROR(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_ERROR, 0, 0, 0, 0, (errnum), __VA_ARGS__)
 #define LOGE_WARN(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_WARN, 0, 0, 0, 0, (errnum), __VA_ARGS__)
 #define LOGE_INFO(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_INFO, 0, 0, 0, 0, (errnum), __VA_ARGS__)
-#define LOGE_DEBUG(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_DEBUG, 0, 0, 0, 0, (errnum), __VA_ARGS__)
-#define LOGE_TRACE(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_TRACE, 0, 0, 0, 0, (errnum), __VA_ARGS__)
+#define LOGE_DEBUG(errnum, ...)
+#define LOGE_TRACE(errnum, ...)
 
 #define LOGEM_FATAL(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_FATAL, 0, 0, 0, CB_LOG_MODULE, (errnum), __VA_ARGS__)
 #define LOGEM_ERROR(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_ERROR, 0, 0, 0, CB_LOG_MODULE, (errnum), __VA_ARGS__)
 #define LOGEM_WARN(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_WARN, 0, 0, 0, CB_LOG_MODULE, (errnum), __VA_ARGS__)
 #define LOGEM_INFO(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_INFO, 0, 0, 0, CB_LOG_MODULE, (errnum), __VA_ARGS__)
-#define LOGEM_DEBUG(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_DEBUG, 0, 0, 0, CB_LOG_MODULE, (errnum), __VA_ARGS__)
-#define LOGEM_TRACE(errnum, ...) cb_log_internal(CB_LOG_FEATURE_TIME|CB_LOG_FEATURE_MODULE|CB_LOG_FEATURE_ERRNO, CB_LOG_LEVEL_TRACE, 0, 0, 0, CB_LOG_MODULE, (errnum), __VA_ARGS__)
+#define LOGEM_DEBUG(errnum, ...)
+#define LOGEM_TRACE(errnum, ...)
 #endif /* CB_DEBUG */
 // clang-format on
 
@@ -142,17 +142,21 @@ static struct timespec cb_log_time_at_start;
 static struct timespec cb_log_previous_time;
 
 static const char *const log_color[CB_LOG_LEVELS_COUNT] = {
-	[CB_LOG_LEVEL_FATAL] = "\033[1;31m", [CB_LOG_LEVEL_ERROR] = "\033[31m",   [CB_LOG_LEVEL_WARN] = "\033[34m",
-	[CB_LOG_LEVEL_INFO] = "\033[33m",    [CB_LOG_LEVEL_DEBUG] = "\033[1;32m", [CB_LOG_LEVEL_TRACE] = "\033[90m",
+	[CB_LOG_LEVEL_FATAL] = "\033[1;31m", [CB_LOG_LEVEL_ERROR] = "\033[31m",
+	[CB_LOG_LEVEL_WARN] = "\033[34m",    [CB_LOG_LEVEL_INFO] = "\033[33m",
+	[CB_LOG_LEVEL_DEBUG] = "\033[1;32m", [CB_LOG_LEVEL_TRACE] = "\033[90m",
 };
 
 static const char *const log_banner[CB_LOG_LEVELS_COUNT] = {
-	[CB_LOG_LEVEL_FATAL] = "Fatal error:", [CB_LOG_LEVEL_ERROR] = "Error:", [CB_LOG_LEVEL_WARN] = "Warning:",
-	[CB_LOG_LEVEL_INFO] = "Info:",         [CB_LOG_LEVEL_DEBUG] = "Debug:", [CB_LOG_LEVEL_TRACE] = "Trace:",
+	[CB_LOG_LEVEL_FATAL] = "Fatal error:", [CB_LOG_LEVEL_ERROR] = "Error:",
+	[CB_LOG_LEVEL_WARN] = "Warning:",      [CB_LOG_LEVEL_INFO] = "Info:",
+	[CB_LOG_LEVEL_DEBUG] = "Debug:",       [CB_LOG_LEVEL_TRACE] = "Trace:",
 };
 
-static __always_inline void timespec_subtract(struct timespec       left[restrict static 1],
-                                              const struct timespec right[restrict static 1]);
+static __always_inline void timespec_subtract(struct timespec
+                                                      left[restrict static 1],
+                                              const struct timespec
+                                                      right[restrict static 1]);
 
 void cb_log_init(uint initial_log_level, bool reltime) {
 	clock_gettime(CLOCK_REALTIME, &cb_log_time_at_start);
@@ -194,7 +198,9 @@ extern void cb_log_internal(uint features,
 		cb_log_print_module(module);
 	if (features & CB_LOG_FEATURE_ERRNO)
 		cb_log_print_errno(errnum);
-	fprintf(stderr, cb_log_is_term ? "%s\033[0m " : "%s ", log_banner[level]);
+	fprintf(stderr,
+	        cb_log_is_term ? "%s\033[0m " : "%s ",
+	        log_banner[level]);
 
 	// User-supplied formatting.
 	va_list args;
@@ -211,28 +217,44 @@ static void cb_log_print_time(void) {
 	struct timespec log_time, tmp;
 	clock_gettime(CLOCK_REALTIME, &log_time);
 	tmp = log_time;
-	timespec_subtract(&log_time, cb_log_reltime ? &cb_log_previous_time : &cb_log_time_at_start);
+	timespec_subtract(&log_time,
+	                  cb_log_reltime ? &cb_log_previous_time
+	                                 : &cb_log_time_at_start);
 	cb_log_previous_time = tmp;
 
 	// Break down log_time; print parts as necessary.
 	register const ulong ms    = (ulong)log_time.tv_nsec / 1000000UL;
 	register const ulong d_sec = (ulong)log_time.tv_sec;
 	if (d_sec < 60UL) {
-		fprintf(stderr, cb_log_reltime ? "[+%lu.%.3lus] " : "[%lu.%.3lus] ", d_sec, ms);
+		fprintf(stderr,
+		        cb_log_reltime ? "[+%lu.%.3lus] " : "[%lu.%.3lus] ",
+		        d_sec,
+		        ms);
 		return;
 	}
 
 	register const ulong sec   = d_sec % 60UL;
 	register const ulong d_min = d_sec / 60UL;
 	if (d_min < 60UL) {
-		fprintf(stderr, cb_log_reltime ? "[+%lum %lu.%.3lus] " : "[%lum %lu.%.3lus] ", d_min, sec, ms);
+		fprintf(stderr,
+		        cb_log_reltime ? "[+%lum %lu.%.3lus] "
+		                       : "[%lum %lu.%.3lus] ",
+		        d_min,
+		        sec,
+		        ms);
 		return;
 	}
 
 	register const ulong min  = d_min % 60UL;
 	register const ulong hour = d_min / 60UL;
 
-	fprintf(stderr, cb_log_reltime ? "[+%luh %lum %lu.%.3lus] " : "[%luh %lum %lu.%.3lus] ", hour, min, sec, ms);
+	fprintf(stderr,
+	        cb_log_reltime ? "[+%luh %lum %lu.%.3lus] "
+	                       : "[%luh %lum %lu.%.3lus] ",
+	        hour,
+	        min,
+	        sec,
+	        ms);
 }
 
 static void cb_log_print_location(const char func_name[restrict static 1],
@@ -246,11 +268,17 @@ static void cb_log_print_module(const char module[static 1]) {
 }
 
 static void cb_log_print_errno(int errnum) {
-	fprintf(stderr, "[%s(%d): %s.] ", strerrorname_np(errnum), errnum, strerror(errnum));
+	fprintf(stderr,
+	        "[%s(%d): %s.] ",
+	        strerrorname_np(errnum),
+	        errnum,
+	        strerror(errnum));
 }
 
-static __always_inline void timespec_subtract(struct timespec       left[restrict static 1],
-                                              const struct timespec right[restrict static 1]) {
+static __always_inline void timespec_subtract(struct timespec
+                                                      left[restrict static 1],
+                                              const struct timespec right
+                                                      [restrict static 1]) {
 	left->tv_nsec   -= right->tv_nsec;
 	long underflowed = left->tv_nsec < 0L;
 	left->tv_sec    -= right->tv_sec + underflowed;

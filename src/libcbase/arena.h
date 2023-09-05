@@ -37,13 +37,18 @@ extern void cb_arena_clear_zero(cb_arena arena[static 1]);
 // Returns a pointer to a valid memory region within the arena, lasting for the arena's lifetime.
 // No manual deallocation required.
 extern void *cb_arena_alloc(cb_arena arena[static 1], size_t size);
-extern void *cb_arena_alloc_align(cb_arena arena[static 1], size_t size, size_t align);
+extern void *cb_arena_alloc_align(cb_arena arena[static 1],
+                                  size_t   size,
+                                  size_t   align);
 
 extern size_t cb_arena_space_left(const cb_arena arena[static 1]);
 
 // Use these to revert to a previous arena state, invalidating all allocations since.
-extern void cb_arena_save(const cb_arena arena[restrict static 1], cb_arena_save_point save_point[restrict static 1]);
-extern void cb_arena_load(cb_arena arena[restrict static 1], const cb_arena_save_point save_point[restrict static 1]);
+extern void cb_arena_save(const cb_arena      arena[restrict static 1],
+                          cb_arena_save_point save_point[restrict static 1]);
+extern void cb_arena_load(cb_arena arena[restrict static 1],
+                          const cb_arena_save_point
+                                  save_point[restrict static 1]);
 
 #endif /* LIBCBASE_ARENA_H_ */
 
@@ -57,7 +62,7 @@ extern void cb_arena_load(cb_arena arena[restrict static 1], const cb_arena_save
 
 // <https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/>
 static __always_inline bool is_power_of_two(uintptr_t x);
-static const uchar         *align_forward(const uchar ptr[static 1], size_t align);
+static const uchar *align_forward(const uchar ptr[static 1], size_t align);
 
 cb_arena *cb_arena_new(cb_arena *arena, size_t capacity) {
 	if (arena) {
@@ -106,9 +111,12 @@ void *cb_arena_alloc(cb_arena arena[static 1], size_t size) {
 	return cb_arena_alloc_align(arena, size, CB_ARENA_DEFAULT_ALIGN);
 }
 
-void *cb_arena_alloc_align(cb_arena arena[static 1], size_t size, size_t align) {
-	register const uchar *new_cursor = (uchar *)align_forward(arena->cursor, align);
-	register const uchar *new_end    = new_cursor + size;
+void *cb_arena_alloc_align(cb_arena arena[static 1],
+                           size_t   size,
+                           size_t   align) {
+	register const uchar *new_cursor =
+		(uchar *)align_forward(arena->cursor, align);
+	register const uchar *new_end = new_cursor + size;
 	if (new_end > arena->end)
 		return 0;
 
@@ -125,11 +133,13 @@ size_t cb_arena_space_left(const cb_arena arena[static 1]) {
 	return (size_t)(arena->end - arena->cursor);
 }
 
-void cb_arena_save(const cb_arena arena[restrict static 1], cb_arena_save_point save_point[restrict static 1]) {
+void cb_arena_save(const cb_arena      arena[restrict static 1],
+                   cb_arena_save_point save_point[restrict static 1]) {
 	save_point->cursor = arena->cursor;
 }
 
-void cb_arena_load(cb_arena arena[restrict static 1], const cb_arena_save_point save_point[restrict static 1]) {
+void cb_arena_load(cb_arena                  arena[restrict static 1],
+                   const cb_arena_save_point save_point[restrict static 1]) {
 	arena->cursor = save_point->cursor;
 }
 

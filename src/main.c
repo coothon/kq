@@ -17,7 +17,11 @@ int main(void) {
 	cb_log_init(CB_LOG_LEVEL_TRACE, false);
 	KQinit(&kq);
 
-	LOG_DEBUG("KQ initialized.");
+	while (!glfwWindowShouldClose(kq.win)) {
+		glfwPollEvents();
+		if (!KQrender(&kq))
+			break;
+	}
 
 	KQstop(&kq);
 	return EXIT_SUCCESS;
