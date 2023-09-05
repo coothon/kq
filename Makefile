@@ -35,6 +35,7 @@ CFLAGS_RELEASE:=$(CFLAGS_COMMON) $(CPPFLAGS_RELEASE) -g0 -Ofast -ffast-math -fom
 
 
 all: kq_dbg kq_rel
+	@./compile_shaders.sh -O0 -g
 
 kq_dbg: $(OBJS_DEBUG)
 	@-printf "LD\t%s\n" "$@"
