@@ -1,4 +1,5 @@
 .vscode/
 build/
+*.spv
 kq_dbg
 kq_rel
