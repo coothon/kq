@@ -80,7 +80,7 @@ BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterComma
 BreakStringLiterals: true
-ColumnLimit: 80
+ColumnLimit: 160
 CommentPragmas: "^ IWYU pragma:"
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 0
@@ -149,7 +149,7 @@ ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
 PPIndentWidth: -1
 PackConstructorInitializers: Never
-PenaltyBreakAssignment: 2
+PenaltyBreakAssignment: 999999999
 PenaltyBreakBeforeFirstCallParameter: 999999999
 PenaltyBreakComment: 300
 PenaltyBreakFirstLessLess: 120
@@ -158,7 +158,7 @@ PenaltyBreakString: 1000
 PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 999999999
 PenaltyIndentedWhitespace: 0
-PenaltyReturnTypeOnItsOwnLine: 6000
+PenaltyReturnTypeOnItsOwnLine: 999999999
 PointerAlignment: Right
 QualifierAlignment: Left
 ReferenceAlignment: Right

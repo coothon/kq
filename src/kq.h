@@ -10,8 +10,11 @@
 #include <cglm/cglm.h>
 
 #include "libcbase/common.h"
+#include "libcbase/vec.h"
 
-#define KQ_FRAMES_IN_FLIGHT 2
+#define KQ_OOM_MSG() LOGM_FATAL("Out of memory! (OOM)")
+
+#define KQ_FRAMES_IN_FLIGHT 3
 
 typedef struct kq_data {
 	GLFWwindow *win;
@@ -69,34 +72,31 @@ typedef struct kq_data {
 } kq_data;
 
 typedef struct kq_info {
-	VkApplicationInfo                    app_info;
-	VkInstanceCreateInfo                 instance_cinfo;
-	VkDeviceQueueCreateInfo              q_cinfo[2];
-	VkDeviceCreateInfo                   ldevice_cinfo;
-	VkSwapchainCreateInfoKHR             swapchain_cinfo;
-	VkImageViewCreateInfo                swapchain_img_view_cinfo;
-	VkShaderModuleCreateInfo             shader_module_vertex_cinfo;
-	VkShaderModuleCreateInfo             shader_module_fragment_cinfo;
-	VkPipelineShaderStageCreateInfo      shader_stages_cinfo[2];
-	VkDynamicState                       pipeline_dynamic_states[2];
-	VkPipelineDynamicStateCreateInfo     pipeline_dynamic_states_cinfo;
-	VkPipelineVertexInputStateCreateInfo vertex_input_state_cinfo;
-	VkPipelineInputAssemblyStateCreateInfo
-					  pipeline_assembly_input_state_cinfo;
-	VkPipelineViewportStateCreateInfo pipeline_viewport_state_cinfo;
-	VkPipelineRasterizationStateCreateInfo
-					     pipeline_rasterization_state_cinfo;
-	VkPipelineMultisampleStateCreateInfo pipeline_msaa_state_cinfo;
-	VkPipelineColorBlendAttachmentState
-		pipeline_color_blend_attachment_state;
-	VkPipelineColorBlendStateCreateInfo pipeline_color_blend_cinfo;
-	VkPipelineLayoutCreateInfo          pipeline_layout_cinfo;
-	VkAttachmentDescription             pass_color_attachment;
-	VkAttachmentReference               pass_color_attachment_ref;
-	VkSubpassDescription                subpass_desc;
-	VkRenderPassCreateInfo              pass_cinfo;
-	VkGraphicsPipelineCreateInfo        graphics_pipeline_cinfo;
-	VkFramebufferCreateInfo             fbo_cinfo;
+	VkApplicationInfo                      app_info;
+	VkInstanceCreateInfo                   instance_cinfo;
+	VkDeviceQueueCreateInfo                q_cinfo[2];
+	VkDeviceCreateInfo                     ldevice_cinfo;
+	VkSwapchainCreateInfoKHR               swapchain_cinfo;
+	VkImageViewCreateInfo                  swapchain_img_view_cinfo;
+	VkShaderModuleCreateInfo               shader_module_vertex_cinfo;
+	VkShaderModuleCreateInfo               shader_module_fragment_cinfo;
+	VkPipelineShaderStageCreateInfo        shader_stages_cinfo[2];
+	VkDynamicState                         pipeline_dynamic_states[2];
+	VkPipelineDynamicStateCreateInfo       pipeline_dynamic_states_cinfo;
+	VkPipelineVertexInputStateCreateInfo   vertex_input_state_cinfo;
+	VkPipelineInputAssemblyStateCreateInfo pipeline_assembly_input_state_cinfo;
+	VkPipelineViewportStateCreateInfo      pipeline_viewport_state_cinfo;
+	VkPipelineRasterizationStateCreateInfo pipeline_rasterization_state_cinfo;
+	VkPipelineMultisampleStateCreateInfo   pipeline_msaa_state_cinfo;
+	VkPipelineColorBlendAttachmentState    pipeline_color_blend_attachment_state;
+	VkPipelineColorBlendStateCreateInfo    pipeline_color_blend_cinfo;
+	VkPipelineLayoutCreateInfo             pipeline_layout_cinfo;
+	VkAttachmentDescription                pass_color_attachment;
+	VkAttachmentReference                  pass_color_attachment_ref;
+	VkSubpassDescription                   subpass_desc;
+	VkRenderPassCreateInfo                 pass_cinfo;
+	VkGraphicsPipelineCreateInfo           graphics_pipeline_cinfo;
+	VkFramebufferCreateInfo                fbo_cinfo;
 #if KQ_DEBUG
 	VkDebugUtilsMessengerCreateInfoEXT debug_messenger_cinfo;
 #endif
@@ -121,7 +121,10 @@ typedef struct kq_vertex {
 	vec3 color;
 } kq_vertex;
 
-extern kq_info rend_info;
+cb_mk_vec(vecstr, char *);
+
+extern kq_info         rend_info;
+extern const kq_vertex triangle_vertices[3];
 
 extern bool KQinit(kq_data kq[static 1]);
 extern void KQstop(kq_data kq[static 1]);

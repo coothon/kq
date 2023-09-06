@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -e
 
-SHADER_COMPILE="glslc --target-env=vulkan1.2 $@"
+SHADER_COMPILE="glslc --target-env=vulkan1.3 $@"
 
 cd shaders/
 for shader in *.glsl; do

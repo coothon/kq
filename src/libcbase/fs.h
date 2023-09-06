@@ -18,31 +18,15 @@ extern bool fs_exists_directory(const char fpath[static 1]);
 extern off_t fs_file_size(const char fpath[static 1]);
 extern off_t fs_file_sizef(FILE f[static 1]);
 
-extern ulong fs_file_read(const char fpath[restrict static 1],
-                          size_t     size,
-                          size_t     n,
-                          char       buf[restrict size * n]);
-extern void *fs_file_read_all_alloc(const char fpath[restrict static 1],
-                                    size_t     size[restrict static 1]);
+extern ulong fs_file_read(const char fpath[restrict static 1], size_t size, size_t n, char buf[restrict size * n]);
+extern void *fs_file_read_all_alloc(const char fpath[restrict static 1], size_t size[restrict static 1]);
 
-extern ulong fs_file_write(const char fpath[restrict static 1],
-                           size_t     size,
-                           size_t     n,
-                           const char buf[restrict size * n]);
-extern ulong fs_file_append(const char fpath[restrict static 1],
-                            size_t     size,
-                            size_t     n,
-                            const char buf[restrict size * n]);
-extern ulong fs_file_write_string(const char fpath[restrict static 1],
-                                  size_t     len,
-                                  const char str[restrict len]);
-extern ulong fs_file_write_cstring(const char fpath[restrict static 1],
-                                   const char str[restrict static 1]);
-extern ulong fs_file_append_string(const char fpath[restrict static 1],
-                                   size_t     len,
-                                   const char str[restrict len]);
-extern ulong fs_file_append_cstring(const char fpath[restrict static 1],
-                                    const char str[restrict static 1]);
+extern ulong fs_file_write(const char fpath[restrict static 1], size_t size, size_t n, const char buf[restrict size * n]);
+extern ulong fs_file_append(const char fpath[restrict static 1], size_t size, size_t n, const char buf[restrict size * n]);
+extern ulong fs_file_write_string(const char fpath[restrict static 1], size_t len, const char str[restrict len]);
+extern ulong fs_file_write_cstring(const char fpath[restrict static 1], const char str[restrict static 1]);
+extern ulong fs_file_append_string(const char fpath[restrict static 1], size_t len, const char str[restrict len]);
+extern ulong fs_file_append_cstring(const char fpath[restrict static 1], const char str[restrict static 1]);
 
 #endif /* LIBCBASE_FS_H_ */
 
@@ -92,10 +76,7 @@ off_t fs_file_sizef(FILE f[static 1]) {
 	return sz;
 }
 
-ulong fs_file_read(const char fpath[restrict static 1],
-                   size_t     size,
-                   size_t     n,
-                   char       buf[restrict size * n]) {
+ulong fs_file_read(const char fpath[restrict static 1], size_t size, size_t n, char buf[restrict size * n]) {
 	FILE *f = fopen(fpath, "rb");
 	if (!f)
 		return 0;
@@ -107,8 +88,7 @@ ulong fs_file_read(const char fpath[restrict static 1],
 	return c;
 }
 
-void *fs_file_read_all_alloc(const char fpath[restrict static 1],
-                             size_t     size[restrict static 1]) {
+void *fs_file_read_all_alloc(const char fpath[restrict static 1], size_t size[restrict static 1]) {
 	FILE *f = fopen(fpath, "rb");
 	if (!f)
 		return 0;
@@ -127,10 +107,7 @@ void *fs_file_read_all_alloc(const char fpath[restrict static 1],
 	return buf;
 }
 
-ulong fs_file_write(const char fpath[restrict static 1],
-                    size_t     size,
-                    size_t     n,
-                    const char buf[restrict size * n]) {
+ulong fs_file_write(const char fpath[restrict static 1], size_t size, size_t n, const char buf[restrict size * n]) {
 	FILE *f = fopen(fpath, "wb");
 	if (!f)
 		return 0;
@@ -142,10 +119,7 @@ ulong fs_file_write(const char fpath[restrict static 1],
 	return c;
 }
 
-ulong fs_file_append(const char fpath[restrict static 1],
-                     size_t     size,
-                     size_t     n,
-                     const char buf[restrict size * n]) {
+ulong fs_file_append(const char fpath[restrict static 1], size_t size, size_t n, const char buf[restrict size * n]) {
 	FILE *f = fopen(fpath, "ab");
 	if (!f)
 		return 0;
@@ -157,25 +131,19 @@ ulong fs_file_append(const char fpath[restrict static 1],
 	return c;
 }
 
-ulong fs_file_write_string(const char fpath[restrict static 1],
-                           size_t     len,
-                           const char str[restrict len]) {
+ulong fs_file_write_string(const char fpath[restrict static 1], size_t len, const char str[restrict len]) {
 	return fs_file_write(fpath, 1, len, str);
 }
 
-ulong fs_file_write_cstring(const char fpath[restrict static 1],
-                            const char str[restrict static 1]) {
+ulong fs_file_write_cstring(const char fpath[restrict static 1], const char str[restrict static 1]) {
 	return fs_file_write_string(fpath, strlen(str), str);
 }
 
-ulong fs_file_append_string(const char fpath[restrict static 1],
-                            size_t     len,
-                            const char str[restrict len]) {
+ulong fs_file_append_string(const char fpath[restrict static 1], size_t len, const char str[restrict len]) {
 	return fs_file_append(fpath, 1, len, str);
 }
 
-ulong fs_file_append_cstring(const char fpath[restrict static 1],
-                             const char str[restrict static 1]) {
+ulong fs_file_append_cstring(const char fpath[restrict static 1], const char str[restrict static 1]) {
 	return fs_file_append_string(fpath, strlen(str), str);
 }
 
