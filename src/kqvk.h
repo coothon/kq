@@ -23,10 +23,13 @@ extern void kqvk_ready_new_resolution(kq_data kq[static 1], int w, int h);
 extern bool kqvk_swapchain_create(kq_data kq[static 1]);
 extern bool kqvk_init_shaders(kq_data kq[static 1]);
 extern bool kqvk_render_pass_create(kq_data kq[static 1]);
+extern bool kqvk_create_descriptor_set_layout(kq_data kq[static 1]);
 extern bool kqvk_pipeline_create(kq_data kq[static 1]);
 extern bool kqvk_framebuffers_create(kq_data kq[static 1]);
 extern bool kqvk_cmd_pool_and_buf_create(kq_data kq[static 1]);
 extern bool kqvk_vertex_buffer_create(kq_data kq[static 1]);
+extern bool kqvk_index_buffer_create(kq_data kq[static 1]);
+extern bool kqvk_uniform_buffers_create(kq_data kq[static 1]);
 extern bool kqvk_buffer_create(kq_data               kq[restrict static 1],
                                VkDeviceSize          size,
                                VkBufferUsageFlags    usage,
@@ -37,7 +40,9 @@ extern void kqvk_buffer_copy(kq_data kq[static 1], VkBuffer src, VkBuffer dst, V
 extern u32  kqvk_mem_type_find(kq_data kq[static 1], u32 type_filter, VkMemoryPropertyFlags props);
 extern bool kqvk_sync_primitives_create(kq_data kq[static 1]);
 extern bool kqvk_swapchain_recreate(kq_data kq[static 1]);
-extern bool kqvk_cmd_buf_record(kq_data kq[static 1], VkCommandBuffer cmd_buf, u32 img_index);
+extern bool kqvk_cmd_buf_record(kq_data kq[static 1], VkCommandBuffer cmd_buf, u32 img_index, size_t frame);
+extern void kqvk_uniforms_update(kq_data kq[static 1], size_t frame);
+extern bool kqvk_create_descriptor_sets(kq_data kq[static 1]);
 
 #if KQ_DEBUG
 extern vecstr *kqvk_validation_layers_vec;

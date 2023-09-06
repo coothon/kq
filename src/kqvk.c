@@ -1,5 +1,9 @@
 #include "kqvk.h"
 
+#include <stdlib.h>
+#include <tgmath.h>
+
+#include "kq.h"
 #include "libcbase/log.h"
 #define LIBCBASE_FS_IMPLEMENTATION
 #include "libcbase/fs.h"
@@ -365,7 +369,18 @@ bool kqvk_render_pass_create(kq_data kq[static 1]) {
 	return true;
 }
 
+bool kqvk_create_descriptor_set_layout(kq_data kq[static 1]) {
+	if (vkCreateDescriptorSetLayout(kq->vk_ldev, &rend_info.descriptor_set_layout_cinfo, 0, &kq->descriptor_set_layout)) {
+		LOGM_FATAL("Unable to create descriptor set layout.");
+		return false;
+	}
+
+	return true;
+}
+
 bool kqvk_pipeline_create(kq_data kq[static 1]) {
+	rend_info.pipeline_layout_cinfo.pSetLayouts = &kq->descriptor_set_layout;
+
 	if (vkCreatePipelineLayout(kq->vk_ldev, &rend_info.pipeline_layout_cinfo, 0, &kq->pipeline_layout)) {
 		LOGM_FATAL("Unable to create graphics pipeline layout.");
 		return false;
@@ -418,8 +433,61 @@ bool kqvk_cmd_pool_and_buf_create(kq_data kq[static 1]) {
 		return false;
 	}
 
+	if (!kqvk_index_buffer_create(kq)) {
+		vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
+		vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
+		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
+		return false;
+	}
+
+	if (!kqvk_uniform_buffers_create(kq)) {
+		vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
+		vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
+		vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
+		vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
+		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
+		return false;
+	}
+
+	if (vkCreateDescriptorPool(kq->vk_ldev, &rend_info.desc_pool_cinfo, 0, &kq->desc_pool)) {
+		for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
+			vkUnmapMemory(kq->vk_ldev, kq->uniform_bufs_mem[i]);
+			vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
+			vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
+		}
+		vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
+		vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
+		vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
+		vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
+		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
+		return false;
+	}
+
+	if (!kqvk_create_descriptor_sets(kq)) {
+		vkDestroyDescriptorPool(kq->vk_ldev, kq->desc_pool, 0);
+		for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
+			vkUnmapMemory(kq->vk_ldev, kq->uniform_bufs_mem[i]);
+			vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
+			vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
+		}
+		vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
+		vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
+		vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
+		vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
+		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
+		return false;
+	}
+
 	if (vkAllocateCommandBuffers(kq->vk_ldev, &rend_info.cmd_buf_allocate_info, kq->cmd_buf)) {
 		LOGM_FATAL("Unable to create command buffer.");
+		vkDestroyDescriptorPool(kq->vk_ldev, kq->desc_pool, 0);
+		for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
+			vkUnmapMemory(kq->vk_ldev, kq->uniform_bufs_mem[i]);
+			vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
+			vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
+		}
+		vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
+		vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
 		vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
 		vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
 		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
@@ -431,30 +499,74 @@ bool kqvk_cmd_pool_and_buf_create(kq_data kq[static 1]) {
 }
 
 bool kqvk_vertex_buffer_create(kq_data kq[static 1]) {
-	VkBuffer       staging_buf;
-	VkDeviceMemory staging_buf_mem;
+	VkBuffer              staging_buf;
+	VkDeviceMemory        staging_buf_mem;
+	register const size_t buf_size = sizeof(kq_vertex[4]);
+
 	kqvk_buffer_create(kq,
-	                   sizeof(kq_vertex) * 3,
+	                   buf_size,
 	                   VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 	                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 	                   &staging_buf,
 	                   &staging_buf_mem);
 
 	void *mapped_buf_mem;
-	vkMapMemory(kq->vk_ldev, staging_buf_mem, 0, rend_info.vertex_buf_cinfo.size, 0, &mapped_buf_mem);
-	memcpy(mapped_buf_mem, triangle_vertices, rend_info.vertex_buf_cinfo.size);
+	vkMapMemory(kq->vk_ldev, staging_buf_mem, 0, buf_size, 0, &mapped_buf_mem);
+	memcpy(mapped_buf_mem, quad_vertices, buf_size);
 	vkUnmapMemory(kq->vk_ldev, staging_buf_mem);
 
-	kqvk_buffer_create(kq, rend_info.vertex_buf_cinfo.size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-	                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &kq->vertex_buf, &kq->vertex_buf_mem);
+	kqvk_buffer_create(kq, buf_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+	                   &kq->vertex_buf, &kq->vertex_buf_mem);
 
-	kqvk_buffer_copy(kq, staging_buf, kq->vertex_buf, rend_info.vertex_buf_cinfo.size);
+	kqvk_buffer_copy(kq, staging_buf, kq->vertex_buf, buf_size);
 
 	vkDestroyBuffer(kq->vk_ldev, staging_buf, 0);
 	vkFreeMemory(kq->vk_ldev, staging_buf_mem, 0);
 
 	return true;
 }
+
+bool kqvk_index_buffer_create(kq_data kq[static 1]) {
+	VkBuffer              staging_buf;
+	VkDeviceMemory        staging_buf_mem;
+	register const size_t buf_size = sizeof(u16[6]);
+
+	kqvk_buffer_create(kq,
+	                   buf_size,
+	                   VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+	                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+	                   &staging_buf,
+	                   &staging_buf_mem);
+
+	void *mapped_buf_mem;
+	vkMapMemory(kq->vk_ldev, staging_buf_mem, 0, buf_size, 0, &mapped_buf_mem);
+	memcpy(mapped_buf_mem, quad_indices, buf_size);
+	vkUnmapMemory(kq->vk_ldev, staging_buf_mem);
+
+	kqvk_buffer_create(kq, buf_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+	                   &kq->index_buf, &kq->index_buf_mem);
+
+	kqvk_buffer_copy(kq, staging_buf, kq->index_buf, buf_size);
+
+	vkDestroyBuffer(kq->vk_ldev, staging_buf, 0);
+	vkFreeMemory(kq->vk_ldev, staging_buf_mem, 0);
+
+	return true;
+}
+
+bool kqvk_uniform_buffers_create(kq_data kq[static 1]) {
+	register const size_t buf_size = sizeof(kq_uniforms);
+
+	for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
+		kqvk_buffer_create(kq, buf_size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		                   &kq->uniform_bufs[i], &kq->uniform_bufs_mem[i]);
+
+		vkMapMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0, buf_size, 0, &kq->uniform_bufs_mapped[i]);
+	}
+
+	return true;
+}
+
 
 bool kqvk_buffer_create(kq_data               kq[restrict static 1],
                         VkDeviceSize          size,
@@ -580,7 +692,7 @@ bool kqvk_swapchain_recreate(kq_data kq[static 1]) {
 	return true;
 }
 
-bool kqvk_cmd_buf_record(kq_data kq[static 1], VkCommandBuffer cmd_buf, u32 img_index) {
+bool kqvk_cmd_buf_record(kq_data kq[static 1], VkCommandBuffer cmd_buf, u32 img_index, size_t frame) {
 	if (vkBeginCommandBuffer(cmd_buf, &rend_info.cmd_buf_begin_info))
 		return false;
 
@@ -592,11 +704,43 @@ bool kqvk_cmd_buf_record(kq_data kq[static 1], VkCommandBuffer cmd_buf, u32 img_
 	vkCmdSetScissor(cmd_buf, 0, 1, &kq->scissor);
 	VkDeviceSize vertex_buf_offset = 0;
 	vkCmdBindVertexBuffers(cmd_buf, 0, 1, &kq->vertex_buf, &vertex_buf_offset);
-	vkCmdDraw(cmd_buf, 3, 1, 0, 0);
+	vkCmdBindIndexBuffer(cmd_buf, kq->index_buf, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, kq->pipeline_layout, 0, 1, &kq->desc_sets[frame], 0, 0);
+	vkCmdDrawIndexed(cmd_buf, 6, 1, 0, 0, 0);
 	vkCmdEndRenderPass(cmd_buf);
 
 	if (vkEndCommandBuffer(cmd_buf))
 		return false;
+
+	return true;
+}
+
+void kqvk_uniforms_update(kq_data kq[static 1], size_t frame) {
+	register const double now = glfwGetTime();
+
+	kq->uniforms.time     = (float)now;
+	kq->uniforms.time_sin = (float)(sin(now));
+	kq->uniforms.time_cos = (float)(cos(now));
+
+	memcpy(kq->uniform_bufs_mapped[frame], &kq->uniforms, sizeof(kq_uniforms));
+}
+
+bool kqvk_create_descriptor_sets(kq_data kq[static 1]) {
+	VkDescriptorSetLayout layouts[KQ_FRAMES_IN_FLIGHT];
+	for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i)
+		layouts[i] = kq->descriptor_set_layout;
+
+	rend_info.desc_sets_ainfo.descriptorPool = kq->desc_pool;
+	rend_info.desc_sets_ainfo.pSetLayouts    = layouts;
+
+	if (vkAllocateDescriptorSets(kq->vk_ldev, &rend_info.desc_sets_ainfo, kq->desc_sets))
+		return false;
+
+	for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
+		rend_info.desc_binfo.buffer = kq->uniform_bufs[i];
+		rend_info.desc_write.dstSet = kq->desc_sets[i];
+		vkUpdateDescriptorSets(kq->vk_ldev, 1, &rend_info.desc_write, 0, 0);
+	}
 
 	return true;
 }

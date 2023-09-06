@@ -2,6 +2,7 @@
 #define KQ_H_
 
 #include <stdbool.h>
+#include <stdalign.h>
 
 #include "glad/vulkan.h"
 #define GLFW_INCLUDE_NONE
@@ -14,9 +15,18 @@
 
 #define KQ_OOM_MSG() LOGM_FATAL("Out of memory! (OOM)")
 
-#define KQ_FRAMES_IN_FLIGHT 3
+#define KQ_FRAMES_IN_FLIGHT 2
+
+typedef struct kq_uniforms {
+	alignas(4) float time;
+	alignas(4) float time_sin;
+	alignas(4) float time_cos;
+} kq_uniforms;
 
 typedef struct kq_data {
+	double prev_frame_time;
+	double frame_time;
+
 	GLFWwindow *win;
 	bool        fb_resized;
 
@@ -47,17 +57,28 @@ typedef struct kq_data {
 	};
 
 	// Rendering setup.
-	VkShaderModule   vert_module;
-	VkShaderModule   frag_module;
-	VkViewport       viewport;
-	VkRect2D         scissor;
-	VkRenderPass     render_pass;
-	VkPipelineLayout pipeline_layout;
-	VkPipeline       graphics_pipeline;
-	VkCommandPool    cmd_pool;
-	VkCommandBuffer  cmd_buf[KQ_FRAMES_IN_FLIGHT];
-	VkBuffer         vertex_buf;
-	VkDeviceMemory   vertex_buf_mem;
+	VkShaderModule        vert_module;
+	VkShaderModule        frag_module;
+	VkViewport            viewport;
+	VkRect2D              scissor;
+	VkRenderPass          render_pass;
+	VkDescriptorSetLayout descriptor_set_layout;
+	VkPipelineLayout      pipeline_layout;
+	VkDescriptorPool      desc_pool;
+	VkDescriptorSet       desc_sets[KQ_FRAMES_IN_FLIGHT];
+	VkPipeline            graphics_pipeline;
+	VkCommandPool         cmd_pool;
+	VkCommandBuffer       cmd_buf[KQ_FRAMES_IN_FLIGHT];
+
+	VkBuffer       vertex_buf;
+	VkDeviceMemory vertex_buf_mem;
+	VkBuffer       index_buf;
+	VkDeviceMemory index_buf_mem;
+	VkBuffer       uniform_bufs[KQ_FRAMES_IN_FLIGHT];
+	VkDeviceMemory uniform_bufs_mem[KQ_FRAMES_IN_FLIGHT];
+	void          *uniform_bufs_mapped[KQ_FRAMES_IN_FLIGHT];
+
+	kq_uniforms uniforms;
 
 	// Synchronization primitives.
 	VkSemaphore img_available_semaphore[KQ_FRAMES_IN_FLIGHT];
@@ -113,7 +134,13 @@ typedef struct kq_info {
 	VkPresentInfoKHR                  present_info;
 	VkVertexInputBindingDescription   vertex_input_binding_desc;
 	VkVertexInputAttributeDescription vertex_input_attrib_descs[2];
-	VkBufferCreateInfo                vertex_buf_cinfo;
+	VkDescriptorSetLayoutBinding      ubo_layout_binding;
+	VkDescriptorSetLayoutCreateInfo   descriptor_set_layout_cinfo;
+	VkDescriptorPoolSize              desc_pool_size;
+	VkDescriptorPoolCreateInfo        desc_pool_cinfo;
+	VkDescriptorSetAllocateInfo       desc_sets_ainfo;
+	VkDescriptorBufferInfo            desc_binfo;
+	VkWriteDescriptorSet              desc_write;
 } kq_info;
 
 typedef struct kq_vertex {
@@ -124,7 +151,10 @@ typedef struct kq_vertex {
 cb_mk_vec(vecstr, char *);
 
 extern kq_info         rend_info;
+extern const u16       triangle_indices[3];
 extern const kq_vertex triangle_vertices[3];
+extern const u16       quad_indices[6];
+extern const kq_vertex quad_vertices[4];
 
 extern bool KQinit(kq_data kq[static 1]);
 extern void KQstop(kq_data kq[static 1]);

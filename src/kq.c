@@ -19,11 +19,21 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL kq_callback_vk_debug(VkDebugUtilsMessageSe
                                                            void                                       *pUserData);
 #endif
 
+const u16       triangle_indices[3]  = {0, 1, 2};
 const kq_vertex triangle_vertices[3] = {
 	{{0.0f, -1.0f}, {1.0f, 0.0f, 0.0f}},
 	{ {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
 	{{-1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
 };
+
+const u16       quad_indices[6]  = {0, 1, 2, 2, 3, 0};
+const kq_vertex quad_vertices[4] = {
+	{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}},
+	{ {1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}},
+	{  {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+	{ {-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+};
+
 
 
 bool KQinit(kq_data kq[static 1]) {
@@ -128,6 +138,9 @@ bool KQinit(kq_data kq[static 1]) {
 	if (!kqvk_render_pass_create(kq))
 		goto fail_render_pass_create;
 
+	if (!kqvk_create_descriptor_set_layout(kq))
+		goto fail_descriptor_set_layout;
+
 	if (!kqvk_pipeline_create(kq))
 		goto fail_pipeline_create;
 
@@ -146,6 +159,14 @@ bool KQinit(kq_data kq[static 1]) {
 
 
 fail_sync_primitives_create:
+	vkDestroyDescriptorPool(kq->vk_ldev, kq->desc_pool, 0);
+	for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
+		vkUnmapMemory(kq->vk_ldev, kq->uniform_bufs_mem[i]);
+		vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
+		vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
+	}
+	vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
+	vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
 	vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
 	vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
 	vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
@@ -157,6 +178,8 @@ fail_framebuffers_create:
 	vkDestroyPipeline(kq->vk_ldev, kq->graphics_pipeline, 0);
 	vkDestroyPipelineLayout(kq->vk_ldev, kq->pipeline_layout, 0);
 fail_pipeline_create:
+	vkDestroyDescriptorSetLayout(kq->vk_ldev, kq->descriptor_set_layout, 0);
+fail_descriptor_set_layout:
 	vkDestroyRenderPass(kq->vk_ldev, kq->render_pass, 0);
 fail_render_pass_create:
 	vkDestroyShaderModule(kq->vk_ldev, kq->frag_module, 0);
@@ -203,11 +226,20 @@ void KQstop(kq_data kq[static 1]) {
 	LOGM_INFO("Stopping.");
 	vkDeviceWaitIdle(kq->vk_ldev);
 
+
 	for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
 		vkDestroySemaphore(kq->vk_ldev, kq->render_finished_semaphore[i], 0);
 		vkDestroySemaphore(kq->vk_ldev, kq->img_available_semaphore[i], 0);
 		vkDestroyFence(kq->vk_ldev, kq->in_flight_fence[i], 0);
 	}
+	vkDestroyDescriptorPool(kq->vk_ldev, kq->desc_pool, 0);
+	for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
+		vkUnmapMemory(kq->vk_ldev, kq->uniform_bufs_mem[i]);
+		vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
+		vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
+	}
+	vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
+	vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
 	vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
 	vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
 	vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
@@ -216,6 +248,7 @@ void KQstop(kq_data kq[static 1]) {
 	free(kq->fbos);
 	vkDestroyPipeline(kq->vk_ldev, kq->graphics_pipeline, 0);
 	vkDestroyPipelineLayout(kq->vk_ldev, kq->pipeline_layout, 0);
+	vkDestroyDescriptorSetLayout(kq->vk_ldev, kq->descriptor_set_layout, 0);
 	vkDestroyRenderPass(kq->vk_ldev, kq->render_pass, 0);
 	vkDestroyShaderModule(kq->vk_ldev, kq->frag_module, 0);
 	vkDestroyShaderModule(kq->vk_ldev, kq->vert_module, 0);
@@ -270,7 +303,9 @@ retry_acquire:
 
 	vkResetCommandBuffer(kq->cmd_buf[current_frame], 0);
 	rend_info.submit_info.pCommandBuffers = &kq->cmd_buf[current_frame];
-	kqvk_cmd_buf_record(kq, kq->cmd_buf[current_frame], img_index);
+
+	kqvk_uniforms_update(kq, current_frame);
+	kqvk_cmd_buf_record(kq, kq->cmd_buf[current_frame], img_index, current_frame);
 
 	rend_info.submit_info.pWaitSemaphores   = &kq->img_available_semaphore[current_frame];
 	rend_info.submit_info.pSignalSemaphores = &kq->render_finished_semaphore[current_frame];
@@ -292,6 +327,14 @@ retry_acquire:
 		return false;
 	}
 
+	if (!current_frame) {
+		register const double now_time = glfwGetTime();
+		kq->frame_time                 = now_time - kq->prev_frame_time;
+		kq->prev_frame_time            = now_time;
+
+		register const double fps = 1.0 / kq->frame_time;
+		LOGM_INFO("FPS: %f(%fms)", fps, kq->frame_time * 1000.0);
+	}
 	current_frame = (current_frame + 1) % KQ_FRAMES_IN_FLIGHT;
 	return true;
 }
