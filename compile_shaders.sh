@@ -1,10 +1,13 @@
 #!/usr/bin/env sh
 set -e
 
-SHADER_COMPILE="glslc --target-env=vulkan1.3 $@"
-
 cd shaders/
-for shader in *.glsl; do
-	printf "Compiling %s.\n" "${shader}"
-	${SHADER_COMPILE} "${shader}" -o "$(basename "${shader}" .glsl).spv"
+
+OLD_IFS="${IFS}"
+IFS='
+'
+for shader in $(find -O3 . -type f -a '(' -name '*vert*' -o -name '*frag*' ')' -a '!' -name '*spv*'); do
+	IFS="${OLD_IFS}"
+	printf "GLSLC\t%s\n" "${shader}"
+	glslc --target-env=vulkan1.3 "${@}" "${shader}" -o "${shader}.spv"
 done

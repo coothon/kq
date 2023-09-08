@@ -24,9 +24,6 @@ typedef struct kq_uniforms {
 } kq_uniforms;
 
 typedef struct kq_data {
-	double prev_frame_time;
-	double frame_time;
-
 	GLFWwindow *win;
 	bool        fb_resized;
 
@@ -133,7 +130,7 @@ typedef struct kq_info {
 	VkSubpassDependency               subpass_dep;
 	VkPresentInfoKHR                  present_info;
 	VkVertexInputBindingDescription   vertex_input_binding_desc;
-	VkVertexInputAttributeDescription vertex_input_attrib_descs[2];
+	VkVertexInputAttributeDescription vertex_input_attrib_descs[3];
 	VkDescriptorSetLayoutBinding      ubo_layout_binding;
 	VkDescriptorSetLayoutCreateInfo   descriptor_set_layout_cinfo;
 	VkDescriptorPoolSize              desc_pool_size;
@@ -145,6 +142,7 @@ typedef struct kq_info {
 
 typedef struct kq_vertex {
 	vec2 position;
+	vec2 uv;
 	vec3 color;
 } kq_vertex;
 

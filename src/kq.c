@@ -21,17 +21,17 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL kq_callback_vk_debug(VkDebugUtilsMessageSe
 
 const u16       triangle_indices[3]  = {0, 1, 2};
 const kq_vertex triangle_vertices[3] = {
-	{{0.0f, -1.0f}, {1.0f, 0.0f, 0.0f}},
-	{ {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
-	{{-1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+	{{0.0f, -1.0f}, {0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+	{ {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
+	{{-1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
 };
 
 const u16       quad_indices[6]  = {0, 1, 2, 2, 3, 0};
 const kq_vertex quad_vertices[4] = {
-	{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}},
-	{ {1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}},
-	{  {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-	{ {-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+	{{-1.0f, -1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+	{ {1.0f, -1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+	{  {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+	{ {-1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
 };
 
 
@@ -147,8 +147,20 @@ bool KQinit(kq_data kq[static 1]) {
 	if (!kqvk_framebuffers_create(kq))
 		goto fail_framebuffers_create;
 
-	if (!kqvk_cmd_pool_and_buf_create(kq))
-		goto fail_cmd_pool_and_buf_create;
+	if (!kqvk_cmd_pool_create(kq))
+		goto fail_cmd_pool_create;
+
+	if (!kqvk_cmd_bufs_create(kq))
+		goto fail_cmd_bufs_create;
+
+	if (!kqvk_vertex_buffer_create(kq))
+		goto fail_vertex_buffer_create;
+
+	if (!kqvk_index_buffer_create(kq))
+		goto fail_index_buffer_create;
+
+	if (!kqvk_uniforms_init(kq))
+		goto fail_uniforms_init;
 
 	if (!kqvk_sync_primitives_create(kq))
 		goto fail_sync_primitives_create;
@@ -165,12 +177,16 @@ fail_sync_primitives_create:
 		vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
 		vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
 	}
+fail_uniforms_init:
 	vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
 	vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
+fail_index_buffer_create:
 	vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
 	vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
+fail_vertex_buffer_create:
+fail_cmd_bufs_create:
 	vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
-fail_cmd_pool_and_buf_create:
+fail_cmd_pool_create:
 	for (u32 i = 0U; i < kq->swapchain_img_count; ++i)
 		vkDestroyFramebuffer(kq->vk_ldev, kq->fbos[i], 0);
 	free(kq->fbos);
@@ -327,14 +343,6 @@ retry_acquire:
 		return false;
 	}
 
-	if (!current_frame) {
-		register const double now_time = glfwGetTime();
-		kq->frame_time                 = now_time - kq->prev_frame_time;
-		kq->prev_frame_time            = now_time;
-
-		register const double fps = 1.0 / kq->frame_time;
-		LOGM_INFO("FPS: %f(%fms)", fps, kq->frame_time * 1000.0);
-	}
 	current_frame = (current_frame + 1) % KQ_FRAMES_IN_FLIGHT;
 	return true;
 }

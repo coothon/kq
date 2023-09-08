@@ -276,22 +276,36 @@ bool kqvk_swapchain_create(kq_data kq[static 1]) {
 		return false;
 	}
 
-	vkGetSwapchainImagesKHR(kq->vk_ldev, kq->vk_swapchain, &kq->swapchain_img_count, 0);
-	kq->swapchain_imgs = malloc(sizeof(VkImage[kq->swapchain_img_count]));
-	if (!kq->swapchain_imgs) {
-		KQ_OOM_MSG();
-		vkDestroySwapchainKHR(kq->vk_ldev, kq->vk_swapchain, 0);
-		return false;
-	}
-	vkGetSwapchainImagesKHR(kq->vk_ldev, kq->vk_swapchain, &kq->swapchain_img_count, kq->swapchain_imgs);
+	u32 tmp_count;
+	vkGetSwapchainImagesKHR(kq->vk_ldev, kq->vk_swapchain, &tmp_count, 0);
+	if (!kq->swapchain_imgs || kq->swapchain_img_count != tmp_count) { // First call or img_count is different from last time.
+		if (kq->swapchain_imgs)
+			free(kq->swapchain_imgs);
+		if (kq->swapchain_img_views)
+			free(kq->swapchain_img_views);
+		if (kq->fbos) {
+			free(kq->fbos);
+			kq->fbos = 0;
+		}
+		kq->swapchain_img_count = tmp_count;
 
-	kq->swapchain_img_views = malloc(sizeof(VkImageView[kq->swapchain_img_count]));
-	if (!kq->swapchain_img_views) {
-		KQ_OOM_MSG();
-		free(kq->swapchain_imgs);
-		vkDestroySwapchainKHR(kq->vk_ldev, kq->vk_swapchain, 0);
-		return false;
+		kq->swapchain_imgs = malloc(sizeof(VkImage[kq->swapchain_img_count]));
+		if (!kq->swapchain_imgs) {
+			KQ_OOM_MSG();
+			vkDestroySwapchainKHR(kq->vk_ldev, kq->vk_swapchain, 0);
+			return false;
+		}
+
+		kq->swapchain_img_views = malloc(sizeof(VkImageView[kq->swapchain_img_count]));
+		if (!kq->swapchain_img_views) {
+			KQ_OOM_MSG();
+			free(kq->swapchain_imgs);
+			vkDestroySwapchainKHR(kq->vk_ldev, kq->vk_swapchain, 0);
+			return false;
+		}
 	}
+
+	vkGetSwapchainImagesKHR(kq->vk_ldev, kq->vk_swapchain, &kq->swapchain_img_count, kq->swapchain_imgs);
 
 	for (u32 i = 0U; i < kq->swapchain_img_count; ++i) {
 		rend_info.swapchain_img_view_cinfo.image = kq->swapchain_imgs[i];
@@ -399,10 +413,12 @@ bool kqvk_pipeline_create(kq_data kq[static 1]) {
 }
 
 bool kqvk_framebuffers_create(kq_data kq[static 1]) {
-	kq->fbos = malloc(sizeof(VkFramebuffer[kq->swapchain_img_count]));
-	if (!kq->fbos) {
-		KQ_OOM_MSG();
-		return false;
+	if (!kq->fbos) { // In case this is not the first call.
+		kq->fbos = malloc(sizeof(VkFramebuffer[kq->swapchain_img_count]));
+		if (!kq->fbos) {
+			KQ_OOM_MSG();
+			return false;
+		}
 	}
 
 	for (u32 i = 0U; i < kq->swapchain_img_count; ++i) {
@@ -419,7 +435,7 @@ bool kqvk_framebuffers_create(kq_data kq[static 1]) {
 	return true;
 }
 
-bool kqvk_cmd_pool_and_buf_create(kq_data kq[static 1]) {
+bool kqvk_cmd_pool_create(kq_data kq[static 1]) {
 	if (vkCreateCommandPool(kq->vk_ldev, &rend_info.cmd_pool_cinfo, 0, &kq->cmd_pool)) {
 		LOGM_FATAL("Unable to create command pool.");
 		return false;
@@ -428,26 +444,22 @@ bool kqvk_cmd_pool_and_buf_create(kq_data kq[static 1]) {
 
 	rend_info.cmd_buf_allocate_info.commandPool = kq->cmd_pool;
 
-	if (!kqvk_vertex_buffer_create(kq)) {
-		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
-		return false;
-	}
+	return true;
+}
 
-	if (!kqvk_index_buffer_create(kq)) {
-		vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
-		vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
-		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
+bool kqvk_cmd_bufs_create(kq_data kq[static 1]) {
+	if (vkAllocateCommandBuffers(kq->vk_ldev, &rend_info.cmd_buf_allocate_info, kq->cmd_buf)) {
+		LOGM_FATAL("Unable to create command buffer.");
 		return false;
 	}
+	LOGM_TRACE("Command buffer created.");
 
-	if (!kqvk_uniform_buffers_create(kq)) {
-		vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
-		vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
-		vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
-		vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
-		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
+	return true;
+}
+
+bool kqvk_uniforms_init(kq_data kq[static 1]) {
+	if (!kqvk_uniform_buffers_create(kq))
 		return false;
-	}
 
 	if (vkCreateDescriptorPool(kq->vk_ldev, &rend_info.desc_pool_cinfo, 0, &kq->desc_pool)) {
 		for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
@@ -455,11 +467,7 @@ bool kqvk_cmd_pool_and_buf_create(kq_data kq[static 1]) {
 			vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
 			vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
 		}
-		vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
-		vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
-		vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
-		vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
-		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
+
 		return false;
 	}
 
@@ -470,30 +478,9 @@ bool kqvk_cmd_pool_and_buf_create(kq_data kq[static 1]) {
 			vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
 			vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
 		}
-		vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
-		vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
-		vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
-		vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
-		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
-		return false;
-	}
 
-	if (vkAllocateCommandBuffers(kq->vk_ldev, &rend_info.cmd_buf_allocate_info, kq->cmd_buf)) {
-		LOGM_FATAL("Unable to create command buffer.");
-		vkDestroyDescriptorPool(kq->vk_ldev, kq->desc_pool, 0);
-		for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
-			vkUnmapMemory(kq->vk_ldev, kq->uniform_bufs_mem[i]);
-			vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
-			vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
-		}
-		vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
-		vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
-		vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
-		vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
-		vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
 		return false;
 	}
-	LOGM_TRACE("Command buffer created.");
 
 	return true;
 }
@@ -677,11 +664,8 @@ bool kqvk_swapchain_recreate(kq_data kq[static 1]) {
 	// Destroy old swapchain.
 	for (u32 i = 0; i < kq->swapchain_img_count; ++i)
 		vkDestroyFramebuffer(kq->vk_ldev, kq->fbos[i], 0);
-	free(kq->fbos);
 	for (u32 i = 0; i < kq->swapchain_img_count; ++i)
 		vkDestroyImageView(kq->vk_ldev, kq->swapchain_img_views[i], 0);
-	free(kq->swapchain_img_views);
-	free(kq->swapchain_imgs);
 	vkDestroySwapchainKHR(kq->vk_ldev, kq->vk_swapchain, 0);
 
 	if (!kqvk_swapchain_create(kq))
@@ -699,14 +683,18 @@ bool kqvk_cmd_buf_record(kq_data kq[static 1], VkCommandBuffer cmd_buf, u32 img_
 	rend_info.pass_begin_info.framebuffer = kq->fbos[img_index];
 
 	vkCmdBeginRenderPass(cmd_buf, &rend_info.pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+
 	vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, kq->graphics_pipeline);
 	vkCmdSetViewport(cmd_buf, 0, 1, &kq->viewport);
 	vkCmdSetScissor(cmd_buf, 0, 1, &kq->scissor);
+
 	VkDeviceSize vertex_buf_offset = 0;
 	vkCmdBindVertexBuffers(cmd_buf, 0, 1, &kq->vertex_buf, &vertex_buf_offset);
 	vkCmdBindIndexBuffer(cmd_buf, kq->index_buf, 0, VK_INDEX_TYPE_UINT16);
 	vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, kq->pipeline_layout, 0, 1, &kq->desc_sets[frame], 0, 0);
+
 	vkCmdDrawIndexed(cmd_buf, 6, 1, 0, 0, 0);
+
 	vkCmdEndRenderPass(cmd_buf);
 
 	if (vkEndCommandBuffer(cmd_buf))
