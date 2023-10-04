@@ -1,12 +1,14 @@
-#include "kqvk.h"
+#include <kqvk.h>
 
 #include <stdlib.h>
 #include <tgmath.h>
 
-#include "kq.h"
-#include "libcbase/log.h"
-#define LIBCBASE_FS_IMPLEMENTATION
-#include "libcbase/fs.h"
+#include <glad/vulkan.h>
+#include <kq.h>
+#include <libcbase/log.h>
+#include <libcbase/fs.h>
+
+#include <stb/stb_image.h>
 
 #define CB_LOG_MODULE "KQVK"
 
@@ -359,6 +361,8 @@ bool kqvk_init_shaders(kq_data kq[static 1]) {
 		free(vert_buf);
 		return false;
 	}
+	free(frag_buf);
+	free(vert_buf);
 
 	rend_info.shader_stages_cinfo[0].module = kq->vert_module;
 	rend_info.shader_stages_cinfo[1].module = kq->frag_module;
@@ -581,26 +585,12 @@ bool kqvk_buffer_create(kq_data               kq[restrict static 1],
 }
 
 void kqvk_buffer_copy(kq_data kq[static 1], VkBuffer src, VkBuffer dst, VkDeviceSize size) {
-	VkCommandBufferAllocateInfo cmd_buf_ainfo = {.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-	                                             .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-	                                             .commandPool        = kq->cmd_pool,
-	                                             .commandBufferCount = 1};
-	VkCommandBuffer             cmd_buf;
+	VkCommandBuffer cmd_buf = kqvk_single_time_command_begin(kq);
 
-	vkAllocateCommandBuffers(kq->vk_ldev, &cmd_buf_ainfo, &cmd_buf);
-
-	VkCommandBufferBeginInfo cmd_buf_binfo = {.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
-
-	vkBeginCommandBuffer(cmd_buf, &cmd_buf_binfo);
 	VkBufferCopy copy_region = {.size = size};
 	vkCmdCopyBuffer(cmd_buf, src, dst, 1, &copy_region);
-	vkEndCommandBuffer(cmd_buf);
 
-	VkSubmitInfo sinfo = {.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO, .commandBufferCount = 1, .pCommandBuffers = &cmd_buf};
-
-	vkQueueSubmit(kq->q_graphics, 1, &sinfo, 0);
-	vkQueueWaitIdle(kq->q_graphics);
-	vkFreeCommandBuffers(kq->vk_ldev, kq->cmd_pool, 1, &cmd_buf);
+	kqvk_single_time_command_end(kq, cmd_buf);
 }
 
 u32 kqvk_mem_type_find(kq_data kq[static 1], u32 type_filter, VkMemoryPropertyFlags props) {
@@ -676,41 +666,22 @@ bool kqvk_swapchain_recreate(kq_data kq[static 1]) {
 	return true;
 }
 
-bool kqvk_cmd_buf_record(kq_data kq[static 1], VkCommandBuffer cmd_buf, u32 img_index, size_t frame) {
-	if (vkBeginCommandBuffer(cmd_buf, &rend_info.cmd_buf_begin_info))
-		return false;
-
-	rend_info.pass_begin_info.framebuffer = kq->fbos[img_index];
-
-	vkCmdBeginRenderPass(cmd_buf, &rend_info.pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-
-	vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, kq->graphics_pipeline);
-	vkCmdSetViewport(cmd_buf, 0, 1, &kq->viewport);
-	vkCmdSetScissor(cmd_buf, 0, 1, &kq->scissor);
-
-	VkDeviceSize vertex_buf_offset = 0;
-	vkCmdBindVertexBuffers(cmd_buf, 0, 1, &kq->vertex_buf, &vertex_buf_offset);
-	vkCmdBindIndexBuffer(cmd_buf, kq->index_buf, 0, VK_INDEX_TYPE_UINT16);
-	vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, kq->pipeline_layout, 0, 1, &kq->desc_sets[frame], 0, 0);
-
+bool kqvk_cmd_buf_record(kq_data kq[static 1], VkCommandBuffer cmd_buf) {
+	vkCmdPushConstants(kq->cmd_buf[kq->current_frame], kq->pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 16, &kq->pcs);
 	vkCmdDrawIndexed(cmd_buf, 6, 1, 0, 0, 0);
-
-	vkCmdEndRenderPass(cmd_buf);
-
-	if (vkEndCommandBuffer(cmd_buf))
-		return false;
-
 	return true;
 }
 
-void kqvk_uniforms_update(kq_data kq[static 1], size_t frame) {
+void kqvk_uniforms_update_time(kq_data kq[static 1]) {
 	register const double now = glfwGetTime();
 
 	kq->uniforms.time     = (float)now;
 	kq->uniforms.time_sin = (float)(sin(now));
 	kq->uniforms.time_cos = (float)(cos(now));
+}
 
-	memcpy(kq->uniform_bufs_mapped[frame], &kq->uniforms, sizeof(kq_uniforms));
+void kqvk_uniforms_push(kq_data kq[static 1]) {
+	memcpy(kq->uniform_bufs_mapped[kq->current_frame], &kq->uniforms, sizeof(kq_uniforms));
 }
 
 bool kqvk_create_descriptor_sets(kq_data kq[static 1]) {
@@ -725,10 +696,231 @@ bool kqvk_create_descriptor_sets(kq_data kq[static 1]) {
 		return false;
 
 	for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
-		rend_info.desc_binfo.buffer = kq->uniform_bufs[i];
-		rend_info.desc_write.dstSet = kq->desc_sets[i];
-		vkUpdateDescriptorSets(kq->vk_ldev, 1, &rend_info.desc_write, 0, 0);
+		rend_info.desc_binfo.buffer    = kq->uniform_bufs[i];
+		rend_info.desc_write[0].dstSet = kq->desc_sets[i];
+		rend_info.desc_write[1].dstSet = kq->desc_sets[i];
+		vkUpdateDescriptorSets(kq->vk_ldev, 2, rend_info.desc_write, 0, 0);
 	}
+
+	return true;
+}
+
+bool kqvk_image_create(kq_data kq[restrict static 1], u32 tw, u32 th, VkFormat fmt, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags props,
+                       VkImage img[restrict static 1], VkDeviceMemory img_mem[restrict static 1]) {
+	VkImageCreateInfo image_cinfo = {
+		.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+		.imageType     = VK_IMAGE_TYPE_2D,
+		.extent        = (VkExtent3D){.width = tw, .height = th, .depth = 1},
+		.mipLevels     = 1,
+		.arrayLayers   = 1,
+		.format        = fmt,
+		.tiling        = tiling,
+		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		.usage         = usage,
+		.samples       = VK_SAMPLE_COUNT_1_BIT,
+		.sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
+	};
+
+	if (vkCreateImage(kq->vk_ldev, &image_cinfo, 0, img)) {
+		return false;
+	}
+
+	VkMemoryRequirements mem_reqs;
+	vkGetImageMemoryRequirements(kq->vk_ldev, *img, &mem_reqs);
+
+	VkMemoryAllocateInfo ainfo = {
+		.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		.allocationSize  = mem_reqs.size,
+		.memoryTypeIndex = kqvk_mem_type_find(kq, mem_reqs.memoryTypeBits, props),
+	};
+
+	if (vkAllocateMemory(kq->vk_ldev, &ainfo, 0, img_mem)) {
+		vkDestroyImage(kq->vk_ldev, *img, 0);
+		return false;
+	}
+
+	vkBindImageMemory(kq->vk_ldev, *img, *img_mem, 0);
+
+	return true;
+}
+
+
+bool kqvk_tex_create(kq_data kq[restrict static 1]) {
+	int      tw, th, tc;
+	stbi_uc *pix = stbi_load("textures/tex0.png", &tw, &th, &tc, STBI_rgb_alpha);
+	if (!pix)
+		return false;
+
+	VkDeviceSize image_size = (VkDeviceSize)tw * (VkDeviceSize)th * (VkDeviceSize)4;
+
+	VkBuffer       stage_buf;
+	VkDeviceMemory stage_mem;
+	kqvk_buffer_create(kq, image_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+	                   &stage_buf, &stage_mem);
+
+	void *data;
+	vkMapMemory(kq->vk_ldev, stage_mem, 0, image_size, 0, &data);
+	memcpy(data, pix, (size_t)image_size);
+	vkUnmapMemory(kq->vk_ldev, stage_mem);
+
+	stbi_image_free(pix);
+
+	kqvk_image_create(kq, (u32)tw, (u32)th, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+	                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &kq->tex_image, &kq->tex_image_mem);
+
+	if (!kqvk_image_layout_transition(kq, kq->tex_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)) {
+		vkDestroyBuffer(kq->vk_ldev, stage_buf, 0);
+		vkFreeMemory(kq->vk_ldev, stage_mem, 0);
+		vkDestroyImage(kq->vk_ldev, kq->tex_image, 0);
+		vkFreeMemory(kq->vk_ldev, kq->tex_image_mem, 0);
+		return false;
+	}
+
+	kqvk_buffer_copy_to_image(kq, stage_buf, kq->tex_image, (u32)tw, (u32)th);
+
+	if (!kqvk_image_layout_transition(kq, kq->tex_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+	                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)) {
+		vkDestroyBuffer(kq->vk_ldev, stage_buf, 0);
+		vkFreeMemory(kq->vk_ldev, stage_mem, 0);
+		vkDestroyImage(kq->vk_ldev, kq->tex_image, 0);
+		vkFreeMemory(kq->vk_ldev, kq->tex_image_mem, 0);
+		return false;
+	}
+
+	vkDestroyBuffer(kq->vk_ldev, stage_buf, 0);
+	vkFreeMemory(kq->vk_ldev, stage_mem, 0);
+
+	LOGM_TRACE("Created texture.");
+	return true;
+}
+
+VkCommandBuffer kqvk_single_time_command_begin(kq_data kq[static 1]) {
+	VkCommandBufferAllocateInfo ainfo = {
+		.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		.commandPool        = kq->cmd_pool,
+		.commandBufferCount = 1,
+	};
+
+	VkCommandBuffer cmd_buf;
+	vkAllocateCommandBuffers(kq->vk_ldev, &ainfo, &cmd_buf);
+
+	VkCommandBufferBeginInfo binfo = {
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+	};
+
+	vkBeginCommandBuffer(cmd_buf, &binfo);
+
+	return cmd_buf;
+}
+
+void kqvk_single_time_command_end(kq_data kq[restrict static 1], VkCommandBuffer cmd_buf) {
+	vkEndCommandBuffer(cmd_buf);
+
+	VkSubmitInfo sinfo = {
+		.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		.commandBufferCount = 1,
+		.pCommandBuffers    = &cmd_buf,
+	};
+
+	vkQueueSubmit(kq->q_graphics, 1, &sinfo, 0);
+	vkQueueWaitIdle(kq->q_graphics);
+
+	vkFreeCommandBuffers(kq->vk_ldev, kq->cmd_pool, 1, &cmd_buf);
+}
+
+bool kqvk_image_layout_transition(kq_data kq[restrict static 1], VkImage img, VkFormat fmt, VkImageLayout old_layout, VkImageLayout new_layout) {
+	CB_UNUSED(fmt);
+
+	VkImageMemoryBarrier barrier = {
+		.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+		.oldLayout           = old_layout,
+		.newLayout           = new_layout,
+		.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+		.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+		.image               = img,
+		.subresourceRange =
+			(VkImageSubresourceRange){
+						  .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+						  .levelCount = 1,
+						  .layerCount = 1,
+						  },
+	};
+
+	VkPipelineStageFlags src_stage, dst_stage;
+	if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		src_stage             = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		dst_stage             = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	} else if (old_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && new_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		src_stage             = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		dst_stage             = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	} else {
+		LOGM_FATAL("Image layout transition not supported.");
+		return false;
+	}
+
+	VkCommandBuffer cmd_buf = kqvk_single_time_command_begin(kq);
+
+	vkCmdPipelineBarrier(cmd_buf, src_stage, dst_stage, 0, 0, 0, 0, 0, 1, &barrier);
+
+	kqvk_single_time_command_end(kq, cmd_buf);
+
+	return true;
+}
+
+void kqvk_buffer_copy_to_image(kq_data kq[restrict static 1], VkBuffer buf, VkImage img, u32 width, u32 height) {
+	VkCommandBuffer cmd_buf = kqvk_single_time_command_begin(kq);
+
+	VkBufferImageCopy region = {
+		.imageSubresource = (VkImageSubresourceLayers){.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .layerCount = 1},
+		.imageExtent      = (VkExtent3D){.width = width, .height = height, .depth = 1},
+	};
+
+	vkCmdCopyBufferToImage(cmd_buf, buf, img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+	kqvk_single_time_command_end(kq, cmd_buf);
+}
+
+bool kqvk_tex_view_create(kq_data kq[static 1]) {
+	VkImageViewCreateInfo view_cinfo = {
+		.sType    = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		.image    = kq->tex_image,
+		.viewType = VK_IMAGE_VIEW_TYPE_2D,
+		.format   = VK_FORMAT_R8G8B8A8_SRGB,
+		.subresourceRange =
+			(VkImageSubresourceRange){
+						  .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+						  .levelCount = 1,
+						  .layerCount = 1,
+						  },
+	};
+
+	if (vkCreateImageView(kq->vk_ldev, &view_cinfo, 0, &kq->tex_image_view)) {
+		LOGM_FATAL("Failed to create texture image view.");
+		return false;
+	}
+
+	rend_info.sampler_write.imageView = kq->tex_image_view;
+
+	return true;
+}
+
+bool kqvk_tex_sampler_create(kq_data kq[static 1]) {
+	VkPhysicalDeviceProperties props;
+	vkGetPhysicalDeviceProperties(kq->vk_pdev, &props);
+
+	rend_info.tex_sampler_cinfo.maxAnisotropy = props.limits.maxSamplerAnisotropy;
+
+	if (vkCreateSampler(kq->vk_ldev, &rend_info.tex_sampler_cinfo, 0, &kq->tex_sampler)) {
+		LOGM_FATAL("Failed to create texture sampler.");
+		return false;
+	}
+
+	rend_info.sampler_write.sampler = kq->tex_sampler;
 
 	return true;
 }

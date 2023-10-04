@@ -1,5 +1,8 @@
 .vscode/
+.cache/
 build/
 *.spv
+kq
 kq_dbg
 kq_rel
+compile_commands.json

@@ -4,26 +4,39 @@
 #include <stdbool.h>
 #include <stdalign.h>
 
-#include "glad/vulkan.h"
+#include <glad/vulkan.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #include <cglm/cglm.h>
 
-#include "libcbase/common.h"
-#include "libcbase/vec.h"
+#include <libcbase/common.h>
+#include <libcbase/vec.h>
 
 #define KQ_OOM_MSG() LOGM_FATAL("Out of memory! (OOM)")
 
 #define KQ_FRAMES_IN_FLIGHT 2
 
+// Constants for the entire frame.
 typedef struct kq_uniforms {
 	alignas(4) float time;
 	alignas(4) float time_sin;
 	alignas(4) float time_cos;
 } kq_uniforms;
 
+// Constants for each draw call.
+typedef struct kq_push_constants {
+	alignas(8) vec2 position;
+	alignas(8) vec2 scale;
+} kq_push_constants;
+
 typedef struct kq_data {
+	bool   rendering;
+	size_t current_frame;
+	u32    img_index;
+
+	kq_push_constants pcs;
+
 	GLFWwindow *win;
 	bool        fb_resized;
 
@@ -76,6 +89,11 @@ typedef struct kq_data {
 	void          *uniform_bufs_mapped[KQ_FRAMES_IN_FLIGHT];
 
 	kq_uniforms uniforms;
+
+	VkImage        tex_image;
+	VkDeviceMemory tex_image_mem;
+	VkImageView    tex_image_view;
+	VkSampler      tex_sampler;
 
 	// Synchronization primitives.
 	VkSemaphore img_available_semaphore[KQ_FRAMES_IN_FLIGHT];
@@ -131,13 +149,24 @@ typedef struct kq_info {
 	VkPresentInfoKHR                  present_info;
 	VkVertexInputBindingDescription   vertex_input_binding_desc;
 	VkVertexInputAttributeDescription vertex_input_attrib_descs[3];
-	VkDescriptorSetLayoutBinding      ubo_layout_binding;
-	VkDescriptorSetLayoutCreateInfo   descriptor_set_layout_cinfo;
-	VkDescriptorPoolSize              desc_pool_size;
-	VkDescriptorPoolCreateInfo        desc_pool_cinfo;
-	VkDescriptorSetAllocateInfo       desc_sets_ainfo;
-	VkDescriptorBufferInfo            desc_binfo;
-	VkWriteDescriptorSet              desc_write;
+	union {
+		VkDescriptorSetLayoutBinding layout_bindings[2];
+		struct {
+			VkDescriptorSetLayoutBinding ubo_layout_binding;
+			VkDescriptorSetLayoutBinding sampler_layout_binding;
+		};
+	};
+	VkDescriptorSetLayoutCreateInfo descriptor_set_layout_cinfo;
+	VkDescriptorPoolSize            desc_pool_size[2];
+	VkDescriptorPoolCreateInfo      desc_pool_cinfo;
+	VkDescriptorSetAllocateInfo     desc_sets_ainfo;
+	VkDescriptorBufferInfo          desc_binfo;
+	VkWriteDescriptorSet            desc_write[2];
+	VkDescriptorImageInfo           sampler_write;
+	VkPushConstantRange             push_c_range;
+	VkImageCreateInfo               tex_image_cinfo;
+	VkPhysicalDeviceFeatures        pdev_feats;
+	VkSamplerCreateInfo             tex_sampler_cinfo;
 } kq_info;
 
 typedef struct kq_vertex {
@@ -157,6 +186,8 @@ extern const kq_vertex quad_vertices[4];
 extern bool KQinit(kq_data kq[static 1]);
 extern void KQstop(kq_data kq[static 1]);
 
-extern bool KQrender(kq_data kq[static 1]);
+extern bool KQrender_begin(kq_data kq[static 1]);
+extern bool KQdraw_quad(kq_data kq[static 1], const float pos[restrict static 2], const float scale[restrict static 2]);
+extern bool KQrender_end(kq_data kq[static 1]);
 
 #endif /* KQ_H_ */

@@ -1,11 +1,11 @@
-#include "kq.h"
-#include "kqvk.h"
+#include <kq.h>
+#include <kqvk.h>
 
 #include <GLFW/glfw3.h>
 
-#include "libcbase/common.h"
-#include "libcbase/log.h"
-#include "libcbase/vec.h"
+#include <libcbase/common.h>
+#include <libcbase/log.h>
+#include <libcbase/vec.h>
 
 #define CB_LOG_MODULE "KQ"
 
@@ -159,6 +159,15 @@ bool KQinit(kq_data kq[static 1]) {
 	if (!kqvk_index_buffer_create(kq))
 		goto fail_index_buffer_create;
 
+	if (!kqvk_tex_create(kq))
+		goto fail_tex_create;
+
+	if (!kqvk_tex_view_create(kq))
+		goto fail_tex_view_create;
+
+	if (!kqvk_tex_sampler_create(kq))
+		goto fail_tex_sampler_create;
+
 	if (!kqvk_uniforms_init(kq))
 		goto fail_uniforms_init;
 
@@ -168,8 +177,6 @@ bool KQinit(kq_data kq[static 1]) {
 	LOGM_INFO("Initialized.");
 	return true;
 
-
-
 fail_sync_primitives_create:
 	vkDestroyDescriptorPool(kq->vk_ldev, kq->desc_pool, 0);
 	for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
@@ -178,6 +185,13 @@ fail_sync_primitives_create:
 		vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
 	}
 fail_uniforms_init:
+	vkDestroySampler(kq->vk_ldev, kq->tex_sampler, 0);
+fail_tex_sampler_create:
+	vkDestroyImageView(kq->vk_ldev, kq->tex_image_view, 0);
+fail_tex_view_create:
+	vkDestroyImage(kq->vk_ldev, kq->tex_image, 0);
+	vkFreeMemory(kq->vk_ldev, kq->tex_image_mem, 0);
+fail_tex_create:
 	vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
 	vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
 fail_index_buffer_create:
@@ -242,7 +256,6 @@ void KQstop(kq_data kq[static 1]) {
 	LOGM_INFO("Stopping.");
 	vkDeviceWaitIdle(kq->vk_ldev);
 
-
 	for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
 		vkDestroySemaphore(kq->vk_ldev, kq->render_finished_semaphore[i], 0);
 		vkDestroySemaphore(kq->vk_ldev, kq->img_available_semaphore[i], 0);
@@ -254,6 +267,10 @@ void KQstop(kq_data kq[static 1]) {
 		vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
 		vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
 	}
+	vkDestroySampler(kq->vk_ldev, kq->tex_sampler, 0);
+	vkDestroyImageView(kq->vk_ldev, kq->tex_image_view, 0);
+	vkDestroyImage(kq->vk_ldev, kq->tex_image, 0);
+	vkFreeMemory(kq->vk_ldev, kq->tex_image_mem, 0);
 	vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
 	vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
 	vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
@@ -289,11 +306,12 @@ void KQstop(kq_data kq[static 1]) {
 	glfwTerminate();
 }
 
-bool KQrender(kq_data kq[static 1]) {
-	static size_t current_frame = 0;
+bool KQrender_begin(kq_data kq[static 1]) {
+	if (kq->rendering)
+		return false;
 
 	// Wait for previous frame (of the same index) to finish.
-	vkWaitForFences(kq->vk_ldev, 1, &kq->in_flight_fence[current_frame], VK_TRUE, UINT64_MAX);
+	vkWaitForFences(kq->vk_ldev, 1, &kq->in_flight_fence[kq->current_frame], VK_TRUE, UINT64_MAX);
 
 	if (kq->fb_resized) {
 		if (!kqvk_swapchain_recreate(kq))
@@ -301,9 +319,8 @@ bool KQrender(kq_data kq[static 1]) {
 		kq->fb_resized = false;
 	}
 
-	u32 img_index = 0U;
 retry_acquire:
-	switch (vkAcquireNextImageKHR(kq->vk_ldev, kq->vk_swapchain, UINT64_MAX, kq->img_available_semaphore[current_frame], 0, &img_index)) {
+	switch (vkAcquireNextImageKHR(kq->vk_ldev, kq->vk_swapchain, UINT64_MAX, kq->img_available_semaphore[kq->current_frame], 0, &kq->img_index)) {
 	case VK_ERROR_OUT_OF_DATE_KHR:
 		if (!kqvk_swapchain_recreate(kq))
 			return false;
@@ -315,22 +332,51 @@ retry_acquire:
 		return false;
 	}
 
-	vkResetFences(kq->vk_ldev, 1, &kq->in_flight_fence[current_frame]);
+	vkResetFences(kq->vk_ldev, 1, &kq->in_flight_fence[kq->current_frame]);
+	vkResetCommandBuffer(kq->cmd_buf[kq->current_frame], 0);
+	rend_info.submit_info.pCommandBuffers = &kq->cmd_buf[kq->current_frame];
 
-	vkResetCommandBuffer(kq->cmd_buf[current_frame], 0);
-	rend_info.submit_info.pCommandBuffers = &kq->cmd_buf[current_frame];
+	rend_info.submit_info.pWaitSemaphores   = &kq->img_available_semaphore[kq->current_frame];
+	rend_info.submit_info.pSignalSemaphores = &kq->render_finished_semaphore[kq->current_frame];
+	rend_info.pass_begin_info.framebuffer   = kq->fbos[kq->img_index];
 
-	kqvk_uniforms_update(kq, current_frame);
-	kqvk_cmd_buf_record(kq, kq->cmd_buf[current_frame], img_index, current_frame);
+	kqvk_uniforms_update_time(kq);
+	kqvk_uniforms_push(kq);
 
-	rend_info.submit_info.pWaitSemaphores   = &kq->img_available_semaphore[current_frame];
-	rend_info.submit_info.pSignalSemaphores = &kq->render_finished_semaphore[current_frame];
-
-	if (vkQueueSubmit(kq->q_graphics, 1, &rend_info.submit_info, kq->in_flight_fence[current_frame]))
+	if (vkBeginCommandBuffer(kq->cmd_buf[kq->current_frame], &rend_info.cmd_buf_begin_info))
 		return false;
 
-	rend_info.present_info.pImageIndices   = &img_index;
-	rend_info.present_info.pWaitSemaphores = &kq->render_finished_semaphore[current_frame];
+	vkCmdBeginRenderPass(kq->cmd_buf[kq->current_frame], &rend_info.pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+
+	vkCmdBindPipeline(kq->cmd_buf[kq->current_frame], VK_PIPELINE_BIND_POINT_GRAPHICS, kq->graphics_pipeline);
+	vkCmdSetViewport(kq->cmd_buf[kq->current_frame], 0, 1, &kq->viewport);
+	vkCmdSetScissor(kq->cmd_buf[kq->current_frame], 0, 1, &kq->scissor);
+
+	VkDeviceSize vertex_buf_offset = 0;
+	vkCmdBindVertexBuffers(kq->cmd_buf[kq->current_frame], 0, 1, &kq->vertex_buf, &vertex_buf_offset);
+	vkCmdBindIndexBuffer(kq->cmd_buf[kq->current_frame], kq->index_buf, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindDescriptorSets(kq->cmd_buf[kq->current_frame], VK_PIPELINE_BIND_POINT_GRAPHICS, kq->pipeline_layout, 0, 1, &kq->desc_sets[kq->current_frame],
+	                        0, 0);
+
+
+	kq->rendering = true;
+	return true;
+}
+
+bool KQrender_end(kq_data kq[static 1]) {
+	if (!kq->rendering)
+		return false;
+
+	vkCmdEndRenderPass(kq->cmd_buf[kq->current_frame]);
+
+	if (vkEndCommandBuffer(kq->cmd_buf[kq->current_frame]))
+		return false;
+
+	if (vkQueueSubmit(kq->q_graphics, 1, &rend_info.submit_info, kq->in_flight_fence[kq->current_frame]))
+		return false;
+
+	rend_info.present_info.pImageIndices   = &kq->img_index;
+	rend_info.present_info.pWaitSemaphores = &kq->render_finished_semaphore[kq->current_frame];
 
 	switch (vkQueuePresentKHR(kq->q_present, &rend_info.present_info)) {
 	case VK_SUBOPTIMAL_KHR:
@@ -343,8 +389,22 @@ retry_acquire:
 		return false;
 	}
 
-	current_frame = (current_frame + 1) % KQ_FRAMES_IN_FLIGHT;
+	kq->current_frame = (kq->current_frame + 1) % KQ_FRAMES_IN_FLIGHT;
+
+	kq->rendering = false;
 	return true;
+}
+
+bool KQdraw_quad(kq_data kq[static 1], const float pos[restrict static 2], const float scale[restrict static 2]) {
+	if (!kq->rendering)
+		return false;
+
+	kq->pcs.position[0] = pos[0];
+	kq->pcs.position[1] = pos[1];
+	kq->pcs.scale[0]    = scale[0];
+	kq->pcs.scale[1]    = scale[1];
+
+	return kqvk_cmd_buf_record(kq, kq->cmd_buf[kq->current_frame]);
 }
 
 

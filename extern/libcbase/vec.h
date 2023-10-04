@@ -7,21 +7,23 @@
 
 #define CB_VEC_DEFAULT_CAP 8
 
-#define cb_mk_vec(name, type)                                                                           \
-	typedef struct name {                                                                           \
-		size_t size;                                                                            \
-		size_t cap;                                                                             \
-		type  *p;                                                                               \
-	} name;                                                                                         \
-                                                                                                        \
-	extern name  *name##_create(size_t initial_cap);                                                \
-	extern name  *name##_create_zeroed(size_t initial_cap);                                         \
-	extern void   name##_destroy(name vec[static 1]);                                               \
-	extern size_t name##_resize(name vec[static 1], size_t new_cap);                                \
-	extern size_t name##_realloc(name vec[static 1], size_t new_cap);                               \
-	extern type  *name##_push_back(name vec[restrict static 1], const type val[restrict static 1]); \
-	extern void   name##_clear(name vec[static 1]);                                                 \
-	extern bool   name##_insert(name vec[restrict static 1], size_t at_index, const type val[restrict static 1]);
+#define cb_mk_vec(name, type)                                                                                         \
+	typedef struct name {                                                                                         \
+		size_t size;                                                                                          \
+		size_t cap;                                                                                           \
+		type  *p;                                                                                             \
+	} name;                                                                                                       \
+                                                                                                                      \
+	extern name  *name##_create(size_t initial_cap);                                                              \
+	extern name  *name##_create_zeroed(size_t initial_cap);                                                       \
+	extern void   name##_destroy(name vec[static 1]);                                                             \
+	extern size_t name##_resize(name vec[static 1], size_t new_size);                                             \
+	extern size_t name##_realloc(name vec[static 1], size_t new_cap);                                             \
+	extern type  *name##_push_back(name vec[restrict static 1], const type val[restrict static 1]);               \
+	extern void   name##_clear(name vec[static 1]);                                                               \
+	extern bool   name##_insert(name vec[restrict static 1], size_t at_index, const type val[restrict static 1]); \
+	extern bool   name##_push(name vec[restrict static 1], const type val[restrict static 1]);
+
 
 
 #define cb_impl_vec(name, type)                                                                               \
@@ -74,8 +76,13 @@
 		free(vec);                                                                                    \
 	}                                                                                                     \
                                                                                                               \
-	size_t name##_resize(name vec[static 1], size_t new_cap) {                                            \
-		size_t result = name##_realloc(vec, new_cap);                                                 \
+	size_t name##_resize(name vec[static 1], size_t new_size) {                                           \
+		if (new_size <= vec->cap) {                                                                   \
+			vec->size = new_size;                                                                 \
+			return vec->cap;                                                                      \
+		}                                                                                             \
+                                                                                                              \
+		size_t result = name##_realloc(vec, new_size);                                                \
 		if (result)                                                                                   \
 			vec->size = vec->cap;                                                                 \
 		return result;                                                                                \
@@ -127,6 +134,17 @@
                                                                                                               \
 		memmove(&vec->p[at_index + 1], &vec->p[at_index], sizeof(type[size_to_move]));                \
 		memcpy(&vec->p[at_index], val, sizeof(type));                                                 \
+		return true;                                                                                  \
+	}                                                                                                     \
+                                                                                                              \
+	bool name##_push(name vec[restrict static 1], const type val[restrict static 1]) {                    \
+		register size_t size_to_move = ++vec->size;                                                   \
+		if (vec->size >= vec->cap)                                                                    \
+			if (!name##_realloc(vec, name##_new_cap(vec->cap)))                                   \
+				return false;                                                                 \
+                                                                                                              \
+		memmove(&vec->p[1], vec->p, sizeof(type[size_to_move]));                                      \
+		memcpy(vec->p, val, sizeof(type));                                                            \
 		return true;                                                                                  \
 	}
 
