@@ -65,9 +65,9 @@ cb_arena *cb_arena_new(cb_arena *arena, size_t capacity) {
 		register uchar *arena_buf = capacity ? malloc(capacity) : 0;
 
 		*arena = (cb_arena){
-			.start  = arena_buf,
+			.start = arena_buf,
 			.cursor = arena_buf,
-			.end    = arena_buf + capacity,
+			.end = arena_buf + capacity,
 		};
 	}
 
@@ -80,9 +80,9 @@ cb_arena *cb_arena_new_zeroed(cb_arena *arena, size_t capacity) {
 		register uchar *arena_buf = capacity ? calloc(capacity, 1) : 0;
 
 		*arena = (cb_arena){
-			.start  = arena_buf,
+			.start = arena_buf,
 			.cursor = arena_buf,
-			.end    = arena_buf + capacity,
+			.end = arena_buf + capacity,
 		};
 	}
 
@@ -108,7 +108,7 @@ void *cb_arena_alloc(cb_arena arena[static 1], size_t size) {
 
 void *cb_arena_alloc_align(cb_arena arena[static 1], size_t size, size_t align) {
 	register const uchar *new_cursor = (uchar *)align_forward(arena->cursor, align);
-	register const uchar *new_end    = new_cursor + size;
+	register const uchar *new_end = new_cursor + size;
 	if (new_end > arena->end)
 		return 0;
 

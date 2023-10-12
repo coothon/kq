@@ -93,7 +93,7 @@ void *fs_file_read_all_alloc(const char fpath[restrict static 1], size_t size[re
 	if (!f)
 		return 0;
 
-	*size     = (size_t)fs_file_sizef(f);
+	*size = (size_t)fs_file_sizef(f);
 	void *buf = malloc(*size);
 	if (!buf) {
 		fclose(f);

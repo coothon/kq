@@ -30,13 +30,13 @@
                                                                                           \
 	name *name##_insert_before(name l[restrict static 1], name *restrict to_insert) { \
 		name *ret = l->prev;                                                      \
-		l->prev   = to_insert;                                                    \
+		l->prev = to_insert;                                                      \
 		return ret;                                                               \
 	}                                                                                 \
                                                                                           \
 	name *name##_insert_after(name l[restrict static 1], name *restrict to_insert) {  \
 		name *ret = l->next;                                                      \
-		l->next   = to_insert;                                                    \
+		l->next = to_insert;                                                      \
 		return ret;                                                               \
 	}                                                                                 \
                                                                                           \

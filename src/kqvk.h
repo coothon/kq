@@ -49,6 +49,7 @@ extern bool            kqvk_create_descriptor_sets(kq_data kq[static 1]);
 extern bool            kqvk_image_create(kq_data               kq[restrict static 1],
                                          u32                   tw,
                                          u32                   th,
+                                         u32                   array_layers,
                                          VkFormat              fmt,
                                          VkImageTiling         tiling,
                                          VkImageUsageFlags     usage,
@@ -57,11 +58,16 @@ extern bool            kqvk_image_create(kq_data               kq[restrict stati
                                          VkDeviceMemory        img_mem[restrict static 1]);
 extern VkCommandBuffer kqvk_single_time_command_begin(kq_data kq[static 1]);
 extern void            kqvk_single_time_command_end(kq_data kq[restrict static 1], VkCommandBuffer cmd_buf);
-extern bool kqvk_image_layout_transition(kq_data kq[restrict static 1], VkImage img, VkFormat fmt, VkImageLayout old_layout, VkImageLayout new_layout);
-extern void kqvk_buffer_copy_to_image(kq_data kq[restrict static 1], VkBuffer buf, VkImage img, u32 width, u32 height);
-extern bool kqvk_tex_create(kq_data kq[restrict static 1]);
-extern bool kqvk_tex_view_create(kq_data kq[static 1]);
-extern bool kqvk_tex_sampler_create(kq_data kq[static 1]);
+extern bool            kqvk_image_layout_transition(kq_data       kq[restrict static 1],
+                                                    VkImage       img,
+                                                    u32           array_layers,
+                                                    VkFormat      fmt,
+                                                    VkImageLayout old_layout,
+                                                    VkImageLayout new_layout);
+extern void            kqvk_buffer_copy_to_image(kq_data kq[restrict static 1], VkBuffer buf, VkImage img, u32 width, u32 height, u32 array_layers);
+extern bool            kqvk_tex_create(kq_data kq[restrict static 1]);
+extern bool            kqvk_tex_view_create(kq_data kq[static 1]);
+extern bool            kqvk_tex_sampler_create(kq_data kq[static 1]);
 
 #if KQ_DEBUG
 extern vecstr *kqvk_validation_layers_vec;

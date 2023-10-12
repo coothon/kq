@@ -19,14 +19,14 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL kq_callback_vk_debug(VkDebugUtilsMessageSe
                                                            void                                       *pUserData);
 #endif
 
-const u16       triangle_indices[3]  = {0, 1, 2};
+const u16       triangle_indices[3] = {0, 1, 2};
 const kq_vertex triangle_vertices[3] = {
 	{{0.0f, -1.0f}, {0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
 	{ {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
 	{{-1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
 };
 
-const u16       quad_indices[6]  = {0, 1, 2, 2, 3, 0};
+const u16       quad_indices[6] = {0, 1, 2, 2, 3, 0};
 const kq_vertex quad_vertices[4] = {
 	{{-1.0f, -1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
 	{ {1.0f, -1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
@@ -185,12 +185,12 @@ fail_sync_primitives_create:
 		vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
 	}
 fail_uniforms_init:
-	vkDestroySampler(kq->vk_ldev, kq->tex_sampler, 0);
+	vkDestroySampler(kq->vk_ldev, kq->tiles_tex_sampler, 0);
 fail_tex_sampler_create:
-	vkDestroyImageView(kq->vk_ldev, kq->tex_image_view, 0);
+	vkDestroyImageView(kq->vk_ldev, kq->tiles_tex_view, 0);
 fail_tex_view_create:
-	vkDestroyImage(kq->vk_ldev, kq->tex_image, 0);
-	vkFreeMemory(kq->vk_ldev, kq->tex_image_mem, 0);
+	vkDestroyImage(kq->vk_ldev, kq->tiles_tex_image, 0);
+	vkFreeMemory(kq->vk_ldev, kq->tiles_tex_mem, 0);
 fail_tex_create:
 	vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
 	vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
@@ -212,8 +212,8 @@ fail_pipeline_create:
 fail_descriptor_set_layout:
 	vkDestroyRenderPass(kq->vk_ldev, kq->render_pass, 0);
 fail_render_pass_create:
-	vkDestroyShaderModule(kq->vk_ldev, kq->frag_module, 0);
-	vkDestroyShaderModule(kq->vk_ldev, kq->vert_module, 0);
+	vkDestroyShaderModule(kq->vk_ldev, kq->tile_frag_module, 0);
+	vkDestroyShaderModule(kq->vk_ldev, kq->tile_vert_module, 0);
 fail_init_shaders:
 	for (u32 i = 0U; i < kq->swapchain_img_count; ++i)
 		vkDestroyImageView(kq->vk_ldev, kq->swapchain_img_views[i], 0);
@@ -267,10 +267,10 @@ void KQstop(kq_data kq[static 1]) {
 		vkDestroyBuffer(kq->vk_ldev, kq->uniform_bufs[i], 0);
 		vkFreeMemory(kq->vk_ldev, kq->uniform_bufs_mem[i], 0);
 	}
-	vkDestroySampler(kq->vk_ldev, kq->tex_sampler, 0);
-	vkDestroyImageView(kq->vk_ldev, kq->tex_image_view, 0);
-	vkDestroyImage(kq->vk_ldev, kq->tex_image, 0);
-	vkFreeMemory(kq->vk_ldev, kq->tex_image_mem, 0);
+	vkDestroySampler(kq->vk_ldev, kq->tiles_tex_sampler, 0);
+	vkDestroyImageView(kq->vk_ldev, kq->tiles_tex_view, 0);
+	vkDestroyImage(kq->vk_ldev, kq->tiles_tex_image, 0);
+	vkFreeMemory(kq->vk_ldev, kq->tiles_tex_mem, 0);
 	vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
 	vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
 	vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
@@ -283,8 +283,8 @@ void KQstop(kq_data kq[static 1]) {
 	vkDestroyPipelineLayout(kq->vk_ldev, kq->pipeline_layout, 0);
 	vkDestroyDescriptorSetLayout(kq->vk_ldev, kq->descriptor_set_layout, 0);
 	vkDestroyRenderPass(kq->vk_ldev, kq->render_pass, 0);
-	vkDestroyShaderModule(kq->vk_ldev, kq->frag_module, 0);
-	vkDestroyShaderModule(kq->vk_ldev, kq->vert_module, 0);
+	vkDestroyShaderModule(kq->vk_ldev, kq->tile_frag_module, 0);
+	vkDestroyShaderModule(kq->vk_ldev, kq->tile_vert_module, 0);
 	for (u32 i = 0U; i < kq->swapchain_img_count; ++i)
 		vkDestroyImageView(kq->vk_ldev, kq->swapchain_img_views[i], 0);
 	free(kq->swapchain_img_views);
@@ -336,9 +336,9 @@ retry_acquire:
 	vkResetCommandBuffer(kq->cmd_buf[kq->current_frame], 0);
 	rend_info.submit_info.pCommandBuffers = &kq->cmd_buf[kq->current_frame];
 
-	rend_info.submit_info.pWaitSemaphores   = &kq->img_available_semaphore[kq->current_frame];
+	rend_info.submit_info.pWaitSemaphores = &kq->img_available_semaphore[kq->current_frame];
 	rend_info.submit_info.pSignalSemaphores = &kq->render_finished_semaphore[kq->current_frame];
-	rend_info.pass_begin_info.framebuffer   = kq->fbos[kq->img_index];
+	rend_info.pass_begin_info.framebuffer = kq->fbos[kq->img_index];
 
 	kqvk_uniforms_update_time(kq);
 	kqvk_uniforms_push(kq);
@@ -355,8 +355,14 @@ retry_acquire:
 	VkDeviceSize vertex_buf_offset = 0;
 	vkCmdBindVertexBuffers(kq->cmd_buf[kq->current_frame], 0, 1, &kq->vertex_buf, &vertex_buf_offset);
 	vkCmdBindIndexBuffer(kq->cmd_buf[kq->current_frame], kq->index_buf, 0, VK_INDEX_TYPE_UINT16);
-	vkCmdBindDescriptorSets(kq->cmd_buf[kq->current_frame], VK_PIPELINE_BIND_POINT_GRAPHICS, kq->pipeline_layout, 0, 1, &kq->desc_sets[kq->current_frame],
-	                        0, 0);
+	vkCmdBindDescriptorSets(kq->cmd_buf[kq->current_frame],
+	                        VK_PIPELINE_BIND_POINT_GRAPHICS,
+	                        kq->pipeline_layout,
+	                        0,
+	                        1,
+	                        &kq->desc_sets[kq->current_frame],
+	                        0,
+	                        0);
 
 
 	kq->rendering = true;
@@ -375,7 +381,7 @@ bool KQrender_end(kq_data kq[static 1]) {
 	if (vkQueueSubmit(kq->q_graphics, 1, &rend_info.submit_info, kq->in_flight_fence[kq->current_frame]))
 		return false;
 
-	rend_info.present_info.pImageIndices   = &kq->img_index;
+	rend_info.present_info.pImageIndices = &kq->img_index;
 	rend_info.present_info.pWaitSemaphores = &kq->render_finished_semaphore[kq->current_frame];
 
 	switch (vkQueuePresentKHR(kq->q_present, &rend_info.present_info)) {
@@ -401,8 +407,8 @@ bool KQdraw_quad(kq_data kq[static 1], const float pos[restrict static 2], const
 
 	kq->pcs.position[0] = pos[0];
 	kq->pcs.position[1] = pos[1];
-	kq->pcs.scale[0]    = scale[0];
-	kq->pcs.scale[1]    = scale[1];
+	kq->pcs.scale[0] = scale[0];
+	kq->pcs.scale[1] = scale[1];
 
 	return kqvk_cmd_buf_record(kq, kq->cmd_buf[kq->current_frame]);
 }
@@ -424,8 +430,8 @@ static void kq_callback_glfw_fb_resize(GLFWwindow *win, int w, int h) {
 }
 
 #if KQ_DEBUG
-#undef CB_LOG_MODULE
-#define CB_LOG_MODULE "Vulkan"
+	#undef CB_LOG_MODULE
+	#define CB_LOG_MODULE "Vulkan"
 static VKAPI_ATTR VkBool32 VKAPI_CALL kq_callback_vk_debug(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                                                            VkDebugUtilsMessageTypeFlagsEXT             messageType,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,

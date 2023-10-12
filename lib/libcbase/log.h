@@ -21,7 +21,7 @@
 
 // Define this to control compile-time removal of log calls. Less overhead, I suppose.
 #ifndef CB_LOG_LEVEL_COMPILE_TIME_MIN
-#define CB_LOG_LEVEL_COMPILE_TIME_MIN CB_LOG_LEVEL_TRACE
+	#define CB_LOG_LEVEL_COMPILE_TIME_MIN CB_LOG_LEVEL_TRACE
 #endif
 
 #define CB_LOG_FEATURE_TIME     (1U)
@@ -55,39 +55,39 @@ extern void cb_log_internal(uint level,
 
 // Implements compile-time log level exclusion.
 #if CB_LOG_LEVEL_COMPILE_TIME_MIN >= CB_LOG_LEVEL_FATAL
-#define CB_LOG_TEMPLATE_FATAL(...) cb_log_internal(CB_LOG_LEVEL_FATAL, __VA_ARGS__)
+	#define CB_LOG_TEMPLATE_FATAL(...) cb_log_internal(CB_LOG_LEVEL_FATAL, __VA_ARGS__)
 #else
-#define CB_LOG_TEMPLATE_FATAL(...)
+	#define CB_LOG_TEMPLATE_FATAL(...)
 #endif
 
 #if CB_LOG_LEVEL_COMPILE_TIME_MIN >= CB_LOG_LEVEL_ERROR
-#define CB_LOG_TEMPLATE_ERROR(...) cb_log_internal(CB_LOG_LEVEL_ERROR, __VA_ARGS__)
+	#define CB_LOG_TEMPLATE_ERROR(...) cb_log_internal(CB_LOG_LEVEL_ERROR, __VA_ARGS__)
 #else
-#define CB_LOG_TEMPLATE_ERROR(...)
+	#define CB_LOG_TEMPLATE_ERROR(...)
 #endif
 
 #if CB_LOG_LEVEL_COMPILE_TIME_MIN >= CB_LOG_LEVEL_WARN
-#define CB_LOG_TEMPLATE_WARN(...) cb_log_internal(CB_LOG_LEVEL_WARN, __VA_ARGS__)
+	#define CB_LOG_TEMPLATE_WARN(...) cb_log_internal(CB_LOG_LEVEL_WARN, __VA_ARGS__)
 #else
-#define CB_LOG_TEMPLATE_WARN(...)
+	#define CB_LOG_TEMPLATE_WARN(...)
 #endif
 
 #if CB_LOG_LEVEL_COMPILE_TIME_MIN >= CB_LOG_LEVEL_INFO
-#define CB_LOG_TEMPLATE_INFO(...) cb_log_internal(CB_LOG_LEVEL_INFO, __VA_ARGS__)
+	#define CB_LOG_TEMPLATE_INFO(...) cb_log_internal(CB_LOG_LEVEL_INFO, __VA_ARGS__)
 #else
-#define CB_LOG_TEMPLATE_INFO(...)
+	#define CB_LOG_TEMPLATE_INFO(...)
 #endif
 
 #if CB_LOG_LEVEL_COMPILE_TIME_MIN >= CB_LOG_LEVEL_DEBUG
-#define CB_LOG_TEMPLATE_DEBUG(...) cb_log_internal(CB_LOG_LEVEL_DEBUG, __VA_ARGS__)
+	#define CB_LOG_TEMPLATE_DEBUG(...) cb_log_internal(CB_LOG_LEVEL_DEBUG, __VA_ARGS__)
 #else
-#define CB_LOG_TEMPLATE_DEBUG(...)
+	#define CB_LOG_TEMPLATE_DEBUG(...)
 #endif
 
 #if CB_LOG_LEVEL_COMPILE_TIME_MIN >= CB_LOG_LEVEL_TRACE
-#define CB_LOG_TEMPLATE_TRACE(...) cb_log_internal(CB_LOG_LEVEL_TRACE, __VA_ARGS__)
+	#define CB_LOG_TEMPLATE_TRACE(...) cb_log_internal(CB_LOG_LEVEL_TRACE, __VA_ARGS__)
 #else
-#define CB_LOG_TEMPLATE_TRACE(...)
+	#define CB_LOG_TEMPLATE_TRACE(...)
 #endif
 
 // clang-format off
@@ -190,22 +190,30 @@ static struct timespec cb_log_previous_time = {0};
 static FILE *cb_log_file = 0;
 
 static const char *const log_colour[CB_LOG_LEVELS_COUNT] = {
-	[CB_LOG_LEVEL_FATAL] = "\033[1;31m", [CB_LOG_LEVEL_ERROR] = "\033[31m",   [CB_LOG_LEVEL_WARN] = "\033[34m",
-	[CB_LOG_LEVEL_INFO] = "\033[33m",    [CB_LOG_LEVEL_DEBUG] = "\033[1;32m", [CB_LOG_LEVEL_TRACE] = "\033[90m",
+	[CB_LOG_LEVEL_FATAL] = "\033[1;31m",
+	[CB_LOG_LEVEL_ERROR] = "\033[31m",
+	[CB_LOG_LEVEL_WARN] = "\033[34m",
+	[CB_LOG_LEVEL_INFO] = "\033[33m",
+	[CB_LOG_LEVEL_DEBUG] = "\033[1;32m",
+	[CB_LOG_LEVEL_TRACE] = "\033[90m",
 };
 
 static const char *const log_banner[CB_LOG_LEVELS_COUNT] = {
-	[CB_LOG_LEVEL_FATAL] = "Fatal error:", [CB_LOG_LEVEL_ERROR] = "Error:", [CB_LOG_LEVEL_WARN] = "Warning:",
-	[CB_LOG_LEVEL_INFO] = "Info:",         [CB_LOG_LEVEL_DEBUG] = "Debug:", [CB_LOG_LEVEL_TRACE] = "Trace:",
+	[CB_LOG_LEVEL_FATAL] = "Fatal error:",
+	[CB_LOG_LEVEL_ERROR] = "Error:",
+	[CB_LOG_LEVEL_WARN] = "Warning:",
+	[CB_LOG_LEVEL_INFO] = "Info:",
+	[CB_LOG_LEVEL_DEBUG] = "Debug:",
+	[CB_LOG_LEVEL_TRACE] = "Trace:",
 };
 
 static __always_inline void timespec_subtract(struct timespec left[restrict static 1], const struct timespec right[restrict static 1]);
 
 void cb_log_init(FILE f[static 1], uint initial_log_level, bool reltime, bool use_colours) {
-	cb_log_file        = f;
-	cb_log_level       = initial_log_level;
+	cb_log_file = f;
+	cb_log_level = initial_log_level;
 	cb_log_use_colours = use_colours;
-	cb_log_reltime     = reltime;
+	cb_log_reltime = reltime;
 	clock_gettime(CLOCK_REALTIME, &cb_log_time_at_start);
 	cb_log_previous_time = cb_log_time_at_start;
 }
@@ -273,21 +281,21 @@ static void cb_log_print_time(void) {
 	cb_log_previous_time = tmp;
 
 	// Break down log_time; print parts as necessary.
-	register const ulong ms    = (ulong)log_time.tv_nsec / 1000000UL;
+	register const ulong ms = (ulong)log_time.tv_nsec / 1000000UL;
 	register const ulong d_sec = (ulong)log_time.tv_sec;
 	if (d_sec < 60UL) {
 		fprintf(cb_log_file, cb_log_reltime ? "[Δ%lu.%.3lus] " : "[+%lu.%.3lus] ", d_sec, ms);
 		return;
 	}
 
-	register const ulong sec   = d_sec % 60UL;
+	register const ulong sec = d_sec % 60UL;
 	register const ulong d_min = d_sec / 60UL;
 	if (d_min < 60UL) {
 		fprintf(cb_log_file, cb_log_reltime ? "[Δ%lum %lu.%.3lus] " : "[+%lum %lu.%.3lus] ", d_min, sec, ms);
 		return;
 	}
 
-	register const ulong min  = d_min % 60UL;
+	register const ulong min = d_min % 60UL;
 	register const ulong hour = d_min / 60UL;
 
 	fprintf(cb_log_file, cb_log_reltime ? "[Δ%luh %lum %lu.%.3lus] " : "[+%luh %lum %lu.%.3lus] ", hour, min, sec, ms);
@@ -306,10 +314,10 @@ static void cb_log_print_errno(int errnum) {
 }
 
 static __always_inline void timespec_subtract(struct timespec left[restrict static 1], const struct timespec right[restrict static 1]) {
-	left->tv_nsec   -= right->tv_nsec;
+	left->tv_nsec -= right->tv_nsec;
 	long underflowed = left->tv_nsec < 0L;
-	left->tv_sec    -= right->tv_sec + underflowed;
-	left->tv_nsec   += underflowed * 1000000000L;
+	left->tv_sec -= right->tv_sec + underflowed;
+	left->tv_nsec += underflowed * 1000000000L;
 }
 
 #undef LIBCBASE_LOG_IMPLEMENTATION

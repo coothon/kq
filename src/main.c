@@ -13,7 +13,7 @@
 static kq_data kq = {0};
 
 int main(void) {
-	setvbuf(stderr, 0, _IOFBF, BUFSIZ); // One flush per log.
+	setvbuf(stderr, 0, _IOLBF, BUFSIZ);
 	cb_log_init(stderr, CB_LOG_LEVEL_TRACE, false, false);
 	cb_log_infer_use_colours();
 	KQinit(&kq);

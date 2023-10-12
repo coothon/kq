@@ -17,6 +17,11 @@
 
 #define KQ_FRAMES_IN_FLIGHT 2
 
+#define KQ_TILES_IMAGE_COUNT  2
+#define KQ_TILES_IMAGE_WIDTH  64
+#define KQ_TILES_IMAGE_HEIGHT 64
+#define KQ_TILES_IMAGE_SIZE   (KQ_TILES_IMAGE_WIDTH * KQ_TILES_IMAGE_HEIGHT * 4)
+
 // Constants for the entire frame.
 typedef struct kq_uniforms {
 	alignas(4) float time;
@@ -58,7 +63,7 @@ typedef struct kq_data {
 	VkQueue q_graphics;
 	VkQueue q_present;
 	float   q_priorities[2];
-	union {
+	union { // I think this is UB. . . .
 		u32 q_indices_as_array[2];
 		struct {
 			u32 q_graphics_index;
@@ -67,8 +72,8 @@ typedef struct kq_data {
 	};
 
 	// Rendering setup.
-	VkShaderModule        vert_module;
-	VkShaderModule        frag_module;
+	VkShaderModule        tile_vert_module;
+	VkShaderModule        tile_frag_module;
 	VkViewport            viewport;
 	VkRect2D              scissor;
 	VkRenderPass          render_pass;
@@ -90,10 +95,10 @@ typedef struct kq_data {
 
 	kq_uniforms uniforms;
 
-	VkImage        tex_image;
-	VkDeviceMemory tex_image_mem;
-	VkImageView    tex_image_view;
-	VkSampler      tex_sampler;
+	VkImage        tiles_tex_image;
+	VkDeviceMemory tiles_tex_mem;
+	VkImageView    tiles_tex_view;
+	VkSampler      tiles_tex_sampler;
 
 	// Synchronization primitives.
 	VkSemaphore img_available_semaphore[KQ_FRAMES_IN_FLIGHT];
@@ -164,9 +169,10 @@ typedef struct kq_info {
 	VkWriteDescriptorSet            desc_write[2];
 	VkDescriptorImageInfo           sampler_write;
 	VkPushConstantRange             push_c_range;
-	VkImageCreateInfo               tex_image_cinfo;
 	VkPhysicalDeviceFeatures        pdev_feats;
-	VkSamplerCreateInfo             tex_sampler_cinfo;
+	VkImageCreateInfo               tiles_tex_image_cinfo;
+	VkImageViewCreateInfo           tiles_tex_view_cinfo;
+	VkSamplerCreateInfo             tiles_tex_sampler_cinfo;
 } kq_info;
 
 typedef struct kq_vertex {

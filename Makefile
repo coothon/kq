@@ -15,7 +15,7 @@ WARNS:=-Wall -Wextra -Wshadow -Wunreachable-code -Wconversion -Wsign-conversion 
 -Wno-unused-command-line-argument -Wno-incompatible-pointer-types-discards-qualifiers -Wno-extra-semi
 
 BUILD_DIR:=build
-SRC_DIRS:=src extern
+SRC_DIRS:=src lib
 
 SRCS:=$(shell find -O3 $(SRC_DIRS) -name '*.c')
 ANALYZE_SRCS:=$(shell find -O3 $(SRC_DIRS) -name '*.[ch]')
@@ -24,11 +24,11 @@ OBJS_DEBUG:=$(SRCS:%=$(BUILD_DIR)/%.dbg.o)
 OBJS_RELEASE:=$(SRCS:%=$(BUILD_DIR)/%.rel.o)
 
 # Feature test macros needed to compile.
-CPPFLAGS_COMMON:=-D_DEFAULT_SOURCE=1 -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE=1 -Iextern -Isrc
+CPPFLAGS_COMMON:=-D_DEFAULT_SOURCE=1 -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE=1 -Ilib -Isrc
 CPPFLAGS_DEBUG:=-UNDEBUG -DDEBUG=1 -DCB_DEBUG=1 -DKQ_DEBUG=1 -DCB_LOG_LEVEL_COMPILE_TIME_MIN=CB_LOG_LEVEL_TRACE
 CPPFLAGS_RELEASE:=-DNDEBUG=1 -UDEBUG -UCB_DEBUG -UKQ_DEBUG -DCB_LOG_LEVEL_COMPILE_TIME_MIN=CB_LOG_LEVEL_WARN
 
-CFLAGS_COMMON:=$(LDFLAGS) $(CPPFLAGS_COMMON) $(WARNS) -std=c17 -pipe -fuse-ld=lld -fwrapv -march=native -mtune=native -fpie
+CFLAGS_COMMON:=$(LDFLAGS) $(CPPFLAGS_COMMON) $(WARNS) -std=c23 -pipe -fuse-ld=lld -fwrapv -march=native -mtune=native -fpie
 CFLAGS_DEBUG:=$(CFLAGS_COMMON) $(CPPFLAGS_DEBUG) -glldb -gdwarf-5 -gdwarf64 -rdynamic -O0 -fsanitize=address,undefined -fsanitize-trap=all -ftrapv -fno-omit-frame-pointer -fno-optimize-sibling-calls
 CFLAGS_RELEASE:=$(CFLAGS_COMMON) $(CPPFLAGS_RELEASE) -g0 -Ofast -ffast-math -fomit-frame-pointer -flto=full
 

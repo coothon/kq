@@ -4,10 +4,10 @@ AccessModifierOffset: "-8"
 AlignAfterOpenBracket: Align
 AlignArrayOfStructures: Right
 AlignConsecutiveAssignments:
-  Enabled: true
+  Enabled: false
   AcrossEmptyLines: false
   AcrossComments: false
-  AlignCompound: true
+  AlignCompound: false
   PadOperators: false
 AlignConsecutiveBitFields:
   Enabled: true
@@ -30,7 +30,7 @@ AlignConsecutiveMacros:
 AlignEscapedNewlines: Left
 AlignOperands: AlignAfterOperator
 AlignTrailingComments:
-  Kind: Always
+  Kind: Never
   OverEmptyLines: 0
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
@@ -47,8 +47,8 @@ AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: No
 AttributeMacros:
   - __capability
-BinPackArguments: true
-BinPackParameters: true
+BinPackArguments: false
+BinPackParameters: false
 BitFieldColonSpacing: After
 BraceWrapping:
   AfterCaseLabel: false
@@ -79,7 +79,7 @@ BreakBeforeInlineASMColon: OnlyMultiline
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterComma
-BreakStringLiterals: true
+BreakStringLiterals: false
 ColumnLimit: 160
 CommentPragmas: "^ IWYU pragma:"
 CompactNamespaces: false
@@ -119,7 +119,7 @@ IndentCaseBlocks: false
 IndentCaseLabels: false
 IndentExternBlock: NoIndent
 IndentGotoLabels: false
-IndentPPDirectives: None
+IndentPPDirectives: BeforeHash
 IndentRequiresClause: true
 IndentWidth: 8
 IndentWrappedFunctionNames: false
@@ -149,16 +149,16 @@ ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
 PPIndentWidth: -1
 PackConstructorInitializers: Never
-PenaltyBreakAssignment: 999999999
+PenaltyBreakAssignment: 2
 PenaltyBreakBeforeFirstCallParameter: 999999999
 PenaltyBreakComment: 300
 PenaltyBreakFirstLessLess: 120
 PenaltyBreakOpenParenthesis: 999999999
-PenaltyBreakString: 1000
+PenaltyBreakString: 999999999
 PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 999999999
 PenaltyIndentedWhitespace: 0
-PenaltyReturnTypeOnItsOwnLine: 999999999
+PenaltyReturnTypeOnItsOwnLine: 6000
 PointerAlignment: Right
 QualifierAlignment: Left
 ReferenceAlignment: Right

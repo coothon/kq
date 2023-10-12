@@ -46,7 +46,7 @@
 		}                                                                                             \
                                                                                                               \
 		vec->size = 0;                                                                                \
-		vec->cap  = initial_cap;                                                                      \
+		vec->cap = initial_cap;                                                                       \
                                                                                                               \
 		return vec;                                                                                   \
 	}                                                                                                     \
@@ -66,7 +66,7 @@
 		}                                                                                             \
                                                                                                               \
 		vec->size = 0;                                                                                \
-		vec->cap  = initial_cap;                                                                      \
+		vec->cap = initial_cap;                                                                       \
                                                                                                               \
 		return vec;                                                                                   \
 	}                                                                                                     \
@@ -98,7 +98,7 @@
                                                                                                               \
 		register size_t tmp_vec_cap = vec->cap;                                                       \
                                                                                                               \
-		vec->p   = tmp_vec_p;                                                                         \
+		vec->p = tmp_vec_p;                                                                           \
 		vec->cap = new_cap;                                                                           \
 		if (new_cap < vec->size)                                                                      \
 			vec->size = new_cap;                                                                  \

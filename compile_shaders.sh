@@ -3,11 +3,8 @@ set -e
 
 cd shaders/
 
-OLD_IFS="${IFS}"
-IFS='
-'
-for shader in $(find -O3 . -type f -a '(' -name '*vert*' -o -name '*frag*' ')' -a '!' -name '*spv*'); do
-	IFS="${OLD_IFS}"
+# Select shader source files.
+find -O3 . -type f -a '(' -name '*.vert*' -o -name '*.frag*' ')' -a '!' -name '*.spv*' | while read -r shader; do
 	printf "GLSLC\t%s\n" "${shader}"
 	glslc --target-env=vulkan1.3 "${@}" "${shader}" -o "${shader}.spv"
 done
