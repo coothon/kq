@@ -8,9 +8,12 @@
 #include <kq.h>
 #include <libcbase/log.h>
 
+
 #define CB_LOG_MODULE "KQ"
 
+
 static kq_data kq = {0};
+
 
 int main(void) {
 	setvbuf(stderr, 0, _IOLBF, BUFSIZ);

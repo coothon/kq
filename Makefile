@@ -24,7 +24,7 @@ OBJS_DEBUG:=$(SRCS:%=$(BUILD_DIR)/%.dbg.o)
 OBJS_RELEASE:=$(SRCS:%=$(BUILD_DIR)/%.rel.o)
 
 # Feature test macros needed to compile.
-CPPFLAGS_COMMON:=-D_DEFAULT_SOURCE=1 -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE=1 -Ilib -Isrc
+CPPFLAGS_COMMON:=-D_DEFAULT_SOURCE=1 -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE=1 -DVK_USE_PLATFORM_WAYLAND_KHR=1 -Ilib -Isrc
 CPPFLAGS_DEBUG:=-UNDEBUG -DDEBUG=1 -DCB_DEBUG=1 -DKQ_DEBUG=1 -DCB_LOG_LEVEL_COMPILE_TIME_MIN=CB_LOG_LEVEL_TRACE
 CPPFLAGS_RELEASE:=-DNDEBUG=1 -UDEBUG -UCB_DEBUG -UKQ_DEBUG -DCB_LOG_LEVEL_COMPILE_TIME_MIN=CB_LOG_LEVEL_WARN
 
@@ -35,16 +35,19 @@ CFLAGS_RELEASE:=$(CFLAGS_COMMON) $(CPPFLAGS_RELEASE) -g0 -Ofast -ffast-math -fom
 # Controls which compiled executable will be foremost.
 COMPILE_MODE:=dbg
 
-all: $(PROJ) $(PROJ)_dbg $(PROJ)_rel
-	@./compile_shaders.sh -O
 
 debug: dbg
 dbg: COMPILE_MODE:=dbg
 dbg: all
+	@./compile_shaders.sh -O0 -g
 
 release: rel
 rel: COMPILE_MODE:=rel
 rel: all
+	@./compile_shaders.sh -O
+
+all: $(PROJ) $(PROJ)_dbg $(PROJ)_rel
+
 
 $(PROJ): $(PROJ)_$(COMPILE_MODE)
 	@-printf "LN\t%s -> %s\n" "$<" "$@"

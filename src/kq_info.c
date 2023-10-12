@@ -1,6 +1,7 @@
 #include <glad/vulkan.h>
 #include <kq.h>
 
+
 // All that can be specified at compile time.
 kq_info
 	rend_info =

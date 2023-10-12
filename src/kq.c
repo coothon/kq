@@ -7,10 +7,13 @@
 #include <libcbase/log.h>
 #include <libcbase/vec.h>
 
+
 #define CB_LOG_MODULE "KQ"
+
 
 static void kq_callback_glfw_error(int e, const char *desc);
 static void kq_callback_glfw_fb_resize(GLFWwindow *win, int w, int h);
+
 
 #if KQ_DEBUG
 static VKAPI_ATTR VkBool32 VKAPI_CALL kq_callback_vk_debug(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
@@ -19,12 +22,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL kq_callback_vk_debug(VkDebugUtilsMessageSe
                                                            void                                       *pUserData);
 #endif
 
-const u16       triangle_indices[3] = {0, 1, 2};
-const kq_vertex triangle_vertices[3] = {
-	{{0.0f, -1.0f}, {0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-	{ {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
-	{{-1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-};
 
 const u16       quad_indices[6] = {0, 1, 2, 2, 3, 0};
 const kq_vertex quad_vertices[4] = {
@@ -33,7 +30,6 @@ const kq_vertex quad_vertices[4] = {
 	{  {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
 	{ {-1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
 };
-
 
 
 bool KQinit(kq_data kq[static 1]) {
@@ -125,9 +121,9 @@ bool KQinit(kq_data kq[static 1]) {
 	vkGetDeviceQueue(kq->vk_ldev, kq->q_graphics_index, 0, &kq->q_graphics);
 	vkGetDeviceQueue(kq->vk_ldev, kq->q_present_index, 0, &kq->q_present);
 
-	if (!kqvk_swapchain_create(kq)) {
+	if (!kqvk_create_swapchain(kq)) {
 		LOGM_FATAL("Unable to create swapchain.");
-		goto fail_swapchain_create;
+		goto fail_create_swapchain;
 	}
 	LOGM_TRACE("Swapchain created.");
 
@@ -135,49 +131,49 @@ bool KQinit(kq_data kq[static 1]) {
 		goto fail_init_shaders;
 	LOGM_TRACE("Shaders initialised.");
 
-	if (!kqvk_render_pass_create(kq))
-		goto fail_render_pass_create;
+	if (!kqvk_create_render_pass(kq))
+		goto fail_create_render_pass;
 
 	if (!kqvk_create_descriptor_set_layout(kq))
-		goto fail_descriptor_set_layout;
+		goto fail_create_descriptor_set_layout;
 
-	if (!kqvk_pipeline_create(kq))
-		goto fail_pipeline_create;
+	if (!kqvk_create_pipeline(kq))
+		goto fail_create_pipeline;
 
-	if (!kqvk_framebuffers_create(kq))
-		goto fail_framebuffers_create;
+	if (!kqvk_create_framebuffers(kq))
+		goto fail_create_framebuffers;
 
-	if (!kqvk_cmd_pool_create(kq))
-		goto fail_cmd_pool_create;
+	if (!kqvk_create_cmd_pool(kq))
+		goto fail_create_cmd_pool;
 
-	if (!kqvk_cmd_bufs_create(kq))
-		goto fail_cmd_bufs_create;
+	if (!kqvk_create_cmd_bufs(kq))
+		goto fail_create_cmd_bufs;
 
-	if (!kqvk_vertex_buffer_create(kq))
-		goto fail_vertex_buffer_create;
+	if (!kqvk_create_vertex_buffer(kq))
+		goto fail_create_vertex_buffer;
 
-	if (!kqvk_index_buffer_create(kq))
-		goto fail_index_buffer_create;
+	if (!kqvk_create_index_buffer(kq))
+		goto fail_create_index_buffer;
 
-	if (!kqvk_tex_create(kq))
-		goto fail_tex_create;
+	if (!kqvk_create_tiles_tex(kq))
+		goto fail_create_tiles_tex;
 
-	if (!kqvk_tex_view_create(kq))
-		goto fail_tex_view_create;
+	if (!kqvk_create_tiles_tex_view(kq))
+		goto fail_create_tiles_tex_view;
 
-	if (!kqvk_tex_sampler_create(kq))
-		goto fail_tex_sampler_create;
+	if (!kqvk_create_tiles_tex_sampler(kq))
+		goto fail_create_tiles_tex_sampler;
 
 	if (!kqvk_uniforms_init(kq))
 		goto fail_uniforms_init;
 
-	if (!kqvk_sync_primitives_create(kq))
-		goto fail_sync_primitives_create;
+	if (!kqvk_create_sync_primitives(kq))
+		goto fail_create_sync_primitives;
 
 	LOGM_INFO("Initialized.");
 	return true;
 
-fail_sync_primitives_create:
+fail_create_sync_primitives:
 	vkDestroyDescriptorPool(kq->vk_ldev, kq->desc_pool, 0);
 	for (size_t i = 0; i < KQ_FRAMES_IN_FLIGHT; ++i) {
 		vkUnmapMemory(kq->vk_ldev, kq->uniform_bufs_mem[i]);
@@ -186,32 +182,32 @@ fail_sync_primitives_create:
 	}
 fail_uniforms_init:
 	vkDestroySampler(kq->vk_ldev, kq->tiles_tex_sampler, 0);
-fail_tex_sampler_create:
+fail_create_tiles_tex_sampler:
 	vkDestroyImageView(kq->vk_ldev, kq->tiles_tex_view, 0);
-fail_tex_view_create:
+fail_create_tiles_tex_view:
 	vkDestroyImage(kq->vk_ldev, kq->tiles_tex_image, 0);
 	vkFreeMemory(kq->vk_ldev, kq->tiles_tex_mem, 0);
-fail_tex_create:
+fail_create_tiles_tex:
 	vkDestroyBuffer(kq->vk_ldev, kq->index_buf, 0);
 	vkFreeMemory(kq->vk_ldev, kq->index_buf_mem, 0);
-fail_index_buffer_create:
+fail_create_index_buffer:
 	vkDestroyBuffer(kq->vk_ldev, kq->vertex_buf, 0);
 	vkFreeMemory(kq->vk_ldev, kq->vertex_buf_mem, 0);
-fail_vertex_buffer_create:
-fail_cmd_bufs_create:
+fail_create_vertex_buffer:
+fail_create_cmd_bufs:
 	vkDestroyCommandPool(kq->vk_ldev, kq->cmd_pool, 0);
-fail_cmd_pool_create:
+fail_create_cmd_pool:
 	for (u32 i = 0U; i < kq->swapchain_img_count; ++i)
 		vkDestroyFramebuffer(kq->vk_ldev, kq->fbos[i], 0);
 	free(kq->fbos);
-fail_framebuffers_create:
+fail_create_framebuffers:
 	vkDestroyPipeline(kq->vk_ldev, kq->graphics_pipeline, 0);
 	vkDestroyPipelineLayout(kq->vk_ldev, kq->pipeline_layout, 0);
-fail_pipeline_create:
+fail_create_pipeline:
 	vkDestroyDescriptorSetLayout(kq->vk_ldev, kq->descriptor_set_layout, 0);
-fail_descriptor_set_layout:
+fail_create_descriptor_set_layout:
 	vkDestroyRenderPass(kq->vk_ldev, kq->render_pass, 0);
-fail_render_pass_create:
+fail_create_render_pass:
 	vkDestroyShaderModule(kq->vk_ldev, kq->tile_frag_module, 0);
 	vkDestroyShaderModule(kq->vk_ldev, kq->tile_vert_module, 0);
 fail_init_shaders:
@@ -220,7 +216,7 @@ fail_init_shaders:
 	free(kq->swapchain_img_views);
 	free(kq->swapchain_imgs);
 	vkDestroySwapchainKHR(kq->vk_ldev, kq->vk_swapchain, 0);
-fail_swapchain_create:
+fail_create_swapchain:
 fail_glad_load_1_1_1:
 	vkDestroyDevice(kq->vk_ldev, 0);
 fail_vkCreateDevice:
@@ -414,9 +410,9 @@ bool KQdraw_quad(kq_data kq[static 1], const float pos[restrict static 2], const
 }
 
 
-
 #undef CB_LOG_MODULE
 #define CB_LOG_MODULE "GLFW"
+
 static void kq_callback_glfw_error(int e, const char *desc) {
 	LOGM_ERROR("GLFW (error %x): %s", e, desc);
 }
@@ -429,9 +425,11 @@ static void kq_callback_glfw_fb_resize(GLFWwindow *win, int w, int h) {
 	}
 }
 
+
 #if KQ_DEBUG
 	#undef CB_LOG_MODULE
 	#define CB_LOG_MODULE "Vulkan"
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL kq_callback_vk_debug(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                                                            VkDebugUtilsMessageTypeFlagsEXT             messageType,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
@@ -456,5 +454,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL kq_callback_vk_debug(VkDebugUtilsMessageSe
 	return VK_FALSE;
 }
 #endif /* KQ_DEBUG */
+
 
 cb_impl_vec(vecstr, char *);

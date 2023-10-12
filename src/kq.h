@@ -13,6 +13,7 @@
 #include <libcbase/common.h>
 #include <libcbase/vec.h>
 
+
 #define KQ_OOM_MSG() LOGM_FATAL("Out of memory! (OOM)")
 
 #define KQ_FRAMES_IN_FLIGHT 2
@@ -21,6 +22,7 @@
 #define KQ_TILES_IMAGE_WIDTH  64
 #define KQ_TILES_IMAGE_HEIGHT 64
 #define KQ_TILES_IMAGE_SIZE   (KQ_TILES_IMAGE_WIDTH * KQ_TILES_IMAGE_HEIGHT * 4)
+
 
 // Constants for the entire frame.
 typedef struct kq_uniforms {
@@ -183,17 +185,21 @@ typedef struct kq_vertex {
 
 cb_mk_vec(vecstr, char *);
 
+
 extern kq_info         rend_info;
-extern const u16       triangle_indices[3];
-extern const kq_vertex triangle_vertices[3];
 extern const u16       quad_indices[6];
 extern const kq_vertex quad_vertices[4];
 
+
 extern bool KQinit(kq_data kq[static 1]);
+
 extern void KQstop(kq_data kq[static 1]);
 
+
 extern bool KQrender_begin(kq_data kq[static 1]);
-extern bool KQdraw_quad(kq_data kq[static 1], const float pos[restrict static 2], const float scale[restrict static 2]);
+
 extern bool KQrender_end(kq_data kq[static 1]);
+
+extern bool KQdraw_quad(kq_data kq[static 1], const float pos[restrict static 2], const float scale[restrict static 2]);
 
 #endif /* KQ_H_ */
