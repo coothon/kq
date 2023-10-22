@@ -2,6 +2,8 @@
 .cache/
 build/
 *.spv
+libglfw3.dbg.a
+libglfw3.rel.a
 kq
 kq_dbg
 kq_rel

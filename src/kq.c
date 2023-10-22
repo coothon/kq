@@ -34,6 +34,10 @@ const kq_vertex quad_vertices[4] = {
 
 bool KQinit(kq_data kq[static 1]) {
 	glfwSetErrorCallback(kq_callback_glfw_error);
+
+	// TODO: Don't force this.
+	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
+	glfwInitHint(GLFW_WAYLAND_LIBDECOR, GLFW_TRUE);
 	if (!glfwInit()) {
 		LOGM_FATAL("GLFW initialization failed.");
 		goto fail_glfwInit;

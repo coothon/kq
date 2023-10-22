@@ -2,4 +2,4 @@
 # For ease of typing.
 
 make clean
-exec make "-Bj$(($(nproc --all) + 1))" "${@}"
+exec make "-j$(($(nproc --all) + 1))" "${@}"
