@@ -27,11 +27,9 @@ int main(void) {
 		if (!KQrender_begin(&kq))
 			break;
 
-		if (!KQdraw_quad(&kq, (vec2){0.0f, 0.0f}, (vec2){1.0f, 1.0f}))
+		if (!KQdraw_quad(&kq, (vec2){-0.5f, 0.0f}, (vec2){1.0f, 1.0f}, 0))
 			break;
-		if (!KQdraw_quad(&kq, (vec2){1.0f, 0.0f}, (vec2){1.0f, 1.0f}))
-			break;
-		if (!KQdraw_quad(&kq, (vec2){-1.0f, 0.0f}, (vec2){1.0f, 1.0f}))
+		if (!KQdraw_quad(&kq, (vec2){0.5f, 0.0f}, (vec2){1.0f, 1.0f}, 1))
 			break;
 
 		if (!KQrender_end(&kq))

@@ -25,10 +25,10 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL kq_callback_vk_debug(VkDebugUtilsMessageSe
 
 const u16       quad_indices[6] = {0, 1, 2, 2, 3, 0};
 const kq_vertex quad_vertices[4] = {
-	{{-1.0f, -1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-	{ {1.0f, -1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-	{  {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-	{ {-1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+	{{-1.0f, -1.0f}, {0.0f, 0.0f}},
+	{ {1.0f, -1.0f}, {1.0f, 0.0f}},
+	{  {1.0f, 1.0f}, {1.0f, 1.0f}},
+	{ {-1.0f, 1.0f}, {0.0f, 1.0f}},
 };
 
 
@@ -37,7 +37,6 @@ bool KQinit(kq_data kq[static 1]) {
 
 	// TODO: Don't force this.
 	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
-	glfwInitHint(GLFW_WAYLAND_LIBDECOR, GLFW_TRUE);
 	if (!glfwInit()) {
 		LOGM_FATAL("GLFW initialization failed.");
 		goto fail_glfwInit;
@@ -49,7 +48,6 @@ bool KQinit(kq_data kq[static 1]) {
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
 	glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-	glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
 	kq->win = glfwCreateWindow(800, 600, "kq", 0, 0);
 	if (!kq->win) {
 		LOGM_FATAL("GLFW window creation failed.");
@@ -96,6 +94,7 @@ bool KQinit(kq_data kq[static 1]) {
 		LOGM_FATAL("Unable to create Vulkan surface.");
 		goto fail_glfwCreateWindowSurface;
 	}
+	rend_info.swapchain_cinfo.surface = kq->vk_surface;
 	LOGM_TRACE("VkSurfaceKHR created.");
 
 	if (!kqvk_choose_pdev(kq))
@@ -212,8 +211,8 @@ fail_create_pipeline:
 fail_create_descriptor_set_layout:
 	vkDestroyRenderPass(kq->vk_ldev, kq->render_pass, 0);
 fail_create_render_pass:
-	vkDestroyShaderModule(kq->vk_ldev, kq->tile_frag_module, 0);
-	vkDestroyShaderModule(kq->vk_ldev, kq->tile_vert_module, 0);
+	vkDestroyShaderModule(kq->vk_ldev, kq->tiles_frag_module, 0);
+	vkDestroyShaderModule(kq->vk_ldev, kq->tiles_vert_module, 0);
 fail_init_shaders:
 	for (u32 i = 0U; i < kq->swapchain_img_count; ++i)
 		vkDestroyImageView(kq->vk_ldev, kq->swapchain_img_views[i], 0);
@@ -283,8 +282,8 @@ void KQstop(kq_data kq[static 1]) {
 	vkDestroyPipelineLayout(kq->vk_ldev, kq->pipeline_layout, 0);
 	vkDestroyDescriptorSetLayout(kq->vk_ldev, kq->descriptor_set_layout, 0);
 	vkDestroyRenderPass(kq->vk_ldev, kq->render_pass, 0);
-	vkDestroyShaderModule(kq->vk_ldev, kq->tile_frag_module, 0);
-	vkDestroyShaderModule(kq->vk_ldev, kq->tile_vert_module, 0);
+	vkDestroyShaderModule(kq->vk_ldev, kq->tiles_frag_module, 0);
+	vkDestroyShaderModule(kq->vk_ldev, kq->tiles_vert_module, 0);
 	for (u32 i = 0U; i < kq->swapchain_img_count; ++i)
 		vkDestroyImageView(kq->vk_ldev, kq->swapchain_img_views[i], 0);
 	free(kq->swapchain_img_views);
@@ -401,16 +400,24 @@ bool KQrender_end(kq_data kq[static 1]) {
 	return true;
 }
 
-bool KQdraw_quad(kq_data kq[static 1], const float pos[restrict static 2], const float scale[restrict static 2]) {
+bool KQdraw_quad(kq_data kq[static 1], const float pos[restrict static 2], const float scale[restrict static 2], u32 tiles_tex_index) {
 	if (!kq->rendering)
 		return false;
 
-	kq->pcs.position[0] = pos[0];
-	kq->pcs.position[1] = pos[1];
-	kq->pcs.scale[0] = scale[0];
-	kq->pcs.scale[1] = scale[1];
+	kq->tiles_pcs.position[0] = pos[0];
+	kq->tiles_pcs.position[1] = pos[1];
+	kq->tiles_pcs.scale[0] = scale[0];
+	kq->tiles_pcs.scale[1] = scale[1];
+	kq->tiles_pcs.tiles_tex_index = (float)tiles_tex_index;
 
-	return kqvk_cmd_buf_record(kq, kq->cmd_buf[kq->current_frame]);
+	vkCmdPushConstants(kq->cmd_buf[kq->current_frame],
+	                   kq->pipeline_layout,
+	                   VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+	                   0,
+	                   sizeof(kq_tiles_pcs),
+	                   &kq->tiles_pcs);
+	vkCmdDrawIndexed(kq->cmd_buf[kq->current_frame], KQ_QUAD_NUM_INDICES, 1, 0, 0, 0);
+	return true;
 }
 
 

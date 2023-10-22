@@ -23,6 +23,10 @@
 #define KQ_TILES_IMAGE_HEIGHT 64
 #define KQ_TILES_IMAGE_SIZE   (KQ_TILES_IMAGE_WIDTH * KQ_TILES_IMAGE_HEIGHT * 4)
 
+#define KQ_TILES_VERTEX_INPUT_ATTRIBUTES_NUM 2
+
+#define KQ_QUAD_NUM_VERTICES 4
+#define KQ_QUAD_NUM_INDICES  6
 
 // Constants for the entire frame.
 typedef struct kq_uniforms {
@@ -31,18 +35,17 @@ typedef struct kq_uniforms {
 	alignas(4) float time_cos;
 } kq_uniforms;
 
-// Constants for each draw call.
-typedef struct kq_push_constants {
+// Push constants for tiles.
+typedef struct kq_tiles_pcs {
 	alignas(8) vec2 position;
 	alignas(8) vec2 scale;
-} kq_push_constants;
+	alignas(4) float tiles_tex_index; // Texture arrays index with floats, for some ungodly reason.
+} kq_tiles_pcs;
 
 typedef struct kq_data {
 	bool   rendering;
 	size_t current_frame;
 	u32    img_index;
-
-	kq_push_constants pcs;
 
 	GLFWwindow *win;
 	bool        fb_resized;
@@ -74,8 +77,6 @@ typedef struct kq_data {
 	};
 
 	// Rendering setup.
-	VkShaderModule        tile_vert_module;
-	VkShaderModule        tile_frag_module;
 	VkViewport            viewport;
 	VkRect2D              scissor;
 	VkRenderPass          render_pass;
@@ -97,10 +98,14 @@ typedef struct kq_data {
 
 	kq_uniforms uniforms;
 
+	// Tiles.
+	VkShaderModule tiles_vert_module;
+	VkShaderModule tiles_frag_module;
 	VkImage        tiles_tex_image;
 	VkDeviceMemory tiles_tex_mem;
 	VkImageView    tiles_tex_view;
 	VkSampler      tiles_tex_sampler;
+	kq_tiles_pcs   tiles_pcs;
 
 	// Synchronization primitives.
 	VkSemaphore img_available_semaphore[KQ_FRAMES_IN_FLIGHT];
@@ -121,12 +126,12 @@ typedef struct kq_info {
 	VkDeviceCreateInfo                     ldevice_cinfo;
 	VkSwapchainCreateInfoKHR               swapchain_cinfo;
 	VkImageViewCreateInfo                  swapchain_img_view_cinfo;
-	VkShaderModuleCreateInfo               shader_module_vertex_cinfo;
-	VkShaderModuleCreateInfo               shader_module_fragment_cinfo;
-	VkPipelineShaderStageCreateInfo        shader_stages_cinfo[2];
+	VkShaderModuleCreateInfo               tiles_shader_module_vertex_cinfo;
+	VkShaderModuleCreateInfo               tiles_shader_module_fragment_cinfo;
+	VkPipelineShaderStageCreateInfo        tiles_shader_stages_cinfo[2];
 	VkDynamicState                         pipeline_dynamic_states[2];
 	VkPipelineDynamicStateCreateInfo       pipeline_dynamic_states_cinfo;
-	VkPipelineVertexInputStateCreateInfo   vertex_input_state_cinfo;
+	VkPipelineVertexInputStateCreateInfo   tiles_vertex_input_state_cinfo;
 	VkPipelineInputAssemblyStateCreateInfo pipeline_assembly_input_state_cinfo;
 	VkPipelineViewportStateCreateInfo      pipeline_viewport_state_cinfo;
 	VkPipelineRasterizationStateCreateInfo pipeline_rasterization_state_cinfo;
@@ -154,8 +159,8 @@ typedef struct kq_info {
 	VkPipelineStageFlagBits           submit_dst_stage_mask;
 	VkSubpassDependency               subpass_dep;
 	VkPresentInfoKHR                  present_info;
-	VkVertexInputBindingDescription   vertex_input_binding_desc;
-	VkVertexInputAttributeDescription vertex_input_attrib_descs[3];
+	VkVertexInputBindingDescription   tiles_vertex_input_binding_desc;
+	VkVertexInputAttributeDescription tiles_vertex_input_attrib_descs[KQ_TILES_VERTEX_INPUT_ATTRIBUTES_NUM];
 	union {
 		VkDescriptorSetLayoutBinding layout_bindings[2];
 		struct {
@@ -170,8 +175,8 @@ typedef struct kq_info {
 	VkDescriptorBufferInfo          desc_binfo;
 	VkWriteDescriptorSet            desc_write[2];
 	VkDescriptorImageInfo           sampler_write;
-	VkPushConstantRange             push_c_range;
 	VkPhysicalDeviceFeatures        pdev_feats;
+	VkPushConstantRange             tiles_pc_range;
 	VkImageCreateInfo               tiles_tex_image_cinfo;
 	VkImageViewCreateInfo           tiles_tex_view_cinfo;
 	VkSamplerCreateInfo             tiles_tex_sampler_cinfo;
@@ -180,15 +185,14 @@ typedef struct kq_info {
 typedef struct kq_vertex {
 	vec2 position;
 	vec2 uv;
-	vec3 color;
 } kq_vertex;
 
 cb_mk_vec(vecstr, char *);
 
 
 extern kq_info         rend_info;
-extern const u16       quad_indices[6];
-extern const kq_vertex quad_vertices[4];
+extern const u16       quad_indices[KQ_QUAD_NUM_INDICES];
+extern const kq_vertex quad_vertices[KQ_QUAD_NUM_VERTICES];
 
 
 extern bool KQinit(kq_data kq[static 1]);
@@ -200,6 +204,6 @@ extern bool KQrender_begin(kq_data kq[static 1]);
 
 extern bool KQrender_end(kq_data kq[static 1]);
 
-extern bool KQdraw_quad(kq_data kq[static 1], const float pos[restrict static 2], const float scale[restrict static 2]);
+extern bool KQdraw_quad(kq_data kq[static 1], const float pos[restrict static 2], const float scale[restrict static 2], u32 tiles_tex_index);
 
 #endif /* KQ_H_ */

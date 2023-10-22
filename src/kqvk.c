@@ -164,7 +164,6 @@ bool kqvk_choose_pdev(kq_data kq[static 1]) {
 	kqvk_ready_new_resolution(kq, w, h);
 
 	rend_info.swapchain_cinfo.preTransform = kq->vk_surface_capabilities.currentTransform;
-	rend_info.swapchain_cinfo.surface = kq->vk_surface;
 	// Set to KQ_FRAMES_IN_FLIGHT + 1, assuming minImageCount is 2, which it probably is.
 	rend_info.swapchain_cinfo.minImageCount = kq->vk_surface_capabilities.minImageCount + KQ_FRAMES_IN_FLIGHT - 1;
 	if (kq->vk_surface_capabilities.maxImageCount > 0 && rend_info.swapchain_cinfo.minImageCount > kq->vk_surface_capabilities.maxImageCount)
@@ -489,10 +488,13 @@ stbi_uc *kqvk_tex_load(const char path[restrict static 1], int desired_width, in
 
 
 bool kqvk_create_swapchain(kq_data kq[static 1]) {
+	rend_info.swapchain_cinfo.oldSwapchain = kq->vk_swapchain;
 	if (vkCreateSwapchainKHR(kq->vk_ldev, &rend_info.swapchain_cinfo, 0, &kq->vk_swapchain)) {
 		LOGM_FATAL("Unable to create swapchain.");
+		vkDestroySwapchainKHR(kq->vk_ldev, rend_info.swapchain_cinfo.oldSwapchain, 0);
 		return false;
 	}
+	vkDestroySwapchainKHR(kq->vk_ldev, rend_info.swapchain_cinfo.oldSwapchain, 0);
 
 	u32 tmp_count;
 	vkGetSwapchainImagesKHR(kq->vk_ldev, kq->vk_swapchain, &tmp_count, 0);
@@ -544,43 +546,43 @@ bool kqvk_create_swapchain(kq_data kq[static 1]) {
 }
 
 bool kqvk_init_shaders(kq_data kq[static 1]) {
-	size_t tile_vert_len = 0;
-	u32   *tile_vert_buf = fs_file_read_all_alloc("shaders/tile.vert.spv", &tile_vert_len);
-	if (!(tile_vert_buf && !(tile_vert_len % 4))) { // codeSize must be a multiple of 4.
+	size_t tiles_vert_len = 0;
+	u32   *tiles_vert_buf = fs_file_read_all_alloc("shaders/tile.vert.spv", &tiles_vert_len);
+	if (!(tiles_vert_buf && !(tiles_vert_len % 4))) { // codeSize must be a multiple of 4.
 		KQ_OOM_MSG();
 		return false;
 	}
 
-	size_t tile_frag_len = 0;
-	u32   *tile_frag_buf = fs_file_read_all_alloc("shaders/tile.frag.spv", &tile_frag_len);
-	if (!(tile_frag_buf && !(tile_frag_len % 4))) {
+	size_t tiles_frag_len = 0;
+	u32   *tiles_frag_buf = fs_file_read_all_alloc("shaders/tile.frag.spv", &tiles_frag_len);
+	if (!(tiles_frag_buf && !(tiles_frag_len % 4))) {
 		KQ_OOM_MSG();
 		return false;
 	}
 
-	rend_info.shader_module_vertex_cinfo.codeSize = tile_vert_len;
-	rend_info.shader_module_fragment_cinfo.codeSize = tile_frag_len;
-	rend_info.shader_module_vertex_cinfo.pCode = tile_vert_buf;
-	rend_info.shader_module_fragment_cinfo.pCode = tile_frag_buf;
+	rend_info.tiles_shader_module_vertex_cinfo.codeSize = tiles_vert_len;
+	rend_info.tiles_shader_module_fragment_cinfo.codeSize = tiles_frag_len;
+	rend_info.tiles_shader_module_vertex_cinfo.pCode = tiles_vert_buf;
+	rend_info.tiles_shader_module_fragment_cinfo.pCode = tiles_frag_buf;
 
-	if (vkCreateShaderModule(kq->vk_ldev, &rend_info.shader_module_vertex_cinfo, 0, &kq->tile_vert_module)) {
+	if (vkCreateShaderModule(kq->vk_ldev, &rend_info.tiles_shader_module_vertex_cinfo, 0, &kq->tiles_vert_module)) {
 		LOGM_FATAL("Unable to create vertex shader module.");
-		free(tile_frag_buf);
-		free(tile_vert_buf);
+		free(tiles_frag_buf);
+		free(tiles_vert_buf);
 		return false;
 	}
-	free(tile_vert_buf);
+	free(tiles_vert_buf);
 
-	if (vkCreateShaderModule(kq->vk_ldev, &rend_info.shader_module_fragment_cinfo, 0, &kq->tile_frag_module)) {
+	if (vkCreateShaderModule(kq->vk_ldev, &rend_info.tiles_shader_module_fragment_cinfo, 0, &kq->tiles_frag_module)) {
 		LOGM_FATAL("Unable to create fragment shader module.");
-		vkDestroyShaderModule(kq->vk_ldev, kq->tile_vert_module, 0);
-		free(tile_frag_buf);
+		vkDestroyShaderModule(kq->vk_ldev, kq->tiles_vert_module, 0);
+		free(tiles_frag_buf);
 		return false;
 	}
-	free(tile_frag_buf);
+	free(tiles_frag_buf);
 
-	rend_info.shader_stages_cinfo[0].module = kq->tile_vert_module;
-	rend_info.shader_stages_cinfo[1].module = kq->tile_frag_module;
+	rend_info.tiles_shader_stages_cinfo[0].module = kq->tiles_vert_module;
+	rend_info.tiles_shader_stages_cinfo[1].module = kq->tiles_frag_module;
 
 	return true;
 }
@@ -679,7 +681,7 @@ bool kqvk_create_cmd_bufs(kq_data kq[static 1]) {
 bool kqvk_create_vertex_buffer(kq_data kq[static 1]) {
 	VkBuffer              staging_buf;
 	VkDeviceMemory        staging_buf_mem;
-	register const size_t buf_size = sizeof(kq_vertex[4]);
+	register const size_t buf_size = sizeof(kq_vertex[KQ_QUAD_NUM_VERTICES]);
 
 	kqvk_buffer_create(kq,
 	                   buf_size,
@@ -711,7 +713,7 @@ bool kqvk_create_vertex_buffer(kq_data kq[static 1]) {
 bool kqvk_create_index_buffer(kq_data kq[static 1]) {
 	VkBuffer              staging_buf;
 	VkDeviceMemory        staging_buf_mem;
-	register const size_t buf_size = sizeof(u16[6]);
+	register const size_t buf_size = sizeof(u16[KQ_QUAD_NUM_INDICES]);
 
 	kqvk_buffer_create(kq,
 	                   buf_size,
@@ -927,32 +929,26 @@ bool kqvk_create_uniform_buffers(kq_data kq[static 1]) {
 }
 
 bool kqvk_swapchain_recreate(kq_data kq[static 1]) {
+	vkDeviceWaitIdle(kq->vk_ldev);
+
 	// Checks for minimized window.
 	while (!(kq->scissor.extent.width | kq->scissor.extent.height))
 		glfwWaitEvents();
 
-	vkDeviceWaitIdle(kq->vk_ldev);
-
 	LOGM_TRACE("Recreating swapchain.");
 
 	// Destroy old swapchain.
-	for (u32 i = 0; i < kq->swapchain_img_count; ++i)
+	for (u32 i = 0; i < kq->swapchain_img_count; ++i) {
 		vkDestroyFramebuffer(kq->vk_ldev, kq->fbos[i], 0);
-	for (u32 i = 0; i < kq->swapchain_img_count; ++i)
 		vkDestroyImageView(kq->vk_ldev, kq->swapchain_img_views[i], 0);
-	vkDestroySwapchainKHR(kq->vk_ldev, kq->vk_swapchain, 0);
+	}
+	//vkDestroySwapchainKHR(kq->vk_ldev, kq->vk_swapchain, 0);
 
 	if (!kqvk_create_swapchain(kq))
 		return false;
 	if (!kqvk_create_framebuffers(kq))
 		return false;
 
-	return true;
-}
-
-bool kqvk_cmd_buf_record(kq_data kq[static 1], VkCommandBuffer cmd_buf) {
-	vkCmdPushConstants(kq->cmd_buf[kq->current_frame], kq->pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 16, &kq->pcs);
-	vkCmdDrawIndexed(cmd_buf, 6, 1, 0, 0, 0);
 	return true;
 }
 

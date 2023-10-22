@@ -49,9 +49,9 @@ rel: all
 all: $(PROJ) $(PROJ)_dbg $(PROJ)_rel
 
 
-$(PROJ): $(PROJ)_$(COMPILE_MODE)
-	@-printf "LN\t%s -> %s\n" "$<" "$@"
-	@ln "$<" "$@"
+$(PROJ): $(PROJ)_dbg $(PROJ)_rel
+	@-printf "LN\t%s -> %s\n" "$(PROJ)_$(COMPILE_MODE)" "$@"
+	@ln "$(PROJ)_$(COMPILE_MODE)" "$@"
 
 $(PROJ)_dbg: $(OBJS_DEBUG) libglfw3.dbg.a
 	@-printf "LD\t%s\n" "$@"
@@ -88,7 +88,7 @@ libglfw3.rel.a:
 		-D GLFW_USE_WAYLAND=ON \
 		-D CMAKE_C_COMPILER="$(CC)" \
 		-D CMAKE_AR="$(shell which "$(AR)")" \
-		-D CMAKE_C_FLAGS="$(CFLAGS_RELEASE) -fno-pie -no-pie -fpic -Wno-everything"
+		-D CMAKE_C_FLAGS="$(CFLAGS_RELEASE) -Wno-everything"
 	cmake --build lib/glfw/build.rel
 	cp lib/glfw/build.rel/src/libglfw3.a "$@"
 
@@ -105,7 +105,7 @@ libglfw3.dbg.a:
 		-D GLFW_USE_WAYLAND=ON \
 		-D CMAKE_C_COMPILER="$(CC)" \
 		-D CMAKE_AR="$(shell which "$(AR)")" \
-		-D CMAKE_C_FLAGS="$(CFLAGS_DEBUG) -fno-pie -no-pie -fpic -Wno-everything"
+		-D CMAKE_C_FLAGS="$(CFLAGS_DEBUG) -Wno-everything"
 	cmake --build lib/glfw/build.dbg
 	cp lib/glfw/build.dbg/src/libglfw3.a "$@"
 
