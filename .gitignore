@@ -4,6 +4,8 @@ build/
 *.spv
 libglfw3.dbg.a
 libglfw3.rel.a
+libfreetype.dbg.a
+libfreetype.rel.a
 kq
 kq_dbg
 kq_rel

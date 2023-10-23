@@ -937,12 +937,11 @@ bool kqvk_swapchain_recreate(kq_data kq[static 1]) {
 
 	LOGM_TRACE("Recreating swapchain.");
 
-	// Destroy old swapchain.
+	// Destroy old swapchain stuff, but not the swapchain itself (to be reused).
 	for (u32 i = 0; i < kq->swapchain_img_count; ++i) {
 		vkDestroyFramebuffer(kq->vk_ldev, kq->fbos[i], 0);
 		vkDestroyImageView(kq->vk_ldev, kq->swapchain_img_views[i], 0);
 	}
-	//vkDestroySwapchainKHR(kq->vk_ldev, kq->vk_swapchain, 0);
 
 	if (!kqvk_create_swapchain(kq))
 		return false;

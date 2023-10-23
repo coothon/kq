@@ -10,6 +10,9 @@
 
 #include <cglm/cglm.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include <libcbase/common.h>
 #include <libcbase/vec.h>
 
