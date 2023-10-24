@@ -6,13 +6,12 @@ AR:=llvm-ar
 STRIP:=llvm-strip
 
 # Libraries against which to link.
-LIBS:=harfbuzz
+LIBS:=freetype2 harfbuzz harfbuzz-icu
 LDFILES:=$(shell pkg-config --static --libs $(LIBS) 2>/dev/null) -lm
 LDFLAGS:=$(shell pkg-config --cflags $(LIBS) 2>/dev/null)
 
-# Turn on every warning, and then remove the ones I don't care about.
-WARNS:=-Weverything -pedantic \
--Wno-unused-command-line-argument -Wno-incompatible-pointer-types-discards-qualifiers -Wno-extra-semi -Wno-unsafe-buffer-usage -Wno-cast-function-type-strict -Wno-undef -Wno-padded -Wno-pre-c23-compat -Wno-extra-semi-stmt -Wno-declaration-after-statement -Wno-unused-macros -Wno-vla -Wno-implicit-fallthrough -Wno-cast-qual -Wno-switch-enum -Wno-double-promotion -Wno-documentation -Wno-documentation-unknown-command
+WARNS:=-Wall -Wextra -Wshadow -Wunreachable-code -Wconversion -Wsign-conversion -Wformat -Wmissing-braces -Wparentheses -pedantic \
+-Wno-unused-command-line-argument -Wno-incompatible-pointer-types-discards-qualifiers -Wno-extra-semi
 
 BUILD_DIR:=build
 SRC_DIRS:=src lib/libcbase lib/glad lib/stb
@@ -25,8 +24,8 @@ OBJS_RELEASE:=$(SRCS:%=$(BUILD_DIR)/%.rel.o)
 
 # Feature test macros needed to compile.
 CPPFLAGS_COMMON:=-D_DEFAULT_SOURCE=1 -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE=1 -DVK_USE_PLATFORM_WAYLAND_KHR=1 -Ilib -Isrc -Ilib/glfw/include
-CPPFLAGS_DEBUG:=-UNDEBUG -DDEBUG=1 -DCB_DEBUG=1 -DKQ_DEBUG=1 -DCB_LOG_LEVEL_COMPILE_TIME_MIN=CB_LOG_LEVEL_TRACE -Ilib/freetype/build.dbg/include/freetype2
-CPPFLAGS_RELEASE:=-DNDEBUG=1 -UDEBUG -UCB_DEBUG -UKQ_DEBUG -DCB_LOG_LEVEL_COMPILE_TIME_MIN=CB_LOG_LEVEL_WARN -Ilib/freetype/build.rel/include/freetype2
+CPPFLAGS_DEBUG:=-UNDEBUG -DDEBUG=1 -DCB_DEBUG=1 -DKQ_DEBUG=1 -DCB_LOG_LEVEL_COMPILE_TIME_MIN=CB_LOG_LEVEL_TRACE
+CPPFLAGS_RELEASE:=-DNDEBUG=1 -UDEBUG -UCB_DEBUG -UKQ_DEBUG -DCB_LOG_LEVEL_COMPILE_TIME_MIN=CB_LOG_LEVEL_WARN
 
 CFLAGS_COMMON:=$(LDFLAGS) $(CPPFLAGS_COMMON) $(WARNS) -std=c23 -pipe -fuse-ld=lld -fwrapv -march=native -mtune=native -fpie -pthread
 CFLAGS_DEBUG:=$(CFLAGS_COMMON) $(CPPFLAGS_DEBUG) -glldb -gdwarf-5 -gdwarf64 -rdynamic -O0 -fsanitize=address,undefined -fsanitize-trap=all -ftrapv -fno-omit-frame-pointer -fno-optimize-sibling-calls
@@ -53,11 +52,11 @@ $(PROJ): $(PROJ)_dbg $(PROJ)_rel
 	@-printf "LN\t%s -> %s\n" "$(PROJ)_$(COMPILE_MODE)" "$@"
 	@ln "$(PROJ)_$(COMPILE_MODE)" "$@"
 
-$(PROJ)_dbg: $(OBJS_DEBUG) libglfw3.dbg.a libfreetype.dbg.a
+$(PROJ)_dbg: $(OBJS_DEBUG) libglfw3.dbg.a
 	@-printf "LD\t%s\n" "$@"
 	@"$(CC)" $(CFLAGS_DEBUG) $(LDFILES) -pie $^ -o "$@"
 
-$(PROJ)_rel: $(OBJS_RELEASE) libglfw3.rel.a libfreetype.rel.a
+$(PROJ)_rel: $(OBJS_RELEASE) libglfw3.rel.a
 	@-printf "LD\t%s\n" "$@"
 	@"$(CC)" $(CFLAGS_RELEASE) $(LDFILES) -pie $^ -o "$@"
 	@-printf "STRIP\t%s\n" "$@"
@@ -76,26 +75,9 @@ $(BUILD_DIR)/%.c.rel.o: %.c
 	@"$(CC)" $(CFLAGS_RELEASE) -c "$<" -o "$@"
 
 
-# GLFW
-libglfw3.rel.a:
-	-rm -rf lib/glfw/build.rel
-	mkdir lib/glfw/build.rel
-	cmake -S lib/glfw -B lib/glfw/build.rel \
-		-G Ninja \
-		-D CMAKE_BUILD_TYPE=Release \
-		-D BUILD_SHARED_LIBS=OFF \
-		-D GLFW_BUILD_EXAMPLES=OFF \
-		-D GLFW_BUILD_TESTS=OFF \
-		-D GLFW_BUILD_DOCS=OFF \
-		-D GLFW_VULKAN_STATIC=ON \
-		-D GLFW_USE_WAYLAND=ON \
-		-D CMAKE_C_COMPILER="$(CC)" \
-		-D CMAKE_AR="$(shell which "$(AR)")" \
-		-D CMAKE_C_FLAGS="$(CFLAGS_RELEASE) -Wno-everything" \
-		-D CMAKE_C_FLAGS_RELEASE=
-	cmake --build lib/glfw/build.rel
-	cp lib/glfw/build.rel/src/libglfw3.a "$@"
+# Libraries:
 
+# GLFW
 libglfw3.dbg.a:
 	-rm -rf lib/glfw/build.dbg
 	mkdir lib/glfw/build.dbg
@@ -115,56 +97,32 @@ libglfw3.dbg.a:
 	cmake --build lib/glfw/build.dbg
 	cp lib/glfw/build.dbg/src/libglfw3.a "$@"
 
-
-# FreeType
-libfreetype.rel.a:
-	-rm -rf lib/freetype/build.rel
-	mkdir lib/freetype/build.rel
-	cmake -S lib/freetype -B lib/freetype/build.rel \
+libglfw3.rel.a:
+	-rm -rf lib/glfw/build.rel
+	mkdir lib/glfw/build.rel
+	cmake -S lib/glfw -B lib/glfw/build.rel \
 		-G Ninja \
 		-D CMAKE_BUILD_TYPE=Release \
-		-D SKIP_INSTALL_LIBRARIES=ON \
-		-D CMAKE_INSTALL_PREFIX=lib/freetype/build.rel/ \
-		-D FT_ENABLE_ERROR_STRINGS=ON \
-		-D FT_REQUIRE_HARFBUZZ=ON \
+		-D BUILD_SHARED_LIBS=OFF \
+		-D GLFW_BUILD_EXAMPLES=OFF \
+		-D GLFW_BUILD_TESTS=OFF \
+		-D GLFW_BUILD_DOCS=OFF \
+		-D GLFW_VULKAN_STATIC=ON \
+		-D GLFW_USE_WAYLAND=ON \
 		-D CMAKE_C_COMPILER="$(CC)" \
 		-D CMAKE_AR="$(shell which "$(AR)")" \
 		-D CMAKE_C_FLAGS="$(CFLAGS_RELEASE) -Wno-everything" \
 		-D CMAKE_C_FLAGS_RELEASE=
-	cmake --build lib/freetype/build.rel
-	cp lib/freetype/build.rel/libfreetype.a "$@"
-	cmake --install lib/freetype/build.rel
-
-libfreetype.dbg.a:
-	-rm -rf lib/freetype/build.dbg
-	mkdir lib/freetype/build.dbg
-	cmake -S lib/freetype -B lib/freetype/build.dbg \
-		-G Ninja \
-		-D CMAKE_BUILD_TYPE=Debug \
-		-D SKIP_INSTALL_LIBRARIES=ON \
-		-D CMAKE_INSTALL_PREFIX=lib/freetype/build.dbg/ \
-		-D FT_ENABLE_ERROR_STRINGS=ON \
-		-D FT_REQUIRE_HARFBUZZ=ON \
-		-D CMAKE_C_COMPILER="$(CC)" \
-		-D CMAKE_AR="$(shell which "$(AR)")" \
-		-D CMAKE_C_FLAGS="$(CFLAGS_DEBUG) -Wno-everything" \
-		-D CMAKE_C_FLAGS_DEBUG=
-	cmake --build lib/freetype/build.dbg
-	cp lib/freetype/build.dbg/libfreetyped.a "$@"
-	cmake --install lib/freetype/build.dbg
+	cmake --build lib/glfw/build.rel
+	cp lib/glfw/build.rel/src/libglfw3.a "$@"
 
 analyze:
 	-clang-tidy $(ANALYZE_SRCS) -- $(CFLAGS_DEBUG)
 
 clean:
 	-rm -rf "$(PROJ)_dbg" "$(PROJ)_rel" "$(PROJ)" "$(BUILD_DIR)"
-
 clean_glfw:
 	-rm -rf libglfw3.dbg.a libglfw3.rel.a lib/glfw/build.dbg lib/glfw/build.rel
+clean_all: clean clean_glfw
 
-clean_freetype:
-	-rm -rf libfreetype.dbg.a libfreetype.rel.a lib/freetype/build.dbg lib/freetype/build.rel
-
-clean_all: clean clean_glfw clean_freetype
-
-.PHONY: all debug dbg release rel analyze clean clean_glfw clean_freetype clean_all
+.PHONY: all debug dbg release rel analyze clean clean_glfw clean_all

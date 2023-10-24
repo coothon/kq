@@ -10,6 +10,8 @@
 
 #include <cglm/cglm.h>
 
+#include <hb.h>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -30,6 +32,8 @@
 
 #define KQ_QUAD_NUM_VERTICES 4
 #define KQ_QUAD_NUM_INDICES  6
+
+#define KQTXT_FONT "EBGaramond12-Regular.otf"
 
 // Constants for the entire frame.
 typedef struct kq_uniforms {
