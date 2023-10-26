@@ -50,7 +50,7 @@ all: $(PROJ) $(PROJ)_dbg $(PROJ)_rel
 
 $(PROJ): $(PROJ)_dbg $(PROJ)_rel
 	@-printf "LN\t%s -> %s\n" "$(PROJ)_$(COMPILE_MODE)" "$@"
-	@ln "$(PROJ)_$(COMPILE_MODE)" "$@"
+	@ln -f "$(PROJ)_$(COMPILE_MODE)" "$@"
 
 $(PROJ)_dbg: $(OBJS_DEBUG) libglfw3.dbg.a
 	@-printf "LD\t%s\n" "$@"

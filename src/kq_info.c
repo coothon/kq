@@ -85,7 +85,7 @@ kq_info
                                                         .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
                                                         .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
                                                         .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
-                                                        .dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE},
+                                                        .dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA},
 			.pipeline_color_blend_cinfo = (VkPipelineColorBlendStateCreateInfo){.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
                                                         .logicOp = VK_LOGIC_OP_COPY,
                                                         .attachmentCount = 1,
